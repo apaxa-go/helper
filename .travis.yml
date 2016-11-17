@@ -3,7 +3,7 @@ sudo: false
 go:
   - tip
 before_install:
-  - go get github.com/modocache/gover
+#  - go get github.com/modocache/gover
   - go get github.com/mattn/goveralls
 script:
 #  - go list ./... | while read pkg ; do go test -coverprofile=`echo "$pkg" | sha256sum -t | cut -d " " -f 1`.coverprofile "$pkg" ; done
