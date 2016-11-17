@@ -10,4 +10,5 @@ script:
   - go list ./... | while read pkg ; do go test -coverprofile=`echo "$pkg" | sha256sum -t | cut -d " " -f 1`.coverprofile "$pkg" ; done
   - ls -1
   - $HOME/gopath/bin/gover
+  - ls -1
   - $HOME/gopath/bin/goveralls -coverprofile=gover.coverprofile -service travis-ci
