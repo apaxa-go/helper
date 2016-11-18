@@ -1,3 +1,4 @@
+// Package binaryh provides some helper functions and types to simplify working with binary package.
 package binaryh
 
 import (

@@ -1,4 +1,11 @@
-package ioh
+package ioutilh
+
+import (
+	"bytes"
+	"github.com/apaxa-go/helper/bytesh"
+	"reflect"
+	"testing"
+)
 
 //import (
 //	"github.com/apaxa-go/helper/bytesh"
@@ -7,8 +14,7 @@ package ioh
 //	"reflect"
 //	"testing"
 //)
-/*
-//TODO divide to different function
+
 func TestRead(t *testing.T) {
 	b := []byte{0x01, 0x02, 0x03}
 	b1 := make([]byte, 1)
@@ -17,7 +23,7 @@ func TestRead(t *testing.T) {
 
 	// check no arguments
 	n := 0
-	i, err := Read(buf, binary.LittleEndian)
+	i, err := Read(buf)
 	if err != nil {
 		t.Errorf("TestRead. Got error: %v", err)
 	} else if i != n {
@@ -26,7 +32,7 @@ func TestRead(t *testing.T) {
 
 	//check 2 arguments
 	n = 2
-	i, err = Read(buf, binary.LittleEndian, b1, b2)
+	i, err = Read(buf, b1, b2)
 	if err != nil {
 		t.Errorf("TestRead. Got error: %v", err)
 	} else if i != n {
@@ -38,7 +44,7 @@ func TestRead(t *testing.T) {
 	//check 1 argument
 	n = 1
 	buf = bytes.NewReader(b2)
-	i, err = Read(buf, binary.LittleEndian, b1)
+	i, err = Read(buf, b1)
 	if err != nil {
 		t.Errorf("TestRead. Got error: %v", err)
 	} else if i != n {
@@ -49,7 +55,7 @@ func TestRead(t *testing.T) {
 
 	//check 1000 arguments
 	n = 1000
-	m := make([]interface{}, n)
+	m := make([][]byte, n)
 	for i := range m {
 		m[i] = make([]byte, 1)
 	}
@@ -58,25 +64,24 @@ func TestRead(t *testing.T) {
 		b[i] = byte(i)
 	}
 	buf = bytes.NewReader(b)
-	i, err = Read(buf, binary.LittleEndian, m...)
+	i, err = Read(buf, m...)
 	if err != nil {
 		t.Errorf("TestRead. Got error: %v", err)
 	} else if i != n {
 		t.Errorf("TestRead. Expected numder of arguments: %v, got: %v", n, i)
 	}
 	for i := 0; i < n; i++ {
-		mb := m[i].([]byte)
-		if mb[0] != b[i] {
-			t.Errorf("TestRead. Wrong read. Slices are not equal.\nExpected b[%v]: %v\ngot: %v", i, b[i], mb[0])
+		if m[i][0] != b[i] {
+			t.Errorf("TestRead. Wrong read. Slices are not equal.\nExpected b[%v]: %v\ngot: %v", i, b[i], m[i][0])
 		}
 	}
 
 	//check error EOF
 	b = make([]byte, 0, 0)
 	buf = bytes.NewReader(b)
-	_, err = Read(buf, binary.LittleEndian, b2)
-	if err == nil {
-		t.Errorf("TestRead. Expected error EOF but got nil")
+	_, err = Read(buf, b2)
+	if err != nil {
+		t.Errorf("TestRead. Expected no error but got %v", err)
 	}
 }
 
@@ -88,7 +93,7 @@ func TestWrite(t *testing.T) {
 
 	// check no argument
 	n := 0
-	i, err := Write(buf, binary.LittleEndian)
+	i, err := Write(buf)
 	if err != nil {
 		t.Errorf("TestWrite. Got error: %v", err)
 	} else if i != n {
@@ -97,7 +102,7 @@ func TestWrite(t *testing.T) {
 
 	// check 1 arguments
 	n = 1
-	i, err = Write(buf, binary.LittleEndian, b2)
+	i, err = Write(buf, b2)
 	if err != nil {
 		t.Errorf("TestWrite. Got error: %v", err)
 	} else if i != n {
@@ -109,7 +114,7 @@ func TestWrite(t *testing.T) {
 	// check 2 arguments
 	n = 2
 	buf = bytesh.NewBufferDetail(0, 1)
-	i, err = Write(buf, binary.LittleEndian, b1, b2)
+	i, err = Write(buf, b1, b2)
 	if err != nil {
 		t.Errorf("TestWrite. Got error: %v", err)
 	} else if i != n {
@@ -120,14 +125,14 @@ func TestWrite(t *testing.T) {
 
 	//check 1000 arguments
 	n = 1000
-	m := make([]interface{}, n)
+	m := make([][]byte, n)
 	var b []byte
 	for i := range m {
 		m[i] = []byte{0x01}
 		b = append(b, 0x01)
 	}
 	buf = bytesh.NewBufferDetail(n, 1)
-	i, err = Write(buf, binary.LittleEndian, m...)
+	i, err = Write(buf, m...)
 	if err != nil {
 		t.Errorf("TestWrite. Got error: %v", err)
 	} else if i != n {
@@ -138,9 +143,8 @@ func TestWrite(t *testing.T) {
 
 	//check error EOF
 	buf = bytesh.NewBufferDetail(0, 0)
-	_, err = Read(buf, binary.LittleEndian, b2)
-	if err == nil {
-		t.Errorf("TestRead. Expected error EOF but got nil")
+	_, err = Read(buf, b2)
+	if err != nil {
+		t.Errorf("TestWrite. Expected no error but got %v", err)
 	}
 }
-*/

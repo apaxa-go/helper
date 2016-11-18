@@ -1,3 +1,4 @@
+// Package byteh provides some helper functions and types to simplify working with byte package.
 package bytesh
 
 import (
@@ -24,8 +25,6 @@ type Buffer struct {
 	buf      []byte // contents are the bytes buf[off : len(buf)]
 	readOff  int    // read at &buf[readOff]
 	writeOff int    // write at &buf[writeOff]
-	// TODO? runeBytes [utf8.UTFMax]byte // avoid allocation of slice on each WriteByte or Rune
-	// TODO? lastRead  readOp            // last read operation, so that Unread* can work correctly.
 	seekBehaviour    seekBehaviourT
 	activeGrowFactor int
 }
@@ -251,9 +250,10 @@ func (b *Buffer) SeekWrite(offset int64, whence int) (int64, error) {
 
 	//Feel buffer as it was written
 	b.Grow(0)
-	if b.writeOff > len(b.buf) { // TODO this block looks buggy, strange and useless.
-		b.buf = b.buf[:b.writeOff]
-	}
+	// this block looks buggy, strange and useless.
+	//if b.writeOff > len(b.buf) {
+	//	b.buf = b.buf[:b.writeOff]
+	//}
 
 	return abs, nil
 }
@@ -268,7 +268,6 @@ func (b *Buffer) Seek(offset int64, whence int) (int64, error) {
 }
 
 // Reset resets the buffer to be empty and set read and write positions to zero, but it retains the underlying storage for use by future writes.
-// TODO check capacity
 func (b *Buffer) Reset() {
 	b.buf = b.buf[0:0]
 	b.readOff, b.writeOff = 0, 0
@@ -319,7 +318,7 @@ func NewBuffer(buf []byte) *Buffer {
 // NewBufferDetail create new Buffer initially capacity of initCapacity and initially grow factor of growFactor.
 // Seek behaviour will be "read".
 // Passing growFactor < 1 cause panic.
-// TODO what about zero and negative initCapacity
+// Passing initCapacity < 0 cause panic.
 func NewBufferDetail(initCapacity, growFactor int) (b *Buffer) {
 	b = &Buffer{buf: make([]byte, 0, initCapacity), seekBehaviour: seekRead}
 	b.Grow(growFactor)

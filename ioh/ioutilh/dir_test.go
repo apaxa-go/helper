@@ -7,7 +7,6 @@ import (
 	"testing"
 )
 
-// TODO divide to different functions
 func TestReadDirNames(t *testing.T) {
 
 	//check dir is empty
@@ -127,7 +126,7 @@ func TestReadDirNames(t *testing.T) {
 	//check nonexistent dir
 	_, errN := ReadDirNames(nameDir, true)
 	if errN == nil {
-		t.Errorf("\nTestReadDirNames.\nError expected but got nil")
+		t.Error("\nTestReadDirNames.\nError expected but got nil")
 	}
 }
 
@@ -141,7 +140,7 @@ func TestIsEmpty(t *testing.T) {
 	if err != nil {
 		t.Errorf("\nTestIsEmpty.\nError expected: %v, got: %v", nil, err)
 	} else if !b {
-		t.Errorf("\nTestIsEmpty.\nError: expected empty dir")
+		t.Error("\nTestIsEmpty.\nError: expected empty dir")
 	}
 	//check not empty dir
 	_, errTempFile := ioutil.TempFile(nameDir, "temp")
@@ -153,11 +152,11 @@ func TestIsEmpty(t *testing.T) {
 	if err1 != nil {
 		t.Errorf("\nTestIsEmpty.\nError expected: %v, got: %v", nil, err1)
 	} else if b1 {
-		t.Errorf("\nTestIsEmpty.\nError: expected empty dir")
+		t.Error("\nTestIsEmpty.\nError: expected empty dir")
 	}
 	//check nonexistent dir
 	_, err2 := IsDirEmpty("")
 	if err2 == nil {
-		t.Errorf("\nTestIsEmpty.\nError expected, got: nil")
+		t.Error("\nTestIsEmpty.\nError expected, got: nil")
 	}
 }

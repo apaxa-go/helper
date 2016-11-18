@@ -169,30 +169,30 @@ func TestDivideFixInt64Overflow(t *testing.T) {
 
 func BenchmarkAbsInt64(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		AbsInt64(testsInt64[i%testsLen])
+		AbsInt64(testsInt64[i% testsLenInt64])
 	}
 }
 
 func BenchmarkAbsFixInt64(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		AbsFixInt64(testsInt64[i%testsLen])
+		AbsFixInt64(testsInt64[i% testsLenInt64])
 	}
 }
 
 func BenchmarkAntiAbsInt64(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		AntiAbsInt64(testsInt64[i%testsLen])
+		AntiAbsInt64(testsInt64[i% testsLenInt64])
 	}
 }
 
 func BenchmarkDivideInt64(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		DivideRoundInt64(testsInt64[i%testsLen], testsInt64[(i+testsLen/4)%(testsLen-1)+1]) // -+1 is to avoid division by zero
+		DivideRoundInt64(testsInt64[i% testsLenInt64], testsInt64[(i+ testsLenInt64 /4)%(testsLenInt64 -1)+1]) // -+1 is to avoid division by zero
 	}
 }
 
 func BenchmarkDivideFixInt64(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		DivideRoundFixInt64(testsInt64[i%testsLen], testsInt64[(i+testsLen/4)%(testsLen-1)+1]) // -+1 is to avoid division by zero
+		DivideRoundFixInt64(testsInt64[i% testsLenInt64], testsInt64[(i+ testsLenInt64 /4)%(testsLenInt64 -1)+1]) // -+1 is to avoid division by zero
 	}
 }

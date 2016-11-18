@@ -1,3 +1,4 @@
+// Package sqlh provides some helper functions and types to simplify working with sql package.
 package sqlh
 
 import "database/sql"
@@ -7,7 +8,7 @@ import "database/sql"
 func MustPrepare(db *sql.DB, sql string) (stmt *sql.Stmt) {
 	var err error
 	if stmt, err = db.Prepare(sql); err != nil {
-		panic(`sqlhelper: Prepare(` + sql + `): ` + err.Error())
+		panic(`sqlh: Prepare(` + sql + `): ` + err.Error())
 	}
 	return
 }

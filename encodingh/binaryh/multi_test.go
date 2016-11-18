@@ -76,7 +76,7 @@ func TestRead(t *testing.T) {
 	buf = bytes.NewReader(b)
 	_, err = Read(buf, binary.LittleEndian, b2)
 	if err == nil {
-		t.Errorf("TestRead. Expected error EOF but got nil")
+		t.Error("TestRead. Expected error EOF but got nil")
 	}
 }
 
@@ -140,6 +140,6 @@ func TestWrite(t *testing.T) {
 	buf = bytesh.NewBufferDetail(0, 0)
 	_, err = Read(buf, binary.LittleEndian, b2)
 	if err == nil {
-		t.Errorf("TestRead. Expected error EOF but got nil")
+		t.Error("TestRead. Expected error EOF but got nil")
 	}
 }

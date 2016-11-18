@@ -1,4 +1,3 @@
-// Package sqlhelper provides simple interface to perform prepared statement and store all result (including multiple rows) at once.
 package sqlh
 
 import "database/sql"

@@ -237,7 +237,7 @@ func TestGrowNegative(t *testing.T) {
 	var b Buffer
 	defer func() {
 		if r := recover(); r == nil {
-			t.Errorf("Panic expected but no panic had happend")
+			t.Error("Panic expected but no panic had happend")
 		}
 	}()
 	b.Grow(-1)
@@ -306,7 +306,7 @@ func TestNextNegative(t *testing.T) {
 	var b Buffer
 	defer func() {
 		if r := recover(); r == nil {
-			t.Errorf("Panic expected but no panic had happend")
+			t.Error("Panic expected but no panic had happend")
 		}
 	}()
 	b.Next(-1)
@@ -319,7 +319,7 @@ func TestNextNegativeReadOff(t *testing.T) {
 	}
 	defer func() {
 		if r := recover(); r == nil {
-			t.Errorf("Panic expected but no panic had happend")
+			t.Error("Panic expected but no panic had happend")
 		}
 	}()
 	b.Next(1)
@@ -577,7 +577,7 @@ func TestReadWriteByte(t *testing.T) {
 		checkSlicesEqual(t, "TestReadWriteByte", b.Bytes(), p[:i+1])
 		c, err := b.ReadByte()
 		if c != p[i] {
-			t.Errorf("read wrong byte")
+			t.Error("read wrong byte")
 		}
 		if err != nil {
 			t.Errorf("err should always be nil, but err == %s", err)
@@ -665,7 +665,7 @@ func TestSeekWrite(t *testing.T) {
 
 		// 0
 		// positive test
-		testSeek{
+		{
 			[]byte{0x01, 0x02, 0x03},
 			12,
 			0,
@@ -676,7 +676,7 @@ func TestSeekWrite(t *testing.T) {
 
 		// 1
 		// negative test - invalid position
-		testSeek{
+		{
 			[]byte{0x01, 0x02, 0x03},
 			-1,
 			0,
@@ -687,7 +687,7 @@ func TestSeekWrite(t *testing.T) {
 
 		// 2
 		// negative test - invalid whence
-		testSeek{
+		{
 			[]byte{0x01, 0x02, 0x03},
 			0,
 			3,
@@ -698,7 +698,7 @@ func TestSeekWrite(t *testing.T) {
 
 		// 3
 		//
-		testSeek{
+		{
 			[]byte{0x01, 0x02, 0x03},
 			2,
 			2,
@@ -709,7 +709,7 @@ func TestSeekWrite(t *testing.T) {
 
 		// 4
 		// whence = 1
-		testSeek{
+		{
 			[]byte{0x01, 0x02, 0x03},
 			2,
 			1,
@@ -758,7 +758,7 @@ func TestSeekRead(t *testing.T) {
 
 		// 0
 		// positive test
-		testSeek{
+		{
 			Buffer{
 				buf: []byte{0x01, 0x02, 0x03},
 			},
@@ -772,7 +772,7 @@ func TestSeekRead(t *testing.T) {
 
 		// 1
 		//
-		testSeek{
+		{
 			Buffer{
 				buf: []byte{0x01, 0x02, 0x03},
 			},
@@ -786,7 +786,7 @@ func TestSeekRead(t *testing.T) {
 
 		// 2
 		//
-		testSeek{
+		{
 			Buffer{
 				buf: []byte{0x01, 0x02, 0x03},
 			},
@@ -800,7 +800,7 @@ func TestSeekRead(t *testing.T) {
 
 		// 3
 		//
-		testSeek{
+		{
 			Buffer{
 				buf:     []byte{0x01, 0x02, 0x03},
 				readOff: 1,
@@ -815,7 +815,7 @@ func TestSeekRead(t *testing.T) {
 
 		// 4
 		//
-		testSeek{
+		{
 			Buffer{
 				buf:     []byte{0x01, 0x02, 0x03},
 				readOff: 1,
@@ -830,7 +830,7 @@ func TestSeekRead(t *testing.T) {
 
 		// 5
 		//
-		testSeek{
+		{
 			Buffer{
 				buf:     []byte{0x01, 0x02, 0x03},
 				readOff: 1,
@@ -845,7 +845,7 @@ func TestSeekRead(t *testing.T) {
 
 		// 6
 		// negative test
-		testSeek{
+		{
 			Buffer{
 				buf: []byte{0x01, 0x02, 0x03},
 			},
@@ -859,7 +859,7 @@ func TestSeekRead(t *testing.T) {
 
 		// 7
 		// negative test
-		testSeek{
+		{
 			Buffer{
 				buf: []byte{0x01, 0x02, 0x03},
 			},
@@ -935,7 +935,7 @@ func TestSetGrowFactorNegative(t *testing.T) {
 	var b Buffer
 	defer func() {
 		if r1 := recover(); r1 == nil {
-			t.Errorf("Panic expected but no panic had happend")
+			t.Error("Panic expected but no panic had happend")
 		}
 	}()
 	b.SetGrowFactor(-1)
@@ -992,7 +992,7 @@ func TestCut(t *testing.T) {
 	}
 	err := b.Cut(-1)
 	if err == nil {
-		t.Errorf("TestCut. Expected error but got nil")
+		t.Error("TestCut. Expected error but got nil")
 	}
 
 	err1 := b.Cut(8)
@@ -1009,7 +1009,7 @@ func TestCut(t *testing.T) {
 
 	err3 := b.Cut(0)
 	if err3 != nil {
-		t.Errorf("(4)TestCut. Expected error but got nil")
+		t.Error("(4)TestCut. Expected error but got nil")
 	}
 	checkSlicesEqual(t, "(5)TestCut", make([]byte, 0), b.Bytes())
 }
