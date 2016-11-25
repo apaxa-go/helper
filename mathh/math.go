@@ -1,6 +1,5 @@
 package mathh
 
-// TODO implement for unsigned int.
 //replacer:ignore
 //go:generate go run $GOPATH/src/github.com/apaxa-go/helper/tools-replacer/main.go -- $GOFILE
 //replacer:replace
@@ -90,7 +89,7 @@ func DivideCeilInt64(a, b int64) int64 {
 
 // DivideCeilFixInt64 is like DivideCeilInt64 but for a=MinInt64 and b=-1 it returns MaxInt64.
 // It is not arithmetically correct but in some cases it is much better than default behaviour.
-func DivideCeilFIxInt64(a, b int64) int64 {
+func DivideCeilFixInt64(a, b int64) int64 {
 	if a == MinInt64 && b == -1 {
 		return MaxInt64
 	}

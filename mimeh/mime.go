@@ -2,8 +2,8 @@ package mimeh
 
 // Common WEB MIME types.
 const (
-	MimeTextHtmlUtf8          = "text/html; charset=UTF-8" // HTML, ".html"
-	MimeTextCssUtf8           = "text/css; charset=UTF-8"  // CSS, ".css"
+	MimeTextHTMLUtf8          = "text/html; charset=UTF-8" // HTML, ".html"
+	MimeTextCSSUtf8           = "text/css; charset=UTF-8"  // CSS, ".css"
 	MimeTextLessUtf8          = "text/css; charset=UTF-8"  // Less (http://lesscss.org/), ".less", not sureabout mime type, but will good for development
 	MimeApplicationJavascript = "application/javascript"   // JavaScript, ".js"
 	MimeApplicationVndDart    = "application/vnd-dart"     // DartLang, ".dart"
@@ -20,21 +20,21 @@ const (
 
 // Images MIME types.
 const (
-	MimeImageSvgXml = "image/svg+xml" // Scalable Vector Graphics, ".svg"
+	MimeImageSvgXML = "image/svg+xml" // Scalable Vector Graphics, ".svg"
 	MimeImageJpeg   = "image/jpeg"    // Joint Photographic Experts Group image, ".jpeg"
 	MimeImagePng    = "image/png"     // Portable Network Graphics, ".png"
 	MimeImageGif    = "image/gif"     // Graphics Interchange Format, ".gif"
 )
 
-// Arbitrary data MIME type.
+// MimeApplicationOctetStream is arbitrary data MIME type.
 const MimeApplicationOctetStream = "application/octet-stream" // Any binary data
 
 // Shorthands
 
 // Common WEB MIME types shorthands.
 const (
-	MimeHtml = MimeTextHtmlUtf8
-	MimeCss  = MimeTextCssUtf8
+	MimeHTML = MimeTextHTMLUtf8
+	MimeCSS  = MimeTextCSSUtf8
 	MimeLess = MimeTextLessUtf8
 	MimeJs   = MimeApplicationJavascript
 	MimeDart = MimeApplicationVndDart
@@ -49,7 +49,7 @@ const (
 
 // Images MIME types shorthands.
 const (
-	MimeImageSvg = MimeImageSvgXml
+	MimeImageSvg = MimeImageSvgXML
 )
 
 // Arbitary data MIME type shorthands.

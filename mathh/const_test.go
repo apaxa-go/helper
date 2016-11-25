@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func TestConsts(t *testing.T) {
+func TestConstants(t *testing.T) {
 	if Uint8Bytes != 1 || Int8Bytes != 1 || Uint16Bytes != 2 || Int16Bytes != 2 || Uint32Bytes != 4 || Int32Bytes != 4 || Uint64Bytes != 8 || Int64Bytes != 8 {
 		t.Error("TestConsts: bad Bytes")
 	}

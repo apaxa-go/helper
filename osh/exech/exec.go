@@ -8,8 +8,9 @@ import (
 
 // Exec execute binary named by name with arguments args.
 // stdin used as standard input.
+// If binary write something into stderr this data will be return in err (can be accessed via err.Error()).
+// Error will be also returned (type of exec.ExitError) if binary exits with none zero code.
 // Exec returns standard output as slice of bytes and error.
-// TODO describe behaviour better (what about stderr, what if exit code).
 func Exec(name string, stdin []byte, args ...string) (stdout []byte, err error) {
 	//Init command
 	//TODO check for error?

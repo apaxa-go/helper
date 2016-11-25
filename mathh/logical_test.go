@@ -21,14 +21,16 @@ func init() {
 //replacer:new int16	Int16
 //replacer:new int32	Int32
 
-const testSegmentsLenInt64 = 5
-const testsLenInt64 = testSegmentsLenInt64*6 + 1
+const (
+	testSegmentsAmountInt64 = 10
+	testsLenInt64           = testSegmentsAmountInt64*6 + 1
+)
 
 var testsInt64 = []int64{0}
 
 func initInt64() {
-	for i := int64(0); i < testSegmentsLenInt64; i++ {
-		testsInt64 = append(testsInt64, MinInt64+i, MinInt64/2+i, -1-i, 1+i, MaxInt64-i, MaxInt64/2-i)
+	for i := int64(0); i < testSegmentsAmountInt64; i++ {
+		testsInt64 = append(testsInt64, MinInt64+i, MinInt64/2+i, -1-i, 1+i, MaxInt64/2-i, MaxInt64-i)
 	}
 	if testsLenInt64 != len(testsInt64) {
 		panic("Wrong tests len")
@@ -42,14 +44,16 @@ func initInt64() {
 //replacer:new uint16	Uint16
 //replacer:new uint32	Uint32
 
-const testSegmentsLenUint64 = 5
-const testsLenUint64 = testSegmentsLenUint64*6 + 1
+const (
+	testSegmentsAmountUint64 = 10
+	testsLenUint64           = testSegmentsAmountUint64 * 3
+)
 
-var testsUint64 = []uint64{0}
+var testsUint64 = []uint64{}
 
 func initUint64() {
-	for i := int64(0); i < testSegmentsLenUint64; i++ {
-		testsInt64 = append(testsInt64, MinUint64+i, MinUint64/2+i, -1-i, 1+i, MaxUint64-i, MaxUint64/2-i)
+	for i := int64(0); i < testSegmentsAmountUint64; i++ {
+		testsInt64 = append(testsInt64, MinUint64+i, MaxUint64/2-i, MaxUint64-i)
 	}
 	if testsLenUint64 != len(testsUint64) {
 		panic("Wrong tests len")

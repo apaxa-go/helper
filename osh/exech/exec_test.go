@@ -16,80 +16,17 @@ func TestExec(t *testing.T) {
 	}
 
 	test := []testElement{
-		// 0
-		testElement{
-			"grep",
-			[]byte{0x01, 0x02},
-			[]string{""},
-			[]byte{0x01, 0x02, 0x0a},
-			false,
-		},
-
-		// 1
-		testElement{
-			"grep",
-			[]byte{0x31, 0x0a, 0x32},
-			[]string{"2"},
-			[]byte{0x32, 0x0a},
-			false,
-		},
-
-		// 2
+		{name: "grep", stdin: []byte{0x01, 0x02}, arg: []string{""}, stdout: []byte{0x01, 0x02, 0x0a}, err: false},
+		{name: "grep", stdin: []byte{0x31, 0x0a, 0x32}, arg: []string{"2"}, stdout: []byte{0x32, 0x0a}, err: false},
 		// negative test
 		// invalid argument
-		testElement{
-			"grep",
-			[]byte{0x31, 0x0a, 0x32},
-			[]string{"-Ccccccccc 2"},
-			[]byte{0x32, 0x0a},
-			true,
-		},
-
-		// 3
-		testElement{
-			"grep",
-			[]byte{0x31, 0x0a, 0x32},
-			[]string{"2", "-v"},
-			[]byte{0x31, 0x0a},
-			false,
-		},
-
-		// 4
+		{name: "grep", stdin: []byte{0x31, 0x0a, 0x32}, arg: []string{"-Ccccccccc 2"}, stdout: []byte{0x32, 0x0a}, err: true},
+		{name: "grep", stdin: []byte{0x31, 0x0a, 0x32}, arg: []string{"2", "-v"}, stdout: []byte{0x31, 0x0a}, err: false},
 		// negative test
-		testElement{
-			"kdsfkjfhskjhf",
-			[]byte{},
-			[]string{},
-			[]byte{},
-			true,
-		},
-
-		// 5
-		testElement{
-			"grep",
-			[]byte{},
-			[]string{"2"},
-			[]byte{},
-			true,
-		},
-
-		// 6
-		testElement{
-			"grep",
-			[]byte{0x31, 0x0a, 0x32},
-			[]string{"25"},
-			[]byte{},
-			true,
-		},
-
-		// 7
-		testElement{
-			"",
-			[]byte{0x31, 0x0a, 0x32},
-			[]string{"25"},
-			[]byte{},
-			true,
-		},
+		{name: "kdsfkjfhskjhf", stdin: []byte{}, arg: []string{}, stdout: []byte{}, err: true},
+		{name: "grep", stdin: []byte{}, arg: []string{"2"}, stdout: []byte{}, err: true},
+		{name: "grep", stdin: []byte{0x31, 0x0a, 0x32}, arg: []string{"25"}, stdout: []byte{}, err: true},
+		{name: "", stdin: []byte{0x31, 0x0a, 0x32}, arg: []string{"25"}, stdout: []byte{}, err: true},
 	}
 
 	for i, v := range test {

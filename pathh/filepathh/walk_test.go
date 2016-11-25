@@ -7,14 +7,17 @@ import (
 	"os"
 	"reflect"
 	"testing"
+	"github.com/apaxa-go/helper/strconvh"
 )
 
+var renameNum = 1
+
 func rename(path string, info os.FileInfo, err error) error {
-	error := os.Rename(path, path+"1")
-	return error
+	err2 := os.Rename(path, path+strconvh.FormatInt(renameNum))
+	renameNum++
+	return err2
 }
 
-//TODO check sort = false
 func TestWalk(t *testing.T) {
 	//create tempDir
 	nameDir, errTempDir := ioutil.TempDir("", "temp")
@@ -25,7 +28,7 @@ func TestWalk(t *testing.T) {
 	if errChdir != nil {
 		t.Errorf("Got error while changing dir: %v", errChdir)
 	}
-	dirs := []string{"dir4", "dir3", "dir2", "dir1"}
+	dirs := []string{"dir4", "dir1", "dir3", "dir2"}
 	for i, v := range dirs {
 		errMkdir := os.Mkdir(v, 0777)
 		if errMkdir != nil {
@@ -38,8 +41,8 @@ func TestWalk(t *testing.T) {
 		t.Errorf("Walk error: %v", err)
 	}
 	//check dirs
-	sNew := []string{"dir11", "dir21", "dir31", "dir41"}
-	s, err1 := ioutilh.ReadDirNames(nameDir+"1", true)
+	sNew := []string{"dir11", "dir22", "dir33", "dir44"}
+	s, err1 := ioutilh.ReadDirNames(nameDir+"5", true)
 	if !reflect.DeepEqual(s, sNew) {
 		t.Errorf("Check dir names:%v\nerror: %v", s, err1)
 	}
@@ -50,8 +53,13 @@ func TestWalk(t *testing.T) {
 	}
 	err = Walk("", rename, true, true)
 	if err == nil {
-		t.Errorf("Error expected but got nil")
+		t.Error("Error expected but got nil")
 	}
+}
+
+func rename2(path string, info os.FileInfo, err error) error {
+	err2 := os.Rename(path, path+"1")
+	return err2
 }
 
 func TestWalk2(t *testing.T) {
@@ -72,7 +80,7 @@ func TestWalk2(t *testing.T) {
 		}
 	}
 	//call Walk
-	err := Walk(nameDir, rename, false, true)
+	err := Walk(nameDir, rename2, false, true)
 	if err != nil {
 		t.Errorf("Walk error: %v", err)
 	}
@@ -102,7 +110,7 @@ func TestWalk3(t *testing.T) {
 	//call Walk
 	err := Walk(nameDir, rename3, true, true)
 	if err == nil {
-		t.Errorf("Error expected but got nil")
+		t.Error("Error expected but got nil")
 	}
 	// remove dir
 	errRemove := os.RemoveAll(nameDir)

@@ -26,9 +26,7 @@ func (s *StaticDataElement) Time() time.Time {
 // So usually it is enough to just register StaticDataElement using http.ServeMux.Handle.
 func (s *StaticDataElement) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
-	case "GET":
-		fallthrough
-	case "HEAD":
+	case "GET", "HEAD":
 		w.Header().Set("Last-Modified", s.Time().UTC().Format(http.TimeFormat))
 		if ims := r.Header.Get("If-Modified-Since"); ims != "" {
 			if t, e := time.Parse(http.TimeFormat, ims); e == nil && !t.Before(s.Time()) {

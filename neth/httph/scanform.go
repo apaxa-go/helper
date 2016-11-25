@@ -38,12 +38,13 @@ func scanErrorIncompatibleValue(fieldNum int, fieldName string, subError error) 
 }
 
 func scanErrorIncompatibleType(fieldNum int, fieldName string) ScanError {
-	return ScanError{FieldNum: fieldNum, FieldName: fieldName, Type: ScanErrorTypeIncompatibleValue, SubError: nil}
+	return ScanError{FieldNum: fieldNum, FieldName: fieldName, Type: ScanErrorTypeIncompatibleType, SubError: nil}
 }
 
+// TODO error strings should not end with punctuation
 // Error Implement error interface for ScanError. It returns text representation of error.
 func (e ScanError) Error() string {
-	prefix := "Scan error in #" + string(e.FieldNum) + "field with name '" + e.FieldName + "': "
+	prefix := "Scan error in #" + strconvh.FormatInt(e.FieldNum) + " field with name '" + e.FieldName + "': "
 	switch e.Type {
 	case ScanErrorTypeNoSuchField:
 		return prefix + "no field with such name."
@@ -51,11 +52,11 @@ func (e ScanError) Error() string {
 		return prefix + "there is more than 1 field with such name."
 	case ScanErrorTypeIncompatibleValue:
 		if e.SubError != nil {
-			return prefix + e.Error()
+			return prefix + e.SubError.Error()
 		}
 		return prefix + "unable to parse string to required type."
 	case ScanErrorTypeIncompatibleType:
-		return prefix + " type of this field is imcompatible with this function type."
+		return prefix + "type of this field is imcompatible with this function type."
 	}
 	return prefix + "unknown error"
 }
@@ -73,9 +74,9 @@ const scanBoolFalseString = "off"
 // Required fields names and variables to store values described by fields.
 // This function accept for each required field exactly one value in form. There is error if zero or more than one fields with requested name exists in form.
 // This function supports only following types of fields: [u]int[8/16/32/64], bools & strings.
-// *int* will be parsed using strconv.ParseInt with base of 10.
-// for bools valid values are only "on" & "off" (case sensitive).
-// strings accepted as-is.
+// *int* will be parsed using strconvh.ParseInt* with base of 10.
+// For bools valid values are only "on" & "off" (case sensitive).
+// Strings accepted as-is.
 // Returned error is always of type ScanError or nil.
 // Warning: r.ParseForm should be performed before calling this function.
 func ScanFormData(r *http.Request, fields ...ScanField) error {
@@ -149,16 +150,3 @@ func ScanFormData(r *http.Request, fields ...ScanField) error {
 	}
 	return nil
 }
-
-// TODO what is it?
-/*
-func Int64FromForm(r *http.Request, name string) (value int64, err error) {
-	if svs, ok := r.Form[name]; ok && len(svs) == 1 {
-		value, err = strconv.ParseInt(svs[0], 10, 64)
-		return
-	} else {
-		err = errors.New("Not exactly one field with name " + name)
-		return
-	}
-}
-*/
