@@ -2,56 +2,21 @@ package strconvh
 
 import "strconv"
 
-// Signed integers
-
-// FormatInt returns the string representation of i in the 10-base.
-func FormatInt(i int) string {
-	return strconv.FormatInt(int64(i), defaultIntegerBase)
-}
-
-// FormatInt8 returns the string representation of i in the 10-base.
-func FormatInt8(i int8) string {
-	return strconv.FormatInt(int64(i), defaultIntegerBase)
-}
-
-// FormatInt16 returns the string representation of i in the 10-base.
-func FormatInt16(i int16) string {
-	return strconv.FormatInt(int64(i), defaultIntegerBase)
-}
+//replacer:ignore
+//go:generate go run $GOPATH/src/github.com/apaxa-go/helper/tools-replacer/main.go -- $GOFILE
+//replacer:replace
+//replacer:old int32	Int32	strconv.FormatInt
+//replacer:new int	Int	strconv.FormatInt
+//replacer:new int8	Int8	strconv.FormatInt
+//replacer:new int16	Int16	strconv.FormatInt
+//replacer:new int64	Int64	strconv.FormatInt
+//replacer:new uint	Uint	strconv.FormatUint
+//replacer:new uint8	Uint8	strconv.FormatUint
+//replacer:new uint16	Uint16	strconv.FormatUint
+//replacer:new uint32	Uint32	strconv.FormatUint
+//replacer:new uint64	Uint64	strconv.FormatUint
 
 // FormatInt32 returns the string representation of i in the 10-base.
 func FormatInt32(i int32) string {
 	return strconv.FormatInt(int64(i), defaultIntegerBase)
-}
-
-// FormatInt64 returns the string representation of i in the 10-base.
-func FormatInt64(i int64) string {
-	return strconv.FormatInt(i, defaultIntegerBase)
-}
-
-// Unsigned integers
-
-// FormatUint returns the string representation of i in the 10-base.
-func FormatUint(i uint) string {
-	return strconv.FormatUint(uint64(i), defaultIntegerBase)
-}
-
-// FormatUint8 returns the string representation of i in the 10-base.
-func FormatUint8(i uint8) string {
-	return strconv.FormatUint(uint64(i), defaultIntegerBase)
-}
-
-// FormatUint16 returns the string representation of i in the 10-base.
-func FormatUint16(i uint16) string {
-	return strconv.FormatUint(uint64(i), defaultIntegerBase)
-}
-
-// FormatUint32 returns the string representation of i in the 10-base.
-func FormatUint32(i uint32) string {
-	return strconv.FormatUint(uint64(i), defaultIntegerBase)
-}
-
-// FormatUint64 returns the string representation of i in the 10-base.
-func FormatUint64(i uint64) string {
-	return strconv.FormatUint(i, defaultIntegerBase)
 }

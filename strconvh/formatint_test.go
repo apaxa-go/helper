@@ -1,173 +1,69 @@
 package strconvh
 
-import "testing"
+import (
+	"github.com/apaxa-go/helper/mathh"
+	"os"
+	"runtime"
+	"testing"
+)
 
-func TestFormatInt(t *testing.T) {
-	type testElement struct {
-		i int
-		s string
-	}
-	test := []testElement{
-		testElement{10, "10"},
-		testElement{9223372036854775807, "9223372036854775807"},
-		testElement{-9223372036854775808, "-9223372036854775808"},
-		testElement{0, "0"},
-	}
-	for i, v := range test {
-		s := FormatInt(v.i)
-		if s != v.s {
-			t.Errorf("Test-%v\nExpected string: %s, got: %s", i, v.s, s)
-		}
+const (
+	maxUint8Str = "255"
+	minUint8Str = "0"
+	maxInt8Str  = "127"
+	minInt8Str  = "-128"
+
+	maxUint16Str = "65535"
+	minUint16Str = "0"
+	maxInt16Str  = "32767"
+	minInt16Str  = "-32768"
+
+	maxUint32Str = "4294967295"
+	minUint32Str = "0"
+	maxInt32Str  = "2147483647"
+	minInt32Str  = "-2147483648"
+
+	maxUint64Str = "18446744073709551615"
+	minUint64Str = "0"
+	maxInt64Str  = "9223372036854775807"
+	minInt64Str  = "-9223372036854775808"
+)
+
+var (
+	maxUintStr string
+	minUintStr = "0"
+	maxIntStr  string
+	minIntStr  string
+)
+
+func init() {
+	switch runtime.GOARCH {
+	case "386":
+		maxUintStr = maxUint32Str
+		maxIntStr = maxInt32Str
+		minIntStr = minInt32Str
+	case "amd64":
+		maxUintStr = maxUint64Str
+		maxIntStr = maxInt64Str
+		minIntStr = minInt64Str
+	default:
+		panic("Test does not support this platform: " + runtime.GOARCH)
 	}
 }
 
-func TestFormatInt8(t *testing.T) {
-	type testElement struct {
-		i int8
-		s string
-	}
-	test := []testElement{
-		testElement{10, "10"},
-		testElement{127, "127"},
-		testElement{-128, "-128"},
-		testElement{0, "0"},
-	}
-	for i, v := range test {
-		s := FormatInt8(v.i)
-		if s != v.s {
-			t.Errorf("Test-%v\nExpected string: %s, got: %s", i, v.s, s)
-		}
-	}
-}
-
-func TestFormatInt16(t *testing.T) {
-	type testElement struct {
-		i int16
-		s string
-	}
-	test := []testElement{
-		testElement{10, "10"},
-		testElement{32767, "32767"},
-		testElement{-32768, "-32768"},
-		testElement{0, "0"},
-	}
-	for i, v := range test {
-		s := FormatInt16(v.i)
-		if s != v.s {
-			t.Errorf("Test-%v\nExpected string: %s, got: %s", i, v.s, s)
-		}
-	}
-}
-
-func TestFormatInt32(t *testing.T) {
-	type testElement struct {
-		i int32
-		s string
-	}
-	test := []testElement{
-		testElement{10, "10"},
-		testElement{2147483647, "2147483647"},
-		testElement{-2147483648, "-2147483648"},
-		testElement{0, "0"},
-	}
-	for i, v := range test {
-		s := FormatInt32(v.i)
-		if s != v.s {
-			t.Errorf("Test-%v\nExpected string: %s, got: %s", i, v.s, s)
-		}
-	}
-}
-
-func TestFormatInt64(t *testing.T) {
-	type testElement struct {
-		i int64
-		s string
-	}
-	test := []testElement{
-		testElement{10, "10"},
-		testElement{9223372036854775807, "9223372036854775807"},
-		testElement{-9223372036854775808, "-9223372036854775808"},
-		testElement{0, "0"},
-	}
-	for i, v := range test {
-		s := FormatInt64(v.i)
-		if s != v.s {
-			t.Errorf("Test-%v\nExpected string: %s, got: %s", i, v.s, s)
-		}
-	}
-}
-
-func TestFormatUint(t *testing.T) {
-	type testElement struct {
-		i uint
-		s string
-	}
-	test := []testElement{
-		testElement{10, "10"},
-		testElement{18446744073709551615, "18446744073709551615"},
-		testElement{0, "0"},
-	}
-	for i, v := range test {
-		s := FormatUint(v.i)
-		if s != v.s {
-			t.Errorf("Test-%v\nExpected string: %s, got: %s", i, v.s, s)
-		}
-	}
-}
-
-func TestFormatUint8(t *testing.T) {
-	type testElement struct {
-		i uint8
-		s string
-	}
-	test := []testElement{
-		testElement{10, "10"},
-		testElement{255, "255"},
-		testElement{0, "0"},
-	}
-	for i, v := range test {
-		s := FormatUint8(v.i)
-		if s != v.s {
-			t.Errorf("Test-%v\nExpected string: %s, got: %s", i, v.s, s)
-		}
-	}
-}
-
-func TestFormatUint16(t *testing.T) {
-	type testElement struct {
-		i uint16
-		s string
-	}
-	test := []testElement{
-		testElement{10, "10"},
-		testElement{65535, "65535"},
-		testElement{0, "0"},
-	}
-	for i, v := range test {
-		s := FormatUint16(v.i)
-		if s != v.s {
-			t.Errorf("Test-%v\nExpected string: %s, got: %s", i, v.s, s)
-		}
-	}
-}
-
-func TestFormatUint32(t *testing.T) {
-	type testElement struct {
-		i uint32
-		s string
-	}
-	test := []testElement{
-		testElement{10, "10"},
-		testElement{4294967295, "4294967295"},
-		testElement{0, "0"},
-	}
-	for i, v := range test {
-		s := FormatUint32(v.i)
-		if s != v.s {
-			t.Errorf("Test-%v\nExpected string: %s, got: %s", i, v.s, s)
-		}
-	}
-}
+//replacer:ignore
+//go:generate go run $GOPATH/src/github.com/apaxa-go/helper/tools-replacer/main.go -- $GOFILE
+//replacer:replace
+//replacer:old uint64	Uint64
+//replacer:new uint	Uint
+//replacer:new uint8	Uint8
+//replacer:new uint16	Uint16
+//replacer:new uint32	Uint32
+//replacer:new int	Int
+//replacer:new int8	Int8
+//replacer:new int16	Int16
+//replacer:new int32	Int32
+//replacer:new int64	Int64
 
 func TestFormatUint64(t *testing.T) {
 	type testElement struct {
@@ -175,14 +71,15 @@ func TestFormatUint64(t *testing.T) {
 		s string
 	}
 	test := []testElement{
-		testElement{10, "10"},
-		testElement{18446744073709551615, "18446744073709551615"},
-		testElement{0, "0"},
+		{0, "0"},
+		{10, "10"},
+		{mathh.MaxUint64, maxUint64Str},
+		{mathh.MinUint64, minUint64Str},
 	}
-	for i, v := range test {
-		s := FormatUint64(v.i)
+	for _, v := range test {
+		s := FormatInt(v.i)
 		if s != v.s {
-			t.Errorf("Test-%v\nExpected string: %s, got: %s", i, v.s, s)
+			t.Errorf("Expected string: %s, got: %s", v.s, s)
 		}
 	}
 }

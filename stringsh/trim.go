@@ -1,5 +1,6 @@
 package stringsh
 
+// TrimBytes remove leading and trailing bytes cut from s.
 func TrimBytes(s string, cut byte) string {
 	from := 0
 	for ; from < len(s); from++ {
@@ -17,6 +18,7 @@ func TrimBytes(s string, cut byte) string {
 	return s[from : to+1]
 }
 
+// TrimBytes remove leading bytes cut from s.
 func TrimLeftBytes(s string, cut byte) string {
 	from := 0
 	for ; from < len(s); from++ {
@@ -27,6 +29,7 @@ func TrimLeftBytes(s string, cut byte) string {
 	return s[from:]
 }
 
+// TrimBytes remove trailing bytes cut from s.
 func TrimRightBytes(s string, cut byte) string {
 	to := len(s) - 1
 	for ; to >= 0; to-- {
