@@ -13,11 +13,11 @@ func TestScanError_Error(t *testing.T) {
 		err ScanError
 		str string
 	}{
-		{ScanError{FieldNum: 0, FieldName: "f1", Type: ScanErrorTypeNoSuchField, SubError: nil}, "Scan error in #0 field with name 'f1': no field with such name."},
-		{ScanError{FieldNum: 1, FieldName: "f2", Type: ScanErrorTypeMultipleValues, SubError: nil}, "Scan error in #1 field with name 'f2': there is more than 1 field with such name."},
-		{ScanError{FieldNum: 2, FieldName: "f3", Type: ScanErrorTypeIncompatibleValue, SubError: nil}, "Scan error in #2 field with name 'f3': unable to parse string to required type."},
-		{ScanError{FieldNum: 3, FieldName: "f4", Type: ScanErrorTypeIncompatibleValue, SubError: errors.New("sub error")}, "Scan error in #3 field with name 'f4': sub error."},
-		{ScanError{FieldNum: 4, FieldName: "f5", Type: ScanErrorTypeIncompatibleType, SubError: nil}, "Scan error in #4 field with name 'f5': type of this field is imcompatible with this function type."},
+		{ScanError{FieldNum: 0, FieldName: "f1", Type: ScanErrorTypeNoSuchField, SubError: nil}, "Scan error in #0 field with name 'f1': no field with such name"},
+		{ScanError{FieldNum: 1, FieldName: "f2", Type: ScanErrorTypeMultipleValues, SubError: nil}, "Scan error in #1 field with name 'f2': there is more than 1 field with such name"},
+		{ScanError{FieldNum: 2, FieldName: "f3", Type: ScanErrorTypeIncompatibleValue, SubError: nil}, "Scan error in #2 field with name 'f3': unable to parse string to required type"},
+		{ScanError{FieldNum: 3, FieldName: "f4", Type: ScanErrorTypeIncompatibleValue, SubError: errors.New("sub error")}, "Scan error in #3 field with name 'f4': sub error"},
+		{ScanError{FieldNum: 4, FieldName: "f5", Type: ScanErrorTypeIncompatibleType, SubError: nil}, "Scan error in #4 field with name 'f5': type of this field is imcompatible with this function type"},
 	}
 
 	for _, test := range tests {

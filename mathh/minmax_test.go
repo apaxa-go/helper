@@ -5,7 +5,7 @@ import (
 )
 
 //replacer:ignore
-//go:generate go run $GOPATH/src/github.com/apaxa-go/helper/tools-replacer/main.go -- $GOFILE
+//go:generate go run $GOPATH/src/github.com/apaxa-go/generator/replacer/main.go -- $GOFILE
 //replacer:replace
 //replacer:old uint64	Uint64
 //replacer:new uint	Uint

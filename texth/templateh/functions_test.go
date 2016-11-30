@@ -27,6 +27,9 @@ func TestNewRange(t *testing.T) {
 		{1, 4, 2, []int{1, 3}},
 		{1, 4, 3, []int{1}},
 		{10, -10, -3, []int{10, 7, 4, 1, -2, -5, -8}},
+		{-1, -4, -1, []int{-1, -2, -3}},
+		{-1, -4, -2, []int{-1, -3}},
+		{-1, -4, -3, []int{-1}},
 	}
 	for _, v := range tests {
 		if r := NewRange(v.f, v.t, v.s); !reflect.DeepEqual(r, v.r) {
@@ -47,12 +50,12 @@ func TestDict(t *testing.T) {
 		{[]interface{}{1, 2}, map[string]interface{}{}, true},
 		{[]interface{}{"1", 2}, map[string]interface{}{"1": 2}, false},
 		{[]interface{}{"1", 2, 3}, map[string]interface{}{}, true},
-		{[]interface{}{"1", 2, "3", "four"}, map[string]interface{}{"1": 2, "2": "four"}, false},
+		{[]interface{}{"1", 2, "3", "four"}, map[string]interface{}{"1": 2, "3": "four"}, false},
 	}
 	for _, v := range tests {
-		r, err := Dict(v.v)
+		r, err := Dict(v.v...)
 		if (err != nil) != v.err {
-			t.Errorf("Expect error - %v, but got %v", v.err, err)
+			t.Errorf("Expect error for %v - %v, but got %v", v.v, v.err, err)
 		}
 		if !v.err && err == nil && !reflect.DeepEqual(v.r, r) {
 			t.Errorf("Expected map %v, but got %v", v.r, r)

@@ -1,14 +1,17 @@
 package mathh
 
-import (
-	"math/big"
-	"testing"
-)
+import "testing"
 
 //replacer:ignore
-//go:generate go run $GOPATH/src/github.com/apaxa-go/helper/tools-replacer/main.go -- $GOFILE
+//go:generate go run $GOPATH/src/github.com/apaxa-go/generator/replacer/main.go -- $GOFILE
+import "math/big"
 
-func divideInt64Big(a, b int64) (r int64) {
+// Hack to avoid unnecessary replace
+type customI int64
+
+func divideAsBig(a, b customI) customI { return customI(divideInt64AsBig(int64(a), int64(b))) }
+
+func divideInt64AsBig(a, b int64) (r int64) {
 	ba := big.NewInt(a)
 	bb := big.NewInt(b)
 
@@ -52,41 +55,43 @@ func divideInt64Big(a, b int64) (r int64) {
 //replacer:new int32	Int32
 
 type testDivideInt64 struct {
-	a int64
-	b int64
-	r int64
+	a     int64
+	b     int64
+	round int64
+	ceil  int64
+	floor int64
+	rafz  int64
 }
 
 var testsDivideInt64 = []testDivideInt64{
-	{a: 3, b: 7, r: 0},
-	{a: 3, b: 6, r: 1},
-	{a: 3, b: 5, r: 1},
-	{a: 3, b: 4, r: 1},
-	{a: 3, b: 3, r: 1},
-	{a: 3, b: 2, r: 2},
-	{a: 3, b: 1, r: 3},
+	{a: 3, b: 1, round: 3, ceil: 3, floor: 3, rafz: 3},      // 3
+	{a: 3, b: 2, round: 2, ceil: 2, floor: 1, rafz: 2},      // 1.5
+	{a: 3, b: 3, round: 1, ceil: 1, floor: 1, rafz: 1},      // 1
+	{a: 3, b: 4, round: 1, ceil: 1, floor: 0, rafz: 1},      // 0.75
+	{a: 3, b: 5, round: 1, ceil: 1, floor: 0, rafz: 1},      // 0.6
+	{a: 3, b: 6, round: 1, ceil: 1, floor: 0, rafz: 1},      // 0.5
+	{a: 3, b: 7, round: 0, ceil: 1, floor: 0, rafz: 1},      // 0.43...
+	{a: 0, b: 7, round: 0, ceil: 0, floor: 0, rafz: 0},      // 0
+	{a: -3, b: 7, round: 0, ceil: 0, floor: -1, rafz: -1},   // -0.43...
+	{a: -3, b: 6, round: -1, ceil: 0, floor: -1, rafz: -1},  // -0.5
+	{a: -3, b: 5, round: -1, ceil: 0, floor: -1, rafz: -1},  // -0.6
+	{a: -3, b: 4, round: -1, ceil: 0, floor: -1, rafz: -1},  // -0.75
+	{a: -3, b: 3, round: -1, ceil: -1, floor: -1, rafz: -1}, // -1
+	{a: -3, b: 2, round: -2, ceil: -1, floor: -2, rafz: -2}, // -1.5
+	{a: -3, b: 1, round: -3, ceil: -3, floor: -3, rafz: -3}, // -3
 }
 
 func init() {
 	// Extend tests based on the following rules:
-	// a/b=c =>
-	// 1) -a/b=-c
-	// 2) a/-b=-c
-	// 3) -a/-b=c
+	// a/b=c => -a/-b=c
 	var ts []testDivideInt64
 	for _, v := range testsDivideInt64 {
-		ts = append(ts, v)
-		if v.a != MinInt64 && v.r != MinInt64 {
-			ts = append(ts, testDivideInt64{a: -v.a, b: v.b, r: -v.r})
-		}
-		if v.b != MinInt64 && v.r != MinInt64 {
-			ts = append(ts, testDivideInt64{a: v.a, b: -v.b, r: -v.r})
-		}
 		if v.a != MinInt64 && v.b != MinInt64 {
-			ts = append(ts, testDivideInt64{a: -v.a, b: -v.b, r: v.r})
+			v.a, v.b = -v.a, -v.b
+			ts = append(ts, v)
 		}
 	}
-	testsDivideInt64 = ts
+	testsDivideInt64 = append(testsDivideInt64, ts...)
 }
 
 func TestAbsInt64(t *testing.T) {
@@ -116,21 +121,18 @@ func TestAntiAbsInt64(t *testing.T) {
 	}
 }
 
-func TestDivideInt64(t *testing.T) {
+func TestDivideRoundInt64(t *testing.T) {
 	for _, test := range testsDivideInt64 {
-		if test.a == MinInt64 && test.b == -1 {
-			continue
-		}
-		if r := DivideRoundInt64(test.a, test.b); r != test.r {
-			t.Errorf("Error DivideInt64(%v, %v) - expected %v, got %v", test.a, test.b, test.r, r)
+		if r := DivideRoundInt64(test.a, test.b); r != test.round {
+			t.Errorf("Expected f(%v, %v) = %v, got %v", test.a, test.b, test.round, r)
 		}
 	}
 }
 
-func TestDivideFixInt64(t *testing.T) {
+func TestDivideRoundFixInt64(t *testing.T) {
 	for _, test := range testsDivideInt64 {
-		if r := DivideRoundFixInt64(test.a, test.b); r != test.r {
-			t.Errorf("Error DivideFixInt64(%v, %v) - expected %v, got %v", test.a, test.b, test.r, r)
+		if r := DivideRoundFixInt64(test.a, test.b); r != test.round {
+			t.Errorf("Error DivideFixInt64(%v, %v) - expected %v, got %v", test.a, test.b, test.round, r)
 		}
 	}
 }
@@ -141,7 +143,7 @@ func TestDivideInt64Overflow(t *testing.T) {
 			if b == 0 || (a == MinInt64 && b == -1) {
 				continue
 			}
-			validR := divideInt64Big(int64(a), int64(b))
+			validR := int64(divideAsBig(customI(a), customI(b)))
 			r := DivideRoundInt64(a, b)
 			if r != validR {
 				t.Errorf("Error DivideInt64(%v, %v) - got %v, expected %v", a, b, r, validR)
@@ -156,11 +158,48 @@ func TestDivideFixInt64Overflow(t *testing.T) {
 			if b == 0 {
 				continue
 			}
-			validR := divideInt64Big(int64(a), int64(b))
+			var validR int64
+			if a == MinInt64 && b == -1 {
+				validR = MaxInt64
+			} else {
+				validR = int64(divideAsBig(customI(a), customI(b)))
+			}
 			r := DivideRoundFixInt64(a, b)
 			if r != validR {
 				t.Errorf("Error DivideFixInt64(%v, %v) - got %v, expected %v", a, b, r, validR)
 			}
+		}
+	}
+}
+
+func TestDivideCeilInt64(t *testing.T) {
+	for _, test := range testsDivideInt64 {
+		if r := DivideCeilInt64(test.a, test.b); r != test.ceil {
+			t.Errorf("Expected f(%v, %v) = %v, got %v", test.a, test.b, test.ceil, r)
+		}
+	}
+}
+
+func TestDivideFloorInt64(t *testing.T) {
+	for _, test := range testsDivideInt64 {
+		if r := DivideFloorInt64(test.a, test.b); r != test.floor {
+			t.Errorf("Expected f(%v, %v) = %v, got %v", test.a, test.b, test.floor, r)
+		}
+	}
+}
+
+func TestDivideRafzInt64(t *testing.T) {
+	for _, test := range testsDivideInt64 {
+		if r := DivideRafzInt64(test.a, test.b); r != test.rafz {
+			t.Errorf("Expected f(%v, %v) = %v, got %v", test.a, test.b, test.rafz, r)
+		}
+	}
+}
+
+func TestDivideTruncInt64(t *testing.T) {
+	for _, test := range testsDivideInt64 {
+		if r := DivideTruncInt64(test.a, test.b); r != test.a/test.b {
+			t.Errorf("Expected f(%v, %v) = %v, got %v", test.a, test.b, test.a/test.b, r)
 		}
 	}
 }

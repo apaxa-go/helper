@@ -47,16 +47,16 @@ func (e ScanError) Error() string {
 	prefix := "Scan error in #" + strconvh.FormatInt(e.FieldNum) + " field with name '" + e.FieldName + "': "
 	switch e.Type {
 	case ScanErrorTypeNoSuchField:
-		return prefix + "no field with such name."
+		return prefix + "no field with such name"
 	case ScanErrorTypeMultipleValues:
-		return prefix + "there is more than 1 field with such name."
+		return prefix + "there is more than 1 field with such name"
 	case ScanErrorTypeIncompatibleValue:
 		if e.SubError != nil {
 			return prefix + e.SubError.Error()
 		}
-		return prefix + "unable to parse string to required type."
+		return prefix + "unable to parse string to required type"
 	case ScanErrorTypeIncompatibleType:
-		return prefix + "type of this field is imcompatible with this function type."
+		return prefix + "type of this field is imcompatible with this function type"
 	}
 	return prefix + "unknown error"
 }

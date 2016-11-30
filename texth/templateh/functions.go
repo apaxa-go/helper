@@ -2,6 +2,7 @@ package templateh
 
 import (
 	"errors"
+	"github.com/apaxa-go/helper/mathh"
 	"github.com/apaxa-go/helper/strconvh"
 )
 
@@ -20,7 +21,7 @@ func NewRange(from, to, step int) (r []int) {
 		(to < from && step > 0) {
 		panic("NewRange: from, to and step are inconsistent: " + strconvh.FormatInt(from) + ", " + strconvh.FormatInt(to) + ", " + strconvh.FormatInt(step))
 	}
-	r = make([]int, (to-from)/step)
+	r = make([]int, mathh.DivideCeilInt(to-from, step))
 	for i := range r {
 		r[i] = from + step*i
 	}

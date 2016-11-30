@@ -3,7 +3,7 @@ package strconvh
 import "testing"
 
 //replacer:ignore
-//go:generate go run $GOPATH/src/github.com/apaxa-go/helper/tools-replacer/main.go -- $GOFILE
+//go:generate go run $GOPATH/src/github.com/apaxa-go/generator/replacer/main.go -- $GOFILE
 //replacer:replace
 //replacer:old float32	Float32
 //replacer:new float64	Float64

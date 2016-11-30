@@ -4,16 +4,21 @@ import (
 	"testing"
 )
 
+//replacer:ignore
 func init() {
+	initInt()
+	initInt8()
+	initInt16()
+	initInt32()
 	initInt64()
-	// TODO initInt32()
-	// TODO initInt16()
-	// TODO initInt8()
-	// TODO initInt()
+	initUint()
+	initUint8()
+	initUint16()
+	initUint32()
+	initUint64()
 }
 
-//replacer:ignore
-//go:generate go run $GOPATH/src/github.com/apaxa-go/helper/tools-replacer/main.go -- $GOFILE
+//go:generate go run $GOPATH/src/github.com/apaxa-go/generator/replacer/main.go -- $GOFILE
 //replacer:replace
 //replacer:old int64	Int64
 //replacer:new int	Int
@@ -52,8 +57,8 @@ const (
 var testsUint64 = []uint64{}
 
 func initUint64() {
-	for i := int64(0); i < testSegmentsAmountUint64; i++ {
-		testsInt64 = append(testsInt64, MinUint64+i, MaxUint64/2-i, MaxUint64-i)
+	for i := uint64(0); i < testSegmentsAmountUint64; i++ {
+		testsUint64 = append(testsUint64, MinUint64+i, MaxUint64/2-i, MaxUint64-i)
 	}
 	if testsLenUint64 != len(testsUint64) {
 		panic("Wrong tests len")
@@ -105,7 +110,7 @@ func TestAllSignInt64(t *testing.T) {
 		zero := ZeroInt64(test)
 		notZero := NotZeroInt64(test)
 
-		if (test < 0 && sign != -1) || (test == 0 && sign != 0) || (test > 0 && sign != 1) {
+		if (test < 0 && sign >= 0) || (test == 0 && sign != 0) || (test > 0 && sign != 1) {
 			t.Errorf("Error SignInt64(%v) - got %v", test, sign)
 		}
 		if (test < 0 && negative != 1) || (test >= 0 && negative != 0) {

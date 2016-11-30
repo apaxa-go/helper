@@ -1,7 +1,7 @@
 package mathh
 
 //replacer:ignore
-//go:generate go run $GOPATH/src/github.com/apaxa-go/helper/tools-replacer/main.go -- $GOFILE
+//go:generate go run $GOPATH/src/github.com/apaxa-go/generator/replacer/main.go -- $GOFILE
 //replacer:replace
 //replacer:old int64	Int64
 //replacer:new int	Int
@@ -94,6 +94,57 @@ func DivideCeilFixInt64(a, b int64) int64 {
 		return MaxInt64
 	}
 	return DivideCeilInt64(a, b)
+}
+
+// DivideFloorInt64 divide a to b and round result to nearest not large number.
+// A.k.a. round down, round towards minus infinity.
+// -3 / -2 =  1
+// -3 /  2 = -2
+// It has a bug if a=MinInt64 and b=-1 (because MinInt64/-1 = MinInt64), see DivideFloorFixInt64 for resolution.
+func DivideFloorInt64(a, b int64) int64 {
+	return a/b - NotZeroInt64(a%b)*NotSameSignInt64(a, b)
+}
+
+// DivideFloorFixInt64 is like DivideFloorInt64 but for a=MinInt64 and b=-1 it returns MaxInt64.
+// It is not arithmetically correct but in some cases it is much better than default behaviour.
+func DivideFloorFixInt64(a, b int64) int64 {
+	if a == MinInt64 && b == -1 {
+		return MaxInt64
+	}
+	return DivideFloorInt64(a, b)
+}
+
+// DivideRafzInt64 divide a to b and Round result Away From Zero.
+// A.k.a. round towards infinity.
+// -3 / -2 =  2
+// -3 /  2 = -2
+// It has a bug if a=MinInt64 and b=-1 (because MinInt64/-1 = MinInt64), see DivideRafzFixInt64 for resolution.
+func DivideRafzInt64(a, b int64) int64 {
+	return a/b + SignInt64(a%b)*SignInt64(b)
+}
+
+// DivideRafzFixInt64 is like DivideRafzInt64 but for a=MinInt64 and b=-1 it returns MaxInt64.
+// It is not arithmetically correct but in some cases it is much better than default behaviour.
+func DivideRafzFixInt64(a, b int64) int64 {
+	if a == MinInt64 && b == -1 {
+		return MaxInt64
+	}
+	return DivideRafzInt64(a, b)
+}
+
+// DivideTruncInt64 is just a/b.
+// It has a bug if a=MinInt64 and b=-1 (because MinInt64/-1 = MinInt64), see DivideTruncFixInt64 for resolution.
+func DivideTruncInt64(a,b int64) int64{
+	return a/b
+}
+
+// DivideTruncFixInt64 is like DivideTruncInt64 but for a=MinInt64 and b=-1 it returns MaxInt64.
+// It is not arithmetically correct but in some cases it is much better than default behaviour.
+func DivideTruncFixInt64(a, b int64) int64 {
+	if a == MinInt64 && b == -1 {
+		return MaxInt64
+	}
+	return DivideTruncInt64(a, b)
 }
 
 // PowInt64 returns a**b (a raised to power b).

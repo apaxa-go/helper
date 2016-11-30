@@ -2,10 +2,12 @@ package strconvh
 
 import (
 	"github.com/apaxa-go/helper/mathh"
-	"os"
-	"runtime"
 	"testing"
 )
+
+//replacer:ignore
+//go:generate go run $GOPATH/src/github.com/apaxa-go/generator/replacer/main.go -- $GOFILE
+import "runtime"
 
 const (
 	maxUint8Str = "255"
@@ -51,8 +53,6 @@ func init() {
 	}
 }
 
-//replacer:ignore
-//go:generate go run $GOPATH/src/github.com/apaxa-go/helper/tools-replacer/main.go -- $GOFILE
 //replacer:replace
 //replacer:old uint64	Uint64
 //replacer:new uint	Uint
@@ -77,7 +77,7 @@ func TestFormatUint64(t *testing.T) {
 		{mathh.MinUint64, minUint64Str},
 	}
 	for _, v := range test {
-		s := FormatInt(v.i)
+		s := FormatUint64(v.i)
 		if s != v.s {
 			t.Errorf("Expected string: %s, got: %s", v.s, s)
 		}

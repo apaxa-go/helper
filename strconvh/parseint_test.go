@@ -6,7 +6,7 @@ import (
 )
 
 //replacer:ignore
-//go:generate go run $GOPATH/src/github.com/apaxa-go/helper/tools-replacer/main.go -- $GOFILE
+//go:generate go run $GOPATH/src/github.com/apaxa-go/generator/replacer/main.go -- $GOFILE
 //replacer:replace
 //replacer:old int64	Int64
 //replacer:new int	Int
@@ -34,8 +34,8 @@ func TestParseInt64(t *testing.T) {
 		{"10.05", 0, true},
 		{minInt64Str, mathh.MinInt64, false},
 		{maxInt64Str, mathh.MaxInt64, false},
-		{"18446744073709551616", 0, true}, // Max uint64+1
-		{"-9223372036854775809", 0, true}, // Min int64-1
+		{"18446744073709551616", 0, true},	// Max uint64+1
+		{"-9223372036854775809", 0, true},	// Min int64-1
 	}
 
 	for _, v := range test {

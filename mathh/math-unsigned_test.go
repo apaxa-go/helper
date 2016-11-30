@@ -1,14 +1,17 @@
 package mathh
 
-import (
-	"math/big"
-	"testing"
-)
+import "testing"
 
 //replacer:ignore
-//go:generate go run $GOPATH/src/github.com/apaxa-go/helper/tools-replacer/main.go -- $GOFILE
+//go:generate go run $GOPATH/src/github.com/apaxa-go/generator/replacer/main.go -- $GOFILE
+import "math/big"
 
-func divideUint64Big(a, b uint64) (r uint64) {
+// Hack to avoid unnecessary replace
+type customU uint64
+
+func divideAsUBig(a, b customU) (r customU) { return customU(divideUint64AsBig(uint64(a), uint64(b))) }
+
+func divideUint64AsBig(a, b uint64) (r uint64) {
 	ba := big.NewInt(0).SetUint64(a)
 	bb := big.NewInt(0).SetUint64(b)
 
@@ -78,10 +81,10 @@ func TestDivideUint64(t *testing.T) {
 func TestDivideUint64Overflow(t *testing.T) {
 	for _, a := range testsUint64 {
 		for _, b := range testsUint64 {
-			if b == 0 || (a == MinUint64 && b == -1) {
+			if b == 0 {
 				continue
 			}
-			validR := divideUint64Big(uint64(a), uint64(b))
+			validR := uint64(divideAsUBig(customU(a), customU(b)))
 			r := DivideRoundUint64(a, b)
 			if r != validR {
 				t.Errorf("Error Divide(%v, %v) - got %v, expected %v", a, b, r, validR)

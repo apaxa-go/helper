@@ -5,13 +5,14 @@ import (
 	"strconv"
 )
 
+//replacer:ignore
+//go:generate go run $GOPATH/src/github.com/apaxa-go/generator/replacer/main.go -- $GOFILE
+
 const defaultIntegerBase = 10
 
-//replacer:ignore
-//go:generate go run $GOPATH/src/github.com/apaxa-go/helper/tools-replacer/main.go -- $GOFILE
 //replacer:replace
-//replacer:old int64	Int64
-//replacer:new uint64	Uint64
+//replacer:old int64	Int64	strconv.ParseInt
+//replacer:new uint64	Uint64	strconv.ParseUint
 
 // ParseInt64 interprets a string s in 10-base and returns the corresponding value i (int64) and error.
 func ParseInt64(stringValue string) (int64, error) {
@@ -19,14 +20,14 @@ func ParseInt64(stringValue string) (int64, error) {
 }
 
 //replacer:replace
-//replacer:old int32	Int32
-//replacer:new int	Int
-//replacer:new int8	Int8
-//replacer:new int16	Int16
-//replacer:new uint	Uint
-//replacer:new uint8	Uint8
-//replacer:new uint16	Uint16
-//replacer:new uint32	Uint32
+//replacer:old int32	Int32	strconv.ParseInt
+//replacer:new int	Int	strconv.ParseInt
+//replacer:new int8	Int8	strconv.ParseInt
+//replacer:new int16	Int16	strconv.ParseInt
+//replacer:new uint	Uint	strconv.ParseUint
+//replacer:new uint8	Uint8	strconv.ParseUint
+//replacer:new uint16	Uint16	strconv.ParseUint
+//replacer:new uint32	Uint32	strconv.ParseUint
 
 // ParseInt32 interprets a string s in 10-base and returns the corresponding value i (int32) and error.
 func ParseInt32(stringValue string) (int32, error) {
