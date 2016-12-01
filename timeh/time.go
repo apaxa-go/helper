@@ -6,19 +6,23 @@ import "time"
 // The reference time used in the layouts is the specific time: "Mon Jan 2 15:04:05 MST 2006".
 const SimpleLayout = "2006-01-02 15:04:05"
 
+// Constants defines correlation between different time units.
 const (
 	// Base
+
 	MonthsInYear = 12
 	HoursInDay   = 24
 	MinsInHour   = 60
 	SecsInMin    = 60
 
 	// Derived
+
 	MinsInDay  = MinsInHour * HoursInDay
 	SecsInDay  = SecsInMin * MinsInDay
 	SecsInHour = SecsInMin * MinsInHour
 
 	// Seconds fraction
+
 	MillisecsInSec = 1e3
 	MicrosecsInSec = 1e6
 	NanosecsInSec  = 1e9
@@ -34,8 +38,8 @@ const (
 	PicosecsInNanosec = 1e3
 )
 
+// Approximate time constants.
 const (
-	// Approximate
 	DaysInMonth = 30
 )
 

@@ -47,8 +47,8 @@ func Dict(values ...interface{}) (map[string]interface{}, error) {
 	return dict, nil
 }
 
-// Add(a,b) = a+b
+// Add just returns a+b
 func Add(a, b int) int { return a + b }
 
-// Sub(a,b) = a-b
+// Sub just returns a-b
 func Sub(a, b int) int { return a - b }

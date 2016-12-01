@@ -30,10 +30,10 @@ func ParseInt64(stringValue string) (int64, error) {
 //replacer:new uint32	Uint32	strconv.ParseUint
 
 // ParseInt32 interprets a string s in 10-base and returns the corresponding value i (int32) and error.
-func ParseInt32(stringValue string) (int32, error) {
-	if value64, err := strconv.ParseInt(stringValue, defaultIntegerBase, mathh.Int32Bits); err == nil {
-		return int32(value64), nil
-	} else {
-		return 0, err
+func ParseInt32(stringValue string) (i int32, err error) {
+	value64, err := strconv.ParseInt(stringValue, defaultIntegerBase, mathh.Int32Bits)
+	if err == nil {
+		i = int32(value64)
 	}
+	return
 }

@@ -99,7 +99,7 @@ func writeBytesAst(b []byte, w io.Writer, l ast.Expr) error {
 // WriteBytesAst is Ast (see go/ast) implementation of WriteBytes.
 // It should generate proper code even if minor changes in language will happened, but its speed and resource consumption is poor.
 func WriteBytesAst(b []byte, w io.Writer, array bool) error {
-	var l ast.Expr = nil
+	var l ast.Expr	// nil
 	if array {
 		l = &ast.BasicLit{
 			ValuePos: token.NoPos,

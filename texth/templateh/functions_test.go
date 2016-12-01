@@ -38,6 +38,12 @@ func TestNewRange(t *testing.T) {
 	}
 }
 
+func TestNewRange2(t *testing.T) {
+	defer func() { recover() }()
+	NewRange(1, 10, -1)
+	t.Error("Panic expected, but no panic")
+}
+
 func TestDict(t *testing.T) {
 	type testElement struct {
 		v   []interface{}

@@ -26,7 +26,7 @@ func PadRight(s, glyph string, l int) string {
 	return s + strings.Repeat(glyph, l-curLen)
 }
 
-// PadLeftWithBytes return original string padded on the left side with char b to length l.
+// PadLeftWithByte return original string padded on the left side with char b to length l.
 // Length for this function is in bytes. So this function is good only for ascii strings.
 // Original string s will be returned if required length l > len(s).
 func PadLeftWithByte(s string, b byte, l int) string {
@@ -36,7 +36,7 @@ func PadLeftWithByte(s string, b byte, l int) string {
 	return strings.Repeat(string(b), l-len(s)) + s
 }
 
-// PadRightWithBytes return original string padded on the left side with char b to length l.
+// PadRightWithByte return original string padded on the left side with char b to length l.
 // Length for this function is in bytes. So this function is good only for ascii strings.
 // Original string s will be returned if required length l > len(s).
 func PadRightWithByte(s string, b byte, l int) string {

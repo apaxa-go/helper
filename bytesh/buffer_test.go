@@ -4,6 +4,7 @@ import (
 	"bytes"
 	//	"math"
 	"testing"
+	"testing/iotest"
 )
 
 //TODO add more tests
@@ -483,6 +484,15 @@ func TestReadFrom(t *testing.T) {
 	if n1 != 0 {
 		t.Errorf("(2)TestReadFrom. Expected n: %v, got: %v", 0, n1)
 	}
+
+	buf2 := iotest.TimeoutReader(bytes.NewReader(p))
+	n2, err2 := b.ReadFrom(buf2)
+	if err2 == nil {
+		t.Error("Expected error, got no error")
+	}
+	if n2 == 0 {
+		t.Error("Expected non zero byte read")
+	}
 }
 
 func TestWrite(t *testing.T) {
@@ -514,6 +524,7 @@ func TestWrite(t *testing.T) {
 }
 
 func TestWriteTo(t *testing.T) {
+	// 1
 	var b = Buffer{
 		buf:      []byte{0xff, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09},
 		readOff:  2,
@@ -531,6 +542,7 @@ func TestWriteTo(t *testing.T) {
 	}
 	checkSlicesEqual(t, "(1)TestWriteTo", buf.Bytes(), b.buf[2:])
 
+	// 2
 	var b1 = Buffer{
 		buf:           []byte{0xff, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09},
 		readOff:       11,
@@ -550,6 +562,7 @@ func TestWriteTo(t *testing.T) {
 		t.Errorf("(2)TestWriteTo. Expected len(buf.Bytes()): %v, got: %v", 0, len(buf1.Bytes()))
 	}
 
+	// 3
 	var b2 = Buffer{
 		buf: []byte{0xff, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09},
 	}
@@ -563,6 +576,20 @@ func TestWriteTo(t *testing.T) {
 		t.Errorf("(3)TestWriteTo. Expected n: %v, got: %v", 10, n2)
 	}
 	checkSlicesEqual(t, "(3)TestWriteTo2", buf2.Bytes(), append(p2, b2.buf...))
+
+	// 4
+	//var b3 = Buffer{
+	//	buf: []byte{0xff, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09},
+	//}
+	//p3 := []byte{0x01, 0x02, 0x03}
+	//buf3 := iotest.TruncateWriter(bytes.NewBuffer(p3),2)
+	//n3, err3 := b3.WriteTo(buf3)
+	//if err3 == nil {
+	//	t.Error("(4)TestWriteTo. Expect error, no error got")
+	//}
+	//if n3 != 2 {
+	//	t.Errorf("(4)TestWriteTo. Expected n: %v, got: %v", 2, n3)
+	//}
 }
 
 func TestReadWriteByte(t *testing.T) {

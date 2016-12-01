@@ -79,6 +79,10 @@ func TestReadDirNames(t *testing.T) {
 	if errChmod != nil {
 		t.Errorf("TestReadDirNames. Got error: %v", errChmod)
 	}
+	_,err = ReadDirNames(F.Name(), true)
+	if err==nil {
+		t.Error("Expect error, no error got")
+	}
 	s, err = ReadDirNames(nameDir, true)
 	if err != nil {
 		t.Errorf("TestReadDirNames. Got error: %v", err)
