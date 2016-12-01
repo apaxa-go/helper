@@ -12,8 +12,6 @@ func DivideRoundUint(a, b uint) (c uint) {
 	return
 }
 
-// TODO implement other rounding functions (as for signed integer)
-
 // DivideRoundUint8 divides a to b and round result to nearest.
 //   3 / 2 =  2
 func DivideRoundUint8(a, b uint8) (c uint8) {
@@ -23,8 +21,6 @@ func DivideRoundUint8(a, b uint8) (c uint8) {
 	}
 	return
 }
-
-// TODO implement other rounding functions (as for signed integer)
 
 // DivideRoundUint16 divides a to b and round result to nearest.
 //   3 / 2 =  2
@@ -36,8 +32,6 @@ func DivideRoundUint16(a, b uint16) (c uint16) {
 	return
 }
 
-// TODO implement other rounding functions (as for signed integer)
-
 // DivideRoundUint32 divides a to b and round result to nearest.
 //   3 / 2 =  2
 func DivideRoundUint32(a, b uint32) (c uint32) {
@@ -47,5 +41,3 @@ func DivideRoundUint32(a, b uint32) (c uint32) {
 	}
 	return
 }
-
-// TODO implement other rounding functions (as for signed integer)

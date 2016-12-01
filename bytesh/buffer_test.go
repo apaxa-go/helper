@@ -3,6 +3,8 @@ package bytesh
 import (
 	"bytes"
 	//	"math"
+	"github.com/apaxa-go/helper/testingh/iotesth"
+	"io"
 	"testing"
 	"testing/iotest"
 )
@@ -578,18 +580,17 @@ func TestWriteTo(t *testing.T) {
 	checkSlicesEqual(t, "(3)TestWriteTo2", buf2.Bytes(), append(p2, b2.buf...))
 
 	// 4
-	//var b3 = Buffer{
-	//	buf: []byte{0xff, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09},
-	//}
-	//p3 := []byte{0x01, 0x02, 0x03}
-	//buf3 := iotest.TruncateWriter(bytes.NewBuffer(p3),2)
-	//n3, err3 := b3.WriteTo(buf3)
-	//if err3 == nil {
-	//	t.Error("(4)TestWriteTo. Expect error, no error got")
-	//}
-	//if n3 != 2 {
-	//	t.Errorf("(4)TestWriteTo. Expected n: %v, got: %v", 2, n3)
-	//}
+	var b3 = Buffer{
+		buf: []byte{0xff, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09},
+	}
+	buf3 := iotesth.ErrorWriter(nil, 3, nil)
+	n3, err3 := b3.WriteTo(buf3)
+	if err3 != io.ErrShortWrite {
+		t.Errorf("(4)TestWriteTo. Expect %v, got %v", io.ErrShortWrite, err3)
+	}
+	if n3 != 3 {
+		t.Errorf("(4)TestWriteTo. Expected n: %v, got: %v", 3, n3)
+	}
 }
 
 func TestReadWriteByte(t *testing.T) {
