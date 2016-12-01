@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"encoding/binary"
 	"github.com/apaxa-go/helper/bytesh"
+	"github.com/apaxa-go/helper/testingh/iotesth"
+	"io"
 	"reflect"
 	"testing"
 )
@@ -136,10 +138,10 @@ func TestWrite(t *testing.T) {
 		t.Errorf("TestWrite. Wrong write. Slices are not equal.\nExpected b1: %v\ngot: %v", buf.Bytes(), b)
 	}
 
-	//check error EOF
-	buf = bytesh.NewBufferDetail(0, 0)
-	_, err = Read(buf, binary.LittleEndian, b2)
-	if err == nil {
-		t.Error("TestRead. Expected error EOF but got nil")
+	//check error
+	buf2 := iotesth.ErrorWriter(nil, 2, nil)
+	i, err = Write(buf2, binary.LittleEndian, b1, b2)
+	if i != 1 || err != io.ErrShortWrite {
+		t.Errorf("Expect %v %v, got %v %v", 1, io.ErrShortWrite, i, err)
 	}
 }
