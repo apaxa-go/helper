@@ -3,17 +3,11 @@ package ioutilh
 import (
 	"bytes"
 	"github.com/apaxa-go/helper/bytesh"
+	"github.com/apaxa-go/helper/testingh/iotesth"
+	"io"
 	"reflect"
 	"testing"
 )
-
-//import (
-//	"github.com/apaxa-go/helper/bytesh"
-//	"bytes"
-//	"encoding/binary"
-//	"reflect"
-//	"testing"
-//)
 
 func TestRead(t *testing.T) {
 	b := []byte{0x01, 0x02, 0x03}
@@ -141,10 +135,11 @@ func TestWrite(t *testing.T) {
 		t.Errorf("TestWrite. Wrong write. Slices are not equal.\nExpected b1: %v\ngot: %v", buf.Bytes(), b)
 	}
 
-	//check error EOF
-	buf = bytesh.NewBufferDetail(0, 0)
-	_, err = Read(buf, b2)
-	if err != nil {
-		t.Errorf("TestWrite. Expected no error but got %v", err)
+	//check error
+
+	buf2 := iotesth.ErrorWriter(nil, 2, nil)
+	i, err = Write(buf2, b1, b2)
+	if err != io.ErrShortWrite || i != 1 {
+		t.Errorf("TestWrite. Expected %v %v, bot %v %v", 1, io.ErrShortWrite, i, err)
 	}
 }
