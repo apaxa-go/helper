@@ -1,6 +1,7 @@
 package mathh
 
 //replacer:ignore
+// TODO implement other rounding functions (as for signed integer)
 //go:generate go run $GOPATH/src/github.com/apaxa-go/generator/replacer/main.go -- $GOFILE
 //replacer:replace
 //replacer:old uint64	Uint64
@@ -17,32 +18,4 @@ func DivideRoundUint64(a, b uint64) (c uint64) {
 		c++
 	}
 	return
-}
-
-// PowUint64 returns a**b (a raised to power b).
-// Warning: where is no any check for overflow.
-func PowUint64(a, b uint64) uint64 {
-	p := uint64(1)
-	for b > 0 {
-		if b&1 != 0 {
-			p *= a
-		}
-		b >>= 1
-		a *= a
-	}
-	return p
-}
-
-// PowModUint64 computes a**b mod m (modular integer power) using binary powering algorithm.
-func PowModUint64(a, b, m uint64) uint64 {
-	a = a % m
-	p := 1 % m
-	for b > 0 {
-		if b&1 != 0 {
-			p = (p * a) % m
-		}
-		b >>= 1
-		a = (a * a) % m
-	}
-	return p
 }

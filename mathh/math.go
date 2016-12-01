@@ -134,8 +134,8 @@ func DivideRafzFixInt64(a, b int64) int64 {
 
 // DivideTruncInt64 is just a/b.
 // It has a bug if a=MinInt64 and b=-1 (because MinInt64/-1 = MinInt64), see DivideTruncFixInt64 for resolution.
-func DivideTruncInt64(a,b int64) int64{
-	return a/b
+func DivideTruncInt64(a, b int64) int64 {
+	return a / b
 }
 
 // DivideTruncFixInt64 is like DivideTruncInt64 but for a=MinInt64 and b=-1 it returns MaxInt64.
@@ -145,34 +145,4 @@ func DivideTruncFixInt64(a, b int64) int64 {
 		return MaxInt64
 	}
 	return DivideTruncInt64(a, b)
-}
-
-// PowInt64 returns a**b (a raised to power b).
-// b should be >=0.
-// Warning: where is no any check for overflow.
-func PowInt64(a, b int64) int64 {
-	p := int64(1)
-	for b > 0 {
-		if b&1 != 0 {
-			p *= a
-		}
-		b >>= 1
-		a *= a
-	}
-	return p
-}
-
-// PowModInt64 computes a**b mod m (modular integer power) using binary powering algorithm.
-// b should be >=0.
-func PowModInt64(a, b, m int64) int64 {
-	a = a % m
-	p := 1 % m
-	for b > 0 {
-		if b&1 != 0 {
-			p = (p * a) % m
-		}
-		b >>= 1
-		a = (a * a) % m
-	}
-	return p
 }

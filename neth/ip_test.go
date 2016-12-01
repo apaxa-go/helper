@@ -21,25 +21,25 @@ var tests = []struct {
 }
 
 func TestIsIPv4(t *testing.T) {
-	for _,test:=range tests{
-		if r:=IsIPv4(test.ip); r!=test.isV4{
-			t.Errorf("TestIsIPv4: for %v result is %v, but expected %v",test.ip, r, test.isV4)
+	for _, test := range tests {
+		if r := IsIPv4(test.ip); r != test.isV4 {
+			t.Errorf("TestIsIPv4: for %v result is %v, but expected %v", test.ip, r, test.isV4)
 		}
 	}
 }
 
 func TestIsIPv6(t *testing.T) {
-	for _,test:=range tests{
-		if r:=IsIPv6(test.ip); r!=test.isV6{
-			t.Errorf("TestIsIPv6: for %v result is %v, but expected %v",test.ip, r, test.isV6)
+	for _, test := range tests {
+		if r := IsIPv6(test.ip); r != test.isV6 {
+			t.Errorf("TestIsIPv6: for %v result is %v, but expected %v", test.ip, r, test.isV6)
 		}
 	}
 }
 
 func TestIPLen(t *testing.T) {
-	for _,test:=range tests{
-		if r:=IPLen(test.ip); r!=test.length{
-			t.Errorf("TestIPLen: for %v result is %v, but expected %v",test.ip, r, test.length)
+	for _, test := range tests {
+		if r := IPLen(test.ip); r != test.length {
+			t.Errorf("TestIPLen: for %v result is %v, but expected %v", test.ip, r, test.length)
 		}
 	}
 }

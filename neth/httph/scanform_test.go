@@ -2,6 +2,7 @@ package httph
 
 import (
 	"errors"
+	"github.com/apaxa-go/helper/mathh"
 	"net/http/httptest"
 	"net/url"
 	"os"
@@ -18,6 +19,7 @@ func TestScanError_Error(t *testing.T) {
 		{ScanError{FieldNum: 2, FieldName: "f3", Type: ScanErrorTypeIncompatibleValue, SubError: nil}, "Scan error in #2 field with name 'f3': unable to parse string to required type"},
 		{ScanError{FieldNum: 3, FieldName: "f4", Type: ScanErrorTypeIncompatibleValue, SubError: errors.New("sub error")}, "Scan error in #3 field with name 'f4': sub error"},
 		{ScanError{FieldNum: 4, FieldName: "f5", Type: ScanErrorTypeIncompatibleType, SubError: nil}, "Scan error in #4 field with name 'f5': type of this field is imcompatible with this function type"},
+		{ScanError{FieldNum: 5, FieldName: "f6", Type: ScanErrorType(mathh.MaxUint8), SubError: nil}, "Scan error in #5 field with name 'f6': unknown error"},
 	}
 
 	for _, test := range tests {
@@ -95,12 +97,14 @@ func TestScanFormData(t *testing.T) {
 	}
 
 	// Test bad value for int
-	if err := ScanFormData(req, ScanField{Name: "f20", Value: &i}); err == nil {
-		t.Error("Expected error, but got nil")
-	} else if err1, ok := err.(ScanError); !ok {
-		t.Errorf("Unxepected type of error: %v", err1)
-	} else if err1.Type != ScanErrorTypeIncompatibleValue || err1.FieldName != "f20" || err1.FieldNum != 0 || err1.SubError == nil {
-		t.Errorf("Invalid fields in error: %v", err1)
+	for _, v := range []interface{}{&i, &i8, &i16, &i32, &i64, &u, &u8, &u16, &u32, &u64} {
+		if err := ScanFormData(req, ScanField{Name: "f20", Value: v}); err == nil {
+			t.Error("Expected error, but got nil")
+		} else if err1, ok := err.(ScanError); !ok {
+			t.Errorf("Unxepected type of error: %v", err1)
+		} else if err1.Type != ScanErrorTypeIncompatibleValue || err1.FieldName != "f20" || err1.FieldNum != 0 || err1.SubError == nil {
+			t.Errorf("Invalid fields in error: %v", err1)
+		}
 	}
 
 	// Test unknown type

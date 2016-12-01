@@ -2,6 +2,7 @@ package goutilh
 
 import (
 	"github.com/apaxa-go/helper/bytesh"
+	"github.com/apaxa-go/helper/mathh"
 	"io"
 	"reflect"
 	"runtime"
@@ -89,6 +90,38 @@ func testWriteBytes(t *testing.T, f func([]byte, io.Writer, bool) error, array b
 func TestWriteBytes(t *testing.T) {
 	testWriteBytes(t, WriteBytes, true)
 	testWriteBytes(t, WriteBytes, false)
+}
+
+func TestWriteBytes2(t *testing.T) {
+	b := make([]byte, astThreshold+1)
+	for i := range b {
+		b[i] = byte(i % mathh.MaxUint8)
+	}
+
+	buf := bytesh.NewBufferDetail(0, 1)
+	for _, array := range []bool{false, true} {
+		buf.Reset()
+		if err := WriteBytes(b, buf, array); err != nil {
+			t.Errorf("Got error %v", err)
+		}
+		s := string(buf.Bytes())
+
+		buf.Reset()
+		if err := WriteBytesAst(b, buf, array); err != nil {
+			t.Errorf("Got error %v", err)
+		}
+		sAst := string(buf.Bytes())
+
+		buf.Reset()
+		if err := WriteBytesStr(b, buf, array); err != nil {
+			t.Errorf("Got error %v", err)
+		}
+		sStr := string(buf.Bytes())
+
+		if s != sAst || s != sStr {
+			t.Errorf("Different results:\n%v\n%v\n%v", s, sAst, sStr)
+		}
+	}
 }
 
 func TestWriteBytesStr(t *testing.T) {

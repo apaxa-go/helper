@@ -127,8 +127,8 @@ func DivideRafzFixInt(a, b int) int {
 
 // DivideTruncInt is just a/b.
 // It has a bug if a=MinInt and b=-1 (because MinInt/-1 = MinInt), see DivideTruncFixInt for resolution.
-func DivideTruncInt(a,b int) int{
-	return a/b
+func DivideTruncInt(a, b int) int {
+	return a / b
 }
 
 // DivideTruncFixInt is like DivideTruncInt but for a=MinInt and b=-1 it returns MaxInt.
@@ -138,36 +138,6 @@ func DivideTruncFixInt(a, b int) int {
 		return MaxInt
 	}
 	return DivideTruncInt(a, b)
-}
-
-// PowInt returns a**b (a raised to power b).
-// b should be >=0.
-// Warning: where is no any check for overflow.
-func PowInt(a, b int) int {
-	p := int(1)
-	for b > 0 {
-		if b&1 != 0 {
-			p *= a
-		}
-		b >>= 1
-		a *= a
-	}
-	return p
-}
-
-// PowModInt computes a**b mod m (modular integer power) using binary powering algorithm.
-// b should be >=0.
-func PowModInt(a, b, m int) int {
-	a = a % m
-	p := 1 % m
-	for b > 0 {
-		if b&1 != 0 {
-			p = (p * a) % m
-		}
-		b >>= 1
-		a = (a * a) % m
-	}
-	return p
 }
 
 // AbsInt8 returns absolute value of passed integer.
@@ -295,8 +265,8 @@ func DivideRafzFixInt8(a, b int8) int8 {
 
 // DivideTruncInt8 is just a/b.
 // It has a bug if a=MinInt8 and b=-1 (because MinInt8/-1 = MinInt8), see DivideTruncFixInt8 for resolution.
-func DivideTruncInt8(a,b int8) int8{
-	return a/b
+func DivideTruncInt8(a, b int8) int8 {
+	return a / b
 }
 
 // DivideTruncFixInt8 is like DivideTruncInt8 but for a=MinInt8 and b=-1 it returns MaxInt8.
@@ -306,36 +276,6 @@ func DivideTruncFixInt8(a, b int8) int8 {
 		return MaxInt8
 	}
 	return DivideTruncInt8(a, b)
-}
-
-// PowInt8 returns a**b (a raised to power b).
-// b should be >=0.
-// Warning: where is no any check for overflow.
-func PowInt8(a, b int8) int8 {
-	p := int8(1)
-	for b > 0 {
-		if b&1 != 0 {
-			p *= a
-		}
-		b >>= 1
-		a *= a
-	}
-	return p
-}
-
-// PowModInt8 computes a**b mod m (modular integer power) using binary powering algorithm.
-// b should be >=0.
-func PowModInt8(a, b, m int8) int8 {
-	a = a % m
-	p := 1 % m
-	for b > 0 {
-		if b&1 != 0 {
-			p = (p * a) % m
-		}
-		b >>= 1
-		a = (a * a) % m
-	}
-	return p
 }
 
 // AbsInt16 returns absolute value of passed integer.
@@ -463,8 +403,8 @@ func DivideRafzFixInt16(a, b int16) int16 {
 
 // DivideTruncInt16 is just a/b.
 // It has a bug if a=MinInt16 and b=-1 (because MinInt16/-1 = MinInt16), see DivideTruncFixInt16 for resolution.
-func DivideTruncInt16(a,b int16) int16{
-	return a/b
+func DivideTruncInt16(a, b int16) int16 {
+	return a / b
 }
 
 // DivideTruncFixInt16 is like DivideTruncInt16 but for a=MinInt16 and b=-1 it returns MaxInt16.
@@ -474,36 +414,6 @@ func DivideTruncFixInt16(a, b int16) int16 {
 		return MaxInt16
 	}
 	return DivideTruncInt16(a, b)
-}
-
-// PowInt16 returns a**b (a raised to power b).
-// b should be >=0.
-// Warning: where is no any check for overflow.
-func PowInt16(a, b int16) int16 {
-	p := int16(1)
-	for b > 0 {
-		if b&1 != 0 {
-			p *= a
-		}
-		b >>= 1
-		a *= a
-	}
-	return p
-}
-
-// PowModInt16 computes a**b mod m (modular integer power) using binary powering algorithm.
-// b should be >=0.
-func PowModInt16(a, b, m int16) int16 {
-	a = a % m
-	p := 1 % m
-	for b > 0 {
-		if b&1 != 0 {
-			p = (p * a) % m
-		}
-		b >>= 1
-		a = (a * a) % m
-	}
-	return p
 }
 
 // AbsInt32 returns absolute value of passed integer.
@@ -631,8 +541,8 @@ func DivideRafzFixInt32(a, b int32) int32 {
 
 // DivideTruncInt32 is just a/b.
 // It has a bug if a=MinInt32 and b=-1 (because MinInt32/-1 = MinInt32), see DivideTruncFixInt32 for resolution.
-func DivideTruncInt32(a,b int32) int32{
-	return a/b
+func DivideTruncInt32(a, b int32) int32 {
+	return a / b
 }
 
 // DivideTruncFixInt32 is like DivideTruncInt32 but for a=MinInt32 and b=-1 it returns MaxInt32.
@@ -642,34 +552,4 @@ func DivideTruncFixInt32(a, b int32) int32 {
 		return MaxInt32
 	}
 	return DivideTruncInt32(a, b)
-}
-
-// PowInt32 returns a**b (a raised to power b).
-// b should be >=0.
-// Warning: where is no any check for overflow.
-func PowInt32(a, b int32) int32 {
-	p := int32(1)
-	for b > 0 {
-		if b&1 != 0 {
-			p *= a
-		}
-		b >>= 1
-		a *= a
-	}
-	return p
-}
-
-// PowModInt32 computes a**b mod m (modular integer power) using binary powering algorithm.
-// b should be >=0.
-func PowModInt32(a, b, m int32) int32 {
-	a = a % m
-	p := 1 % m
-	for b > 0 {
-		if b&1 != 0 {
-			p = (p * a) % m
-		}
-		b >>= 1
-		a = (a * a) % m
-	}
-	return p
 }

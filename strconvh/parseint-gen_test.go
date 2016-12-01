@@ -22,8 +22,8 @@ func TestParseInt(t *testing.T) {
 		{"10.05", 0, true},
 		{minIntStr, mathh.MinInt, false},
 		{maxIntStr, mathh.MaxInt, false},
-		{"18446744073709551616", 0, true},	// Max uint+1
-		{"-9223372036854775809", 0, true},	// Min int-1
+		{"18446744073709551616", 0, true}, // Max uint+1
+		{"-9223372036854775809", 0, true}, // Min int-1
 	}
 
 	for _, v := range test {
@@ -54,8 +54,8 @@ func TestParseInt8(t *testing.T) {
 		{"10.05", 0, true},
 		{minInt8Str, mathh.MinInt8, false},
 		{maxInt8Str, mathh.MaxInt8, false},
-		{"18446744073709551616", 0, true},	// Max uint8+1
-		{"-9223372036854775809", 0, true},	// Min int8-1
+		{"18446744073709551616", 0, true}, // Max uint8+1
+		{"-9223372036854775809", 0, true}, // Min int8-1
 	}
 
 	for _, v := range test {
@@ -86,8 +86,8 @@ func TestParseInt16(t *testing.T) {
 		{"10.05", 0, true},
 		{minInt16Str, mathh.MinInt16, false},
 		{maxInt16Str, mathh.MaxInt16, false},
-		{"18446744073709551616", 0, true},	// Max uint16+1
-		{"-9223372036854775809", 0, true},	// Min int16-1
+		{"18446744073709551616", 0, true}, // Max uint16+1
+		{"-9223372036854775809", 0, true}, // Min int16-1
 	}
 
 	for _, v := range test {
@@ -118,8 +118,8 @@ func TestParseInt32(t *testing.T) {
 		{"10.05", 0, true},
 		{minInt32Str, mathh.MinInt32, false},
 		{maxInt32Str, mathh.MaxInt32, false},
-		{"18446744073709551616", 0, true},	// Max uint32+1
-		{"-9223372036854775809", 0, true},	// Min int32-1
+		{"18446744073709551616", 0, true}, // Max uint32+1
+		{"-9223372036854775809", 0, true}, // Min int32-1
 	}
 
 	for _, v := range test {
@@ -150,8 +150,8 @@ func TestParseUint(t *testing.T) {
 		{"10.05", 0, true},
 		{minUintStr, mathh.MinUint, false},
 		{maxUintStr, mathh.MaxUint, false},
-		{"18446744073709551616", 0, true},	// Max uuint+1
-		{"-9223372036854775809", 0, true},	// Min uint-1
+		{"18446744073709551616", 0, true}, // Max uuint+1
+		{"-9223372036854775809", 0, true}, // Min uint-1
 	}
 
 	for _, v := range test {
@@ -182,8 +182,8 @@ func TestParseUint8(t *testing.T) {
 		{"10.05", 0, true},
 		{minUint8Str, mathh.MinUint8, false},
 		{maxUint8Str, mathh.MaxUint8, false},
-		{"18446744073709551616", 0, true},	// Max uuint8+1
-		{"-9223372036854775809", 0, true},	// Min uint8-1
+		{"18446744073709551616", 0, true}, // Max uuint8+1
+		{"-9223372036854775809", 0, true}, // Min uint8-1
 	}
 
 	for _, v := range test {
@@ -214,8 +214,8 @@ func TestParseUint16(t *testing.T) {
 		{"10.05", 0, true},
 		{minUint16Str, mathh.MinUint16, false},
 		{maxUint16Str, mathh.MaxUint16, false},
-		{"18446744073709551616", 0, true},	// Max uuint16+1
-		{"-9223372036854775809", 0, true},	// Min uint16-1
+		{"18446744073709551616", 0, true}, // Max uuint16+1
+		{"-9223372036854775809", 0, true}, // Min uint16-1
 	}
 
 	for _, v := range test {
@@ -246,8 +246,8 @@ func TestParseUint32(t *testing.T) {
 		{"10.05", 0, true},
 		{minUint32Str, mathh.MinUint32, false},
 		{maxUint32Str, mathh.MaxUint32, false},
-		{"18446744073709551616", 0, true},	// Max uuint32+1
-		{"-9223372036854775809", 0, true},	// Min uint32-1
+		{"18446744073709551616", 0, true}, // Max uuint32+1
+		{"-9223372036854775809", 0, true}, // Min uint32-1
 	}
 
 	for _, v := range test {
@@ -278,8 +278,8 @@ func TestParseUint64(t *testing.T) {
 		{"10.05", 0, true},
 		{minUint64Str, mathh.MinUint64, false},
 		{maxUint64Str, mathh.MaxUint64, false},
-		{"18446744073709551616", 0, true},	// Max uuint64+1
-		{"-9223372036854775809", 0, true},	// Min uint64-1
+		{"18446744073709551616", 0, true}, // Max uuint64+1
+		{"-9223372036854775809", 0, true}, // Min uint64-1
 	}
 
 	for _, v := range test {

@@ -3,11 +3,11 @@ package filepathh
 import (
 	"errors"
 	"github.com/apaxa-go/helper/ioh/ioutilh"
+	"github.com/apaxa-go/helper/strconvh"
 	"io/ioutil"
 	"os"
 	"reflect"
 	"testing"
-	"github.com/apaxa-go/helper/strconvh"
 )
 
 var renameNum = 1

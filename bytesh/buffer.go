@@ -22,9 +22,9 @@ const defaultGrowFactor = 1
 // Buffer implement io.ReadSeeker and io.WriteSeeker - behaviour of Seek method can be changed on runtime by SetSeekRead() and SetSeekWrite().
 // APIs of Buffer and bytes.Buffer are similar, main exception is that Buffer currently does not have Rune-related methods and Unread* methods.
 type Buffer struct {
-	buf      []byte // contents are the bytes buf[off : len(buf)]
-	readOff  int    // read at &buf[readOff]
-	writeOff int    // write at &buf[writeOff]
+	buf              []byte // contents are the bytes buf[off : len(buf)]
+	readOff          int    // read at &buf[readOff]
+	writeOff         int    // write at &buf[writeOff]
 	seekBehaviour    seekBehaviourT
 	activeGrowFactor int
 }
