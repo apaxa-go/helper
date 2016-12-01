@@ -23,7 +23,7 @@ func TestFormatFloat32(t *testing.T) {
 	for _, v := range tests {
 		s := FormatFloat32(v.i)
 		if s != v.s {
-			t.Errorf("Expected: %s, got: %s", v.s, s)
+			t.Errorf("expect %s, got: %s", v.s, s)
 		}
 	}
 }
@@ -45,7 +45,7 @@ func TestFormatFloat32Prec(t *testing.T) {
 	for _, v := range tests {
 		s := FormatFloat32Prec(v.i, v.p)
 		if s != v.s {
-			t.Errorf("Expected: %s, got: %s", v.s, s)
+			t.Errorf("expect %s, got: %s", v.s, s)
 		}
 	}
 }
@@ -71,7 +71,7 @@ func TestFormatFloat64(t *testing.T) {
 	for _, v := range test {
 		s := FormatFloat64(v.i)
 		if s != v.s {
-			t.Errorf("Expected: %s, got: %s", v.s, s)
+			t.Errorf("expect %s, got: %s", v.s, s)
 		}
 	}
 }
@@ -93,7 +93,7 @@ func TestFormatFloat64Prec(t *testing.T) {
 	for _, v := range test {
 		s := FormatFloat64Prec(v.i, v.p)
 		if s != v.s {
-			t.Errorf("Expected: %s, got: %s", v.s, s)
+			t.Errorf("expect %s, got: %s", v.s, s)
 		}
 	}
 }

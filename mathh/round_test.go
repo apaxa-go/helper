@@ -27,7 +27,7 @@ func TestRound64(t *testing.T) {
 	for j, v := range test {
 		i := Round64(v.f)
 		if i != v.i {
-			t.Errorf("\nTestRound64 - %v.\nExpected int64: %v\ngot: %v", j, v.i, i)
+			t.Errorf("#%v expect %v, got: %v", j, v.i, i)
 		}
 	}
 }

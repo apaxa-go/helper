@@ -17,9 +17,9 @@ func TestAuthError(t *testing.T) {
 	handler(w, req)
 
 	if w.Code != http.StatusUnauthorized {
-		t.Errorf("TestAuthError: should set status code to unauthorized, but got %v", w.Code)
+		t.Errorf("should set status code to unauthorized, but got %v", w.Code)
 	}
 	if strings.TrimRight(string(w.Body.Bytes()), " \n") != message {
-		t.Errorf("TestAuthError: should return '%v', but got '%v'", message, w.Body.String())
+		t.Errorf("should return '%v', but got '%v'", message, w.Body.String())
 	}
 }

@@ -63,7 +63,7 @@ var testsMinMaxInt64 = []struct {
 func TestMin2Uint64(t *testing.T) {
 	for _, test := range testsMinMaxUint64 {
 		if r := Min2Uint64(test.a, test.b); r != test.min {
-			t.Errorf("Error Min2Uint64(%v, %v) - expected %v, got %v", test.a, test.b, test.min, r)
+			t.Errorf("%v,%v: expect %v, got %v", test.a, test.b, test.min, r)
 		}
 	}
 }
@@ -71,7 +71,7 @@ func TestMin2Uint64(t *testing.T) {
 func TestMax2Uint64(t *testing.T) {
 	for _, test := range testsMinMaxUint64 {
 		if r := Max2Uint64(test.a, test.b); r != test.max {
-			t.Errorf("Error Max2Uint64(%v, %v) - expected %v, got %v", test.a, test.b, test.max, r)
+			t.Errorf("%v,%v: expect %v, got %v", test.a, test.b, test.max, r)
 		}
 	}
 }

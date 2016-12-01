@@ -23,7 +23,7 @@ var testsDivideUint = []testDivideUint{
 func TestDivideUint(t *testing.T) {
 	for _, test := range testsDivideUint {
 		if r := DivideRoundUint(test.a, test.b); r != test.r {
-			t.Errorf("Error DivideUint(%v, %v) - expected %v, got %v", test.a, test.b, test.r, r)
+			t.Errorf("%v, %v: expect %v, got %v", test.a, test.b, test.r, r)
 		}
 	}
 }
@@ -37,7 +37,7 @@ func TestDivideUintOverflow(t *testing.T) {
 			validR := uint(divideAsUBig(customU(a), customU(b)))
 			r := DivideRoundUint(a, b)
 			if r != validR {
-				t.Errorf("Error Divide(%v, %v) - got %v, expected %v", a, b, r, validR)
+				t.Errorf("%v, %v: expect %v, got %v, ", a, b, validR, r)
 			}
 		}
 	}
@@ -68,7 +68,7 @@ var testsDivideUint8 = []testDivideUint8{
 func TestDivideUint8(t *testing.T) {
 	for _, test := range testsDivideUint8 {
 		if r := DivideRoundUint8(test.a, test.b); r != test.r {
-			t.Errorf("Error DivideUint8(%v, %v) - expected %v, got %v", test.a, test.b, test.r, r)
+			t.Errorf("%v, %v: expect %v, got %v", test.a, test.b, test.r, r)
 		}
 	}
 }
@@ -82,7 +82,7 @@ func TestDivideUint8Overflow(t *testing.T) {
 			validR := uint8(divideAsUBig(customU(a), customU(b)))
 			r := DivideRoundUint8(a, b)
 			if r != validR {
-				t.Errorf("Error Divide(%v, %v) - got %v, expected %v", a, b, r, validR)
+				t.Errorf("%v, %v: expect %v, got %v, ", a, b, validR, r)
 			}
 		}
 	}
@@ -113,7 +113,7 @@ var testsDivideUint16 = []testDivideUint16{
 func TestDivideUint16(t *testing.T) {
 	for _, test := range testsDivideUint16 {
 		if r := DivideRoundUint16(test.a, test.b); r != test.r {
-			t.Errorf("Error DivideUint16(%v, %v) - expected %v, got %v", test.a, test.b, test.r, r)
+			t.Errorf("%v, %v: expect %v, got %v", test.a, test.b, test.r, r)
 		}
 	}
 }
@@ -127,7 +127,7 @@ func TestDivideUint16Overflow(t *testing.T) {
 			validR := uint16(divideAsUBig(customU(a), customU(b)))
 			r := DivideRoundUint16(a, b)
 			if r != validR {
-				t.Errorf("Error Divide(%v, %v) - got %v, expected %v", a, b, r, validR)
+				t.Errorf("%v, %v: expect %v, got %v, ", a, b, validR, r)
 			}
 		}
 	}
@@ -158,7 +158,7 @@ var testsDivideUint32 = []testDivideUint32{
 func TestDivideUint32(t *testing.T) {
 	for _, test := range testsDivideUint32 {
 		if r := DivideRoundUint32(test.a, test.b); r != test.r {
-			t.Errorf("Error DivideUint32(%v, %v) - expected %v, got %v", test.a, test.b, test.r, r)
+			t.Errorf("%v, %v: expect %v, got %v", test.a, test.b, test.r, r)
 		}
 	}
 }
@@ -172,7 +172,7 @@ func TestDivideUint32Overflow(t *testing.T) {
 			validR := uint32(divideAsUBig(customU(a), customU(b)))
 			r := DivideRoundUint32(a, b)
 			if r != validR {
-				t.Errorf("Error Divide(%v, %v) - got %v, expected %v", a, b, r, validR)
+				t.Errorf("%v, %v: expect %v, got %v, ", a, b, validR, r)
 			}
 		}
 	}

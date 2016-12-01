@@ -129,7 +129,7 @@ var testsMinMaxInt32 = []struct {
 func TestMin2Uint(t *testing.T) {
 	for _, test := range testsMinMaxUint {
 		if r := Min2Uint(test.a, test.b); r != test.min {
-			t.Errorf("Error Min2Uint(%v, %v) - expected %v, got %v", test.a, test.b, test.min, r)
+			t.Errorf("%v,%v: expect %v, got %v", test.a, test.b, test.min, r)
 		}
 	}
 }
@@ -137,7 +137,7 @@ func TestMin2Uint(t *testing.T) {
 func TestMax2Uint(t *testing.T) {
 	for _, test := range testsMinMaxUint {
 		if r := Max2Uint(test.a, test.b); r != test.max {
-			t.Errorf("Error Max2Uint(%v, %v) - expected %v, got %v", test.a, test.b, test.max, r)
+			t.Errorf("%v,%v: expect %v, got %v", test.a, test.b, test.max, r)
 		}
 	}
 }
@@ -145,7 +145,7 @@ func TestMax2Uint(t *testing.T) {
 func TestMin2Uint8(t *testing.T) {
 	for _, test := range testsMinMaxUint8 {
 		if r := Min2Uint8(test.a, test.b); r != test.min {
-			t.Errorf("Error Min2Uint8(%v, %v) - expected %v, got %v", test.a, test.b, test.min, r)
+			t.Errorf("%v,%v: expect %v, got %v", test.a, test.b, test.min, r)
 		}
 	}
 }
@@ -153,7 +153,7 @@ func TestMin2Uint8(t *testing.T) {
 func TestMax2Uint8(t *testing.T) {
 	for _, test := range testsMinMaxUint8 {
 		if r := Max2Uint8(test.a, test.b); r != test.max {
-			t.Errorf("Error Max2Uint8(%v, %v) - expected %v, got %v", test.a, test.b, test.max, r)
+			t.Errorf("%v,%v: expect %v, got %v", test.a, test.b, test.max, r)
 		}
 	}
 }
@@ -161,7 +161,7 @@ func TestMax2Uint8(t *testing.T) {
 func TestMin2Uint16(t *testing.T) {
 	for _, test := range testsMinMaxUint16 {
 		if r := Min2Uint16(test.a, test.b); r != test.min {
-			t.Errorf("Error Min2Uint16(%v, %v) - expected %v, got %v", test.a, test.b, test.min, r)
+			t.Errorf("%v,%v: expect %v, got %v", test.a, test.b, test.min, r)
 		}
 	}
 }
@@ -169,7 +169,7 @@ func TestMin2Uint16(t *testing.T) {
 func TestMax2Uint16(t *testing.T) {
 	for _, test := range testsMinMaxUint16 {
 		if r := Max2Uint16(test.a, test.b); r != test.max {
-			t.Errorf("Error Max2Uint16(%v, %v) - expected %v, got %v", test.a, test.b, test.max, r)
+			t.Errorf("%v,%v: expect %v, got %v", test.a, test.b, test.max, r)
 		}
 	}
 }
@@ -177,7 +177,7 @@ func TestMax2Uint16(t *testing.T) {
 func TestMin2Uint32(t *testing.T) {
 	for _, test := range testsMinMaxUint32 {
 		if r := Min2Uint32(test.a, test.b); r != test.min {
-			t.Errorf("Error Min2Uint32(%v, %v) - expected %v, got %v", test.a, test.b, test.min, r)
+			t.Errorf("%v,%v: expect %v, got %v", test.a, test.b, test.min, r)
 		}
 	}
 }
@@ -185,7 +185,7 @@ func TestMin2Uint32(t *testing.T) {
 func TestMax2Uint32(t *testing.T) {
 	for _, test := range testsMinMaxUint32 {
 		if r := Max2Uint32(test.a, test.b); r != test.max {
-			t.Errorf("Error Max2Uint32(%v, %v) - expected %v, got %v", test.a, test.b, test.max, r)
+			t.Errorf("%v,%v: expect %v, got %v", test.a, test.b, test.max, r)
 		}
 	}
 }
@@ -193,7 +193,7 @@ func TestMax2Uint32(t *testing.T) {
 func TestMin2Int(t *testing.T) {
 	for _, test := range testsMinMaxInt {
 		if r := Min2Int(test.a, test.b); r != test.min {
-			t.Errorf("Error Min2Int(%v, %v) - expected %v, got %v", test.a, test.b, test.min, r)
+			t.Errorf("%v,%v: expect %v, got %v", test.a, test.b, test.min, r)
 		}
 	}
 }
@@ -201,7 +201,7 @@ func TestMin2Int(t *testing.T) {
 func TestMax2Int(t *testing.T) {
 	for _, test := range testsMinMaxInt {
 		if r := Max2Int(test.a, test.b); r != test.max {
-			t.Errorf("Error Max2Int(%v, %v) - expected %v, got %v", test.a, test.b, test.max, r)
+			t.Errorf("%v,%v: expect %v, got %v", test.a, test.b, test.max, r)
 		}
 	}
 }
@@ -209,7 +209,7 @@ func TestMax2Int(t *testing.T) {
 func TestMin2Int8(t *testing.T) {
 	for _, test := range testsMinMaxInt8 {
 		if r := Min2Int8(test.a, test.b); r != test.min {
-			t.Errorf("Error Min2Int8(%v, %v) - expected %v, got %v", test.a, test.b, test.min, r)
+			t.Errorf("%v,%v: expect %v, got %v", test.a, test.b, test.min, r)
 		}
 	}
 }
@@ -217,7 +217,7 @@ func TestMin2Int8(t *testing.T) {
 func TestMax2Int8(t *testing.T) {
 	for _, test := range testsMinMaxInt8 {
 		if r := Max2Int8(test.a, test.b); r != test.max {
-			t.Errorf("Error Max2Int8(%v, %v) - expected %v, got %v", test.a, test.b, test.max, r)
+			t.Errorf("%v,%v: expect %v, got %v", test.a, test.b, test.max, r)
 		}
 	}
 }
@@ -225,7 +225,7 @@ func TestMax2Int8(t *testing.T) {
 func TestMin2Int16(t *testing.T) {
 	for _, test := range testsMinMaxInt16 {
 		if r := Min2Int16(test.a, test.b); r != test.min {
-			t.Errorf("Error Min2Int16(%v, %v) - expected %v, got %v", test.a, test.b, test.min, r)
+			t.Errorf("%v,%v: expect %v, got %v", test.a, test.b, test.min, r)
 		}
 	}
 }
@@ -233,7 +233,7 @@ func TestMin2Int16(t *testing.T) {
 func TestMax2Int16(t *testing.T) {
 	for _, test := range testsMinMaxInt16 {
 		if r := Max2Int16(test.a, test.b); r != test.max {
-			t.Errorf("Error Max2Int16(%v, %v) - expected %v, got %v", test.a, test.b, test.max, r)
+			t.Errorf("%v,%v: expect %v, got %v", test.a, test.b, test.max, r)
 		}
 	}
 }
@@ -241,7 +241,7 @@ func TestMax2Int16(t *testing.T) {
 func TestMin2Int32(t *testing.T) {
 	for _, test := range testsMinMaxInt32 {
 		if r := Min2Int32(test.a, test.b); r != test.min {
-			t.Errorf("Error Min2Int32(%v, %v) - expected %v, got %v", test.a, test.b, test.min, r)
+			t.Errorf("%v,%v: expect %v, got %v", test.a, test.b, test.min, r)
 		}
 	}
 }
@@ -249,7 +249,7 @@ func TestMin2Int32(t *testing.T) {
 func TestMax2Int32(t *testing.T) {
 	for _, test := range testsMinMaxInt32 {
 		if r := Max2Int32(test.a, test.b); r != test.max {
-			t.Errorf("Error Max2Int32(%v, %v) - expected %v, got %v", test.a, test.b, test.max, r)
+			t.Errorf("%v,%v: expect %v, got %v", test.a, test.b, test.max, r)
 		}
 	}
 }
@@ -257,7 +257,7 @@ func TestMax2Int32(t *testing.T) {
 func TestMin2Int64(t *testing.T) {
 	for _, test := range testsMinMaxInt64 {
 		if r := Min2Int64(test.a, test.b); r != test.min {
-			t.Errorf("Error Min2Int64(%v, %v) - expected %v, got %v", test.a, test.b, test.min, r)
+			t.Errorf("%v,%v: expect %v, got %v", test.a, test.b, test.min, r)
 		}
 	}
 }
@@ -265,7 +265,7 @@ func TestMin2Int64(t *testing.T) {
 func TestMax2Int64(t *testing.T) {
 	for _, test := range testsMinMaxInt64 {
 		if r := Max2Int64(test.a, test.b); r != test.max {
-			t.Errorf("Error Max2Int64(%v, %v) - expected %v, got %v", test.a, test.b, test.max, r)
+			t.Errorf("%v,%v: expect %v, got %v", test.a, test.b, test.max, r)
 		}
 	}
 }

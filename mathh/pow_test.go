@@ -36,7 +36,7 @@ func TestPowUint64(t *testing.T) {
 	}
 	for _, test := range tests {
 		if r := PowUint64(test.a, test.b); r != test.r {
-			t.Errorf("Expect f(%v, %v) = %v, got %v", test.a, test.b, test.r, r)
+			t.Errorf("%v,%v: expect %v, got %v", test.a, test.b, test.r, r)
 		}
 	}
 }
@@ -63,7 +63,7 @@ func TestPowModUint64(t *testing.T) {
 	}
 	for _, test := range tests {
 		if r := PowModUint64(test.a, test.b, test.m); r != test.r {
-			t.Errorf("Expect f(%v, %v, %v) = %v, got %v", test.a, test.b, test.m, test.r, r)
+			t.Errorf("%v,%v,%v: expect %v, got %v", test.a, test.b, test.m, test.r, r)
 		}
 	}
 }

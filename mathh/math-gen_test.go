@@ -51,7 +51,7 @@ func TestAbsInt(t *testing.T) {
 			continue
 		}
 		if r := AbsInt(test); r < 0 || ((test < 0 && r != -test) || (test >= 0 && r != test)) {
-			t.Errorf("Error AbsInt(%v) - got %v", test, r)
+			t.Errorf("%v: got %v", test, r)
 		}
 	}
 }
@@ -59,7 +59,7 @@ func TestAbsInt(t *testing.T) {
 func TestAbsFixInt(t *testing.T) {
 	for _, test := range testsInt {
 		if r := AbsFixInt(test); r < 0 || ((test < 0 && r != -test && (test != MinInt || r != MaxInt)) || (test >= 0 && r != test)) {
-			t.Errorf("Error AbsFixInt(%v) - got %v", test, r)
+			t.Errorf("%v: got %v", test, r)
 		}
 	}
 }
@@ -67,7 +67,7 @@ func TestAbsFixInt(t *testing.T) {
 func TestAntiAbsInt(t *testing.T) {
 	for _, test := range testsInt {
 		if r := AntiAbsInt(test); r > 0 || ((test > 0 && r != -test) || (test <= 0 && r != test)) {
-			t.Errorf("Error AntiAbsInt(%v) - got %v", test, r)
+			t.Errorf("%v: got %v", test, r)
 		}
 	}
 }
@@ -75,7 +75,7 @@ func TestAntiAbsInt(t *testing.T) {
 func TestDivideRoundInt(t *testing.T) {
 	for _, test := range testsDivideInt {
 		if r := DivideRoundInt(test.a, test.b); r != test.round {
-			t.Errorf("Expected f(%v, %v) = %v, got %v", test.a, test.b, test.round, r)
+			t.Errorf("%v,%v: expect %v, got %v", test.a, test.b, test.round, r)
 		}
 	}
 }
@@ -87,7 +87,7 @@ func TestDivideRoundFixInt(t *testing.T) {
 			rightR = MaxInt
 		}
 		if r := DivideRoundFixInt(test.a, test.b); r != rightR {
-			t.Errorf("Error DivideFixInt(%v, %v) - expected %v, got %v", test.a, test.b, rightR, r)
+			t.Errorf("%v,%v: expect %v, got %v", test.a, test.b, rightR, r)
 		}
 	}
 }
@@ -101,7 +101,7 @@ func TestDivideRoundIntOverflow(t *testing.T) {
 			validR := int(divideRoundAsBig(customI(a), customI(b)))
 			r := DivideRoundInt(a, b)
 			if r != validR {
-				t.Errorf("Error DivideInt(%v, %v) - got %v, expected %v", a, b, r, validR)
+				t.Errorf("%v,%v: expect %v, got %v", a, b, validR, r)
 			}
 		}
 	}
@@ -121,7 +121,7 @@ func TestDivideRoundFixIntOverflow(t *testing.T) {
 			}
 			r := DivideRoundFixInt(a, b)
 			if r != validR {
-				t.Errorf("Error DivideFixInt(%v, %v) - got %v, expected %v", a, b, r, validR)
+				t.Errorf("%v,%v: expect %v,got %v", a, b, validR, r)
 			}
 		}
 	}
@@ -130,7 +130,7 @@ func TestDivideRoundFixIntOverflow(t *testing.T) {
 func TestDivideCeilInt(t *testing.T) {
 	for _, test := range testsDivideInt {
 		if r := DivideCeilInt(test.a, test.b); r != test.ceil {
-			t.Errorf("Expected f(%v, %v) = %v, got %v", test.a, test.b, test.ceil, r)
+			t.Errorf("%v,%v: expect %v, got %v", test.a, test.b, test.ceil, r)
 		}
 	}
 }
@@ -142,7 +142,7 @@ func TestDivideCeilFixInt(t *testing.T) {
 			rightR = MaxInt
 		}
 		if r := DivideCeilFixInt(test.a, test.b); r != rightR {
-			t.Errorf("Expect f(%v, %v) = %v, got %v", test.a, test.b, rightR, r)
+			t.Errorf("%v,%v: expect %v, got %v", test.a, test.b, rightR, r)
 		}
 	}
 }
@@ -150,7 +150,7 @@ func TestDivideCeilFixInt(t *testing.T) {
 func TestDivideFloorInt(t *testing.T) {
 	for _, test := range testsDivideInt {
 		if r := DivideFloorInt(test.a, test.b); r != test.floor {
-			t.Errorf("Expected f(%v, %v) = %v, got %v", test.a, test.b, test.floor, r)
+			t.Errorf("%v,%v: expect %v, got %v", test.a, test.b, test.floor, r)
 		}
 	}
 }
@@ -162,7 +162,7 @@ func TestDivideFloorFixInt(t *testing.T) {
 			rightR = MaxInt
 		}
 		if r := DivideFloorFixInt(test.a, test.b); r != rightR {
-			t.Errorf("Expect f(%v, %v) = %v, got %v", test.a, test.b, rightR, r)
+			t.Errorf("%v,%v: expect %v, got %v", test.a, test.b, rightR, r)
 		}
 	}
 }
@@ -170,7 +170,7 @@ func TestDivideFloorFixInt(t *testing.T) {
 func TestDivideRafzInt(t *testing.T) {
 	for _, test := range testsDivideInt {
 		if r := DivideRafzInt(test.a, test.b); r != test.rafz {
-			t.Errorf("Expected f(%v, %v) = %v, got %v", test.a, test.b, test.rafz, r)
+			t.Errorf("%v,%v: expect %v, got %v", test.a, test.b, test.rafz, r)
 		}
 	}
 }
@@ -182,7 +182,7 @@ func TestDivideRafzFixInt(t *testing.T) {
 			rightR = MaxInt
 		}
 		if r := DivideRafzFixInt(test.a, test.b); r != rightR {
-			t.Errorf("Expect f(%v, %v) = %v, got %v", test.a, test.b, rightR, r)
+			t.Errorf("%v,%v: expect %v, got %v", test.a, test.b, rightR, r)
 		}
 	}
 }
@@ -190,7 +190,7 @@ func TestDivideRafzFixInt(t *testing.T) {
 func TestDivideTruncInt(t *testing.T) {
 	for _, test := range testsDivideInt {
 		if r := DivideTruncInt(test.a, test.b); r != test.a/test.b {
-			t.Errorf("Expected f(%v, %v) = %v, got %v", test.a, test.b, test.a/test.b, r)
+			t.Errorf("%v,%v: expect %v, got %v", test.a, test.b, test.a/test.b, r)
 		}
 	}
 }
@@ -202,7 +202,7 @@ func TestDivideTruncFixInt(t *testing.T) {
 			rightR = MaxInt
 		}
 		if r := DivideTruncFixInt(test.a, test.b); r != rightR {
-			t.Errorf("Expect f(%v, %v) = %v, got %v", test.a, test.b, rightR, r)
+			t.Errorf("%v,%v: expect %v, got %v", test.a, test.b, rightR, r)
 		}
 	}
 }
@@ -284,7 +284,7 @@ func TestAbsInt8(t *testing.T) {
 			continue
 		}
 		if r := AbsInt8(test); r < 0 || ((test < 0 && r != -test) || (test >= 0 && r != test)) {
-			t.Errorf("Error AbsInt8(%v) - got %v", test, r)
+			t.Errorf("%v: got %v", test, r)
 		}
 	}
 }
@@ -292,7 +292,7 @@ func TestAbsInt8(t *testing.T) {
 func TestAbsFixInt8(t *testing.T) {
 	for _, test := range testsInt8 {
 		if r := AbsFixInt8(test); r < 0 || ((test < 0 && r != -test && (test != MinInt8 || r != MaxInt8)) || (test >= 0 && r != test)) {
-			t.Errorf("Error AbsFixInt8(%v) - got %v", test, r)
+			t.Errorf("%v: got %v", test, r)
 		}
 	}
 }
@@ -300,7 +300,7 @@ func TestAbsFixInt8(t *testing.T) {
 func TestAntiAbsInt8(t *testing.T) {
 	for _, test := range testsInt8 {
 		if r := AntiAbsInt8(test); r > 0 || ((test > 0 && r != -test) || (test <= 0 && r != test)) {
-			t.Errorf("Error AntiAbsInt8(%v) - got %v", test, r)
+			t.Errorf("%v: got %v", test, r)
 		}
 	}
 }
@@ -308,7 +308,7 @@ func TestAntiAbsInt8(t *testing.T) {
 func TestDivideRoundInt8(t *testing.T) {
 	for _, test := range testsDivideInt8 {
 		if r := DivideRoundInt8(test.a, test.b); r != test.round {
-			t.Errorf("Expected f(%v, %v) = %v, got %v", test.a, test.b, test.round, r)
+			t.Errorf("%v,%v: expect %v, got %v", test.a, test.b, test.round, r)
 		}
 	}
 }
@@ -320,7 +320,7 @@ func TestDivideRoundFixInt8(t *testing.T) {
 			rightR = MaxInt8
 		}
 		if r := DivideRoundFixInt8(test.a, test.b); r != rightR {
-			t.Errorf("Error DivideFixInt8(%v, %v) - expected %v, got %v", test.a, test.b, rightR, r)
+			t.Errorf("%v,%v: expect %v, got %v", test.a, test.b, rightR, r)
 		}
 	}
 }
@@ -334,7 +334,7 @@ func TestDivideRoundInt8Overflow(t *testing.T) {
 			validR := int8(divideRoundAsBig(customI(a), customI(b)))
 			r := DivideRoundInt8(a, b)
 			if r != validR {
-				t.Errorf("Error DivideInt8(%v, %v) - got %v, expected %v", a, b, r, validR)
+				t.Errorf("%v,%v: expect %v, got %v", a, b, validR, r)
 			}
 		}
 	}
@@ -354,7 +354,7 @@ func TestDivideRoundFixInt8Overflow(t *testing.T) {
 			}
 			r := DivideRoundFixInt8(a, b)
 			if r != validR {
-				t.Errorf("Error DivideFixInt8(%v, %v) - got %v, expected %v", a, b, r, validR)
+				t.Errorf("%v,%v: expect %v,got %v", a, b, validR, r)
 			}
 		}
 	}
@@ -363,7 +363,7 @@ func TestDivideRoundFixInt8Overflow(t *testing.T) {
 func TestDivideCeilInt8(t *testing.T) {
 	for _, test := range testsDivideInt8 {
 		if r := DivideCeilInt8(test.a, test.b); r != test.ceil {
-			t.Errorf("Expected f(%v, %v) = %v, got %v", test.a, test.b, test.ceil, r)
+			t.Errorf("%v,%v: expect %v, got %v", test.a, test.b, test.ceil, r)
 		}
 	}
 }
@@ -375,7 +375,7 @@ func TestDivideCeilFixInt8(t *testing.T) {
 			rightR = MaxInt8
 		}
 		if r := DivideCeilFixInt8(test.a, test.b); r != rightR {
-			t.Errorf("Expect f(%v, %v) = %v, got %v", test.a, test.b, rightR, r)
+			t.Errorf("%v,%v: expect %v, got %v", test.a, test.b, rightR, r)
 		}
 	}
 }
@@ -383,7 +383,7 @@ func TestDivideCeilFixInt8(t *testing.T) {
 func TestDivideFloorInt8(t *testing.T) {
 	for _, test := range testsDivideInt8 {
 		if r := DivideFloorInt8(test.a, test.b); r != test.floor {
-			t.Errorf("Expected f(%v, %v) = %v, got %v", test.a, test.b, test.floor, r)
+			t.Errorf("%v,%v: expect %v, got %v", test.a, test.b, test.floor, r)
 		}
 	}
 }
@@ -395,7 +395,7 @@ func TestDivideFloorFixInt8(t *testing.T) {
 			rightR = MaxInt8
 		}
 		if r := DivideFloorFixInt8(test.a, test.b); r != rightR {
-			t.Errorf("Expect f(%v, %v) = %v, got %v", test.a, test.b, rightR, r)
+			t.Errorf("%v,%v: expect %v, got %v", test.a, test.b, rightR, r)
 		}
 	}
 }
@@ -403,7 +403,7 @@ func TestDivideFloorFixInt8(t *testing.T) {
 func TestDivideRafzInt8(t *testing.T) {
 	for _, test := range testsDivideInt8 {
 		if r := DivideRafzInt8(test.a, test.b); r != test.rafz {
-			t.Errorf("Expected f(%v, %v) = %v, got %v", test.a, test.b, test.rafz, r)
+			t.Errorf("%v,%v: expect %v, got %v", test.a, test.b, test.rafz, r)
 		}
 	}
 }
@@ -415,7 +415,7 @@ func TestDivideRafzFixInt8(t *testing.T) {
 			rightR = MaxInt8
 		}
 		if r := DivideRafzFixInt8(test.a, test.b); r != rightR {
-			t.Errorf("Expect f(%v, %v) = %v, got %v", test.a, test.b, rightR, r)
+			t.Errorf("%v,%v: expect %v, got %v", test.a, test.b, rightR, r)
 		}
 	}
 }
@@ -423,7 +423,7 @@ func TestDivideRafzFixInt8(t *testing.T) {
 func TestDivideTruncInt8(t *testing.T) {
 	for _, test := range testsDivideInt8 {
 		if r := DivideTruncInt8(test.a, test.b); r != test.a/test.b {
-			t.Errorf("Expected f(%v, %v) = %v, got %v", test.a, test.b, test.a/test.b, r)
+			t.Errorf("%v,%v: expect %v, got %v", test.a, test.b, test.a/test.b, r)
 		}
 	}
 }
@@ -435,7 +435,7 @@ func TestDivideTruncFixInt8(t *testing.T) {
 			rightR = MaxInt8
 		}
 		if r := DivideTruncFixInt8(test.a, test.b); r != rightR {
-			t.Errorf("Expect f(%v, %v) = %v, got %v", test.a, test.b, rightR, r)
+			t.Errorf("%v,%v: expect %v, got %v", test.a, test.b, rightR, r)
 		}
 	}
 }
@@ -517,7 +517,7 @@ func TestAbsInt16(t *testing.T) {
 			continue
 		}
 		if r := AbsInt16(test); r < 0 || ((test < 0 && r != -test) || (test >= 0 && r != test)) {
-			t.Errorf("Error AbsInt16(%v) - got %v", test, r)
+			t.Errorf("%v: got %v", test, r)
 		}
 	}
 }
@@ -525,7 +525,7 @@ func TestAbsInt16(t *testing.T) {
 func TestAbsFixInt16(t *testing.T) {
 	for _, test := range testsInt16 {
 		if r := AbsFixInt16(test); r < 0 || ((test < 0 && r != -test && (test != MinInt16 || r != MaxInt16)) || (test >= 0 && r != test)) {
-			t.Errorf("Error AbsFixInt16(%v) - got %v", test, r)
+			t.Errorf("%v: got %v", test, r)
 		}
 	}
 }
@@ -533,7 +533,7 @@ func TestAbsFixInt16(t *testing.T) {
 func TestAntiAbsInt16(t *testing.T) {
 	for _, test := range testsInt16 {
 		if r := AntiAbsInt16(test); r > 0 || ((test > 0 && r != -test) || (test <= 0 && r != test)) {
-			t.Errorf("Error AntiAbsInt16(%v) - got %v", test, r)
+			t.Errorf("%v: got %v", test, r)
 		}
 	}
 }
@@ -541,7 +541,7 @@ func TestAntiAbsInt16(t *testing.T) {
 func TestDivideRoundInt16(t *testing.T) {
 	for _, test := range testsDivideInt16 {
 		if r := DivideRoundInt16(test.a, test.b); r != test.round {
-			t.Errorf("Expected f(%v, %v) = %v, got %v", test.a, test.b, test.round, r)
+			t.Errorf("%v,%v: expect %v, got %v", test.a, test.b, test.round, r)
 		}
 	}
 }
@@ -553,7 +553,7 @@ func TestDivideRoundFixInt16(t *testing.T) {
 			rightR = MaxInt16
 		}
 		if r := DivideRoundFixInt16(test.a, test.b); r != rightR {
-			t.Errorf("Error DivideFixInt16(%v, %v) - expected %v, got %v", test.a, test.b, rightR, r)
+			t.Errorf("%v,%v: expect %v, got %v", test.a, test.b, rightR, r)
 		}
 	}
 }
@@ -567,7 +567,7 @@ func TestDivideRoundInt16Overflow(t *testing.T) {
 			validR := int16(divideRoundAsBig(customI(a), customI(b)))
 			r := DivideRoundInt16(a, b)
 			if r != validR {
-				t.Errorf("Error DivideInt16(%v, %v) - got %v, expected %v", a, b, r, validR)
+				t.Errorf("%v,%v: expect %v, got %v", a, b, validR, r)
 			}
 		}
 	}
@@ -587,7 +587,7 @@ func TestDivideRoundFixInt16Overflow(t *testing.T) {
 			}
 			r := DivideRoundFixInt16(a, b)
 			if r != validR {
-				t.Errorf("Error DivideFixInt16(%v, %v) - got %v, expected %v", a, b, r, validR)
+				t.Errorf("%v,%v: expect %v,got %v", a, b, validR, r)
 			}
 		}
 	}
@@ -596,7 +596,7 @@ func TestDivideRoundFixInt16Overflow(t *testing.T) {
 func TestDivideCeilInt16(t *testing.T) {
 	for _, test := range testsDivideInt16 {
 		if r := DivideCeilInt16(test.a, test.b); r != test.ceil {
-			t.Errorf("Expected f(%v, %v) = %v, got %v", test.a, test.b, test.ceil, r)
+			t.Errorf("%v,%v: expect %v, got %v", test.a, test.b, test.ceil, r)
 		}
 	}
 }
@@ -608,7 +608,7 @@ func TestDivideCeilFixInt16(t *testing.T) {
 			rightR = MaxInt16
 		}
 		if r := DivideCeilFixInt16(test.a, test.b); r != rightR {
-			t.Errorf("Expect f(%v, %v) = %v, got %v", test.a, test.b, rightR, r)
+			t.Errorf("%v,%v: expect %v, got %v", test.a, test.b, rightR, r)
 		}
 	}
 }
@@ -616,7 +616,7 @@ func TestDivideCeilFixInt16(t *testing.T) {
 func TestDivideFloorInt16(t *testing.T) {
 	for _, test := range testsDivideInt16 {
 		if r := DivideFloorInt16(test.a, test.b); r != test.floor {
-			t.Errorf("Expected f(%v, %v) = %v, got %v", test.a, test.b, test.floor, r)
+			t.Errorf("%v,%v: expect %v, got %v", test.a, test.b, test.floor, r)
 		}
 	}
 }
@@ -628,7 +628,7 @@ func TestDivideFloorFixInt16(t *testing.T) {
 			rightR = MaxInt16
 		}
 		if r := DivideFloorFixInt16(test.a, test.b); r != rightR {
-			t.Errorf("Expect f(%v, %v) = %v, got %v", test.a, test.b, rightR, r)
+			t.Errorf("%v,%v: expect %v, got %v", test.a, test.b, rightR, r)
 		}
 	}
 }
@@ -636,7 +636,7 @@ func TestDivideFloorFixInt16(t *testing.T) {
 func TestDivideRafzInt16(t *testing.T) {
 	for _, test := range testsDivideInt16 {
 		if r := DivideRafzInt16(test.a, test.b); r != test.rafz {
-			t.Errorf("Expected f(%v, %v) = %v, got %v", test.a, test.b, test.rafz, r)
+			t.Errorf("%v,%v: expect %v, got %v", test.a, test.b, test.rafz, r)
 		}
 	}
 }
@@ -648,7 +648,7 @@ func TestDivideRafzFixInt16(t *testing.T) {
 			rightR = MaxInt16
 		}
 		if r := DivideRafzFixInt16(test.a, test.b); r != rightR {
-			t.Errorf("Expect f(%v, %v) = %v, got %v", test.a, test.b, rightR, r)
+			t.Errorf("%v,%v: expect %v, got %v", test.a, test.b, rightR, r)
 		}
 	}
 }
@@ -656,7 +656,7 @@ func TestDivideRafzFixInt16(t *testing.T) {
 func TestDivideTruncInt16(t *testing.T) {
 	for _, test := range testsDivideInt16 {
 		if r := DivideTruncInt16(test.a, test.b); r != test.a/test.b {
-			t.Errorf("Expected f(%v, %v) = %v, got %v", test.a, test.b, test.a/test.b, r)
+			t.Errorf("%v,%v: expect %v, got %v", test.a, test.b, test.a/test.b, r)
 		}
 	}
 }
@@ -668,7 +668,7 @@ func TestDivideTruncFixInt16(t *testing.T) {
 			rightR = MaxInt16
 		}
 		if r := DivideTruncFixInt16(test.a, test.b); r != rightR {
-			t.Errorf("Expect f(%v, %v) = %v, got %v", test.a, test.b, rightR, r)
+			t.Errorf("%v,%v: expect %v, got %v", test.a, test.b, rightR, r)
 		}
 	}
 }
@@ -750,7 +750,7 @@ func TestAbsInt32(t *testing.T) {
 			continue
 		}
 		if r := AbsInt32(test); r < 0 || ((test < 0 && r != -test) || (test >= 0 && r != test)) {
-			t.Errorf("Error AbsInt32(%v) - got %v", test, r)
+			t.Errorf("%v: got %v", test, r)
 		}
 	}
 }
@@ -758,7 +758,7 @@ func TestAbsInt32(t *testing.T) {
 func TestAbsFixInt32(t *testing.T) {
 	for _, test := range testsInt32 {
 		if r := AbsFixInt32(test); r < 0 || ((test < 0 && r != -test && (test != MinInt32 || r != MaxInt32)) || (test >= 0 && r != test)) {
-			t.Errorf("Error AbsFixInt32(%v) - got %v", test, r)
+			t.Errorf("%v: got %v", test, r)
 		}
 	}
 }
@@ -766,7 +766,7 @@ func TestAbsFixInt32(t *testing.T) {
 func TestAntiAbsInt32(t *testing.T) {
 	for _, test := range testsInt32 {
 		if r := AntiAbsInt32(test); r > 0 || ((test > 0 && r != -test) || (test <= 0 && r != test)) {
-			t.Errorf("Error AntiAbsInt32(%v) - got %v", test, r)
+			t.Errorf("%v: got %v", test, r)
 		}
 	}
 }
@@ -774,7 +774,7 @@ func TestAntiAbsInt32(t *testing.T) {
 func TestDivideRoundInt32(t *testing.T) {
 	for _, test := range testsDivideInt32 {
 		if r := DivideRoundInt32(test.a, test.b); r != test.round {
-			t.Errorf("Expected f(%v, %v) = %v, got %v", test.a, test.b, test.round, r)
+			t.Errorf("%v,%v: expect %v, got %v", test.a, test.b, test.round, r)
 		}
 	}
 }
@@ -786,7 +786,7 @@ func TestDivideRoundFixInt32(t *testing.T) {
 			rightR = MaxInt32
 		}
 		if r := DivideRoundFixInt32(test.a, test.b); r != rightR {
-			t.Errorf("Error DivideFixInt32(%v, %v) - expected %v, got %v", test.a, test.b, rightR, r)
+			t.Errorf("%v,%v: expect %v, got %v", test.a, test.b, rightR, r)
 		}
 	}
 }
@@ -800,7 +800,7 @@ func TestDivideRoundInt32Overflow(t *testing.T) {
 			validR := int32(divideRoundAsBig(customI(a), customI(b)))
 			r := DivideRoundInt32(a, b)
 			if r != validR {
-				t.Errorf("Error DivideInt32(%v, %v) - got %v, expected %v", a, b, r, validR)
+				t.Errorf("%v,%v: expect %v, got %v", a, b, validR, r)
 			}
 		}
 	}
@@ -820,7 +820,7 @@ func TestDivideRoundFixInt32Overflow(t *testing.T) {
 			}
 			r := DivideRoundFixInt32(a, b)
 			if r != validR {
-				t.Errorf("Error DivideFixInt32(%v, %v) - got %v, expected %v", a, b, r, validR)
+				t.Errorf("%v,%v: expect %v,got %v", a, b, validR, r)
 			}
 		}
 	}
@@ -829,7 +829,7 @@ func TestDivideRoundFixInt32Overflow(t *testing.T) {
 func TestDivideCeilInt32(t *testing.T) {
 	for _, test := range testsDivideInt32 {
 		if r := DivideCeilInt32(test.a, test.b); r != test.ceil {
-			t.Errorf("Expected f(%v, %v) = %v, got %v", test.a, test.b, test.ceil, r)
+			t.Errorf("%v,%v: expect %v, got %v", test.a, test.b, test.ceil, r)
 		}
 	}
 }
@@ -841,7 +841,7 @@ func TestDivideCeilFixInt32(t *testing.T) {
 			rightR = MaxInt32
 		}
 		if r := DivideCeilFixInt32(test.a, test.b); r != rightR {
-			t.Errorf("Expect f(%v, %v) = %v, got %v", test.a, test.b, rightR, r)
+			t.Errorf("%v,%v: expect %v, got %v", test.a, test.b, rightR, r)
 		}
 	}
 }
@@ -849,7 +849,7 @@ func TestDivideCeilFixInt32(t *testing.T) {
 func TestDivideFloorInt32(t *testing.T) {
 	for _, test := range testsDivideInt32 {
 		if r := DivideFloorInt32(test.a, test.b); r != test.floor {
-			t.Errorf("Expected f(%v, %v) = %v, got %v", test.a, test.b, test.floor, r)
+			t.Errorf("%v,%v: expect %v, got %v", test.a, test.b, test.floor, r)
 		}
 	}
 }
@@ -861,7 +861,7 @@ func TestDivideFloorFixInt32(t *testing.T) {
 			rightR = MaxInt32
 		}
 		if r := DivideFloorFixInt32(test.a, test.b); r != rightR {
-			t.Errorf("Expect f(%v, %v) = %v, got %v", test.a, test.b, rightR, r)
+			t.Errorf("%v,%v: expect %v, got %v", test.a, test.b, rightR, r)
 		}
 	}
 }
@@ -869,7 +869,7 @@ func TestDivideFloorFixInt32(t *testing.T) {
 func TestDivideRafzInt32(t *testing.T) {
 	for _, test := range testsDivideInt32 {
 		if r := DivideRafzInt32(test.a, test.b); r != test.rafz {
-			t.Errorf("Expected f(%v, %v) = %v, got %v", test.a, test.b, test.rafz, r)
+			t.Errorf("%v,%v: expect %v, got %v", test.a, test.b, test.rafz, r)
 		}
 	}
 }
@@ -881,7 +881,7 @@ func TestDivideRafzFixInt32(t *testing.T) {
 			rightR = MaxInt32
 		}
 		if r := DivideRafzFixInt32(test.a, test.b); r != rightR {
-			t.Errorf("Expect f(%v, %v) = %v, got %v", test.a, test.b, rightR, r)
+			t.Errorf("%v,%v: expect %v, got %v", test.a, test.b, rightR, r)
 		}
 	}
 }
@@ -889,7 +889,7 @@ func TestDivideRafzFixInt32(t *testing.T) {
 func TestDivideTruncInt32(t *testing.T) {
 	for _, test := range testsDivideInt32 {
 		if r := DivideTruncInt32(test.a, test.b); r != test.a/test.b {
-			t.Errorf("Expected f(%v, %v) = %v, got %v", test.a, test.b, test.a/test.b, r)
+			t.Errorf("%v,%v: expect %v, got %v", test.a, test.b, test.a/test.b, r)
 		}
 	}
 }
@@ -901,7 +901,7 @@ func TestDivideTruncFixInt32(t *testing.T) {
 			rightR = MaxInt32
 		}
 		if r := DivideTruncFixInt32(test.a, test.b); r != rightR {
-			t.Errorf("Expect f(%v, %v) = %v, got %v", test.a, test.b, rightR, r)
+			t.Errorf("%v,%v: expect %v, got %v", test.a, test.b, rightR, r)
 		}
 	}
 }

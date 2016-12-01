@@ -18,7 +18,7 @@ func TestTrimLeftBytes(t *testing.T) {
 	}
 	for _, v := range tests {
 		if r := TrimLeftBytes(v.s, v.b); r != v.r {
-			t.Errorf("Expected %v, but got %v", v.r, r)
+			t.Errorf("expect %v, got %v", v.r, r)
 		}
 	}
 }
@@ -39,7 +39,7 @@ func TestTrimRightBytes(t *testing.T) {
 	}
 	for _, v := range tests {
 		if r := TrimRightBytes(v.s, v.b); r != v.r {
-			t.Errorf("Expected %v, but got %v", v.r, r)
+			t.Errorf("expect %v, got %v", v.r, r)
 		}
 	}
 }
@@ -62,7 +62,7 @@ func TestTrimBytes(t *testing.T) {
 	}
 	for _, v := range tests {
 		if r := TrimBytes(v.s, v.b); r != v.r {
-			t.Errorf("Expected %v, but got %v", v.r, r)
+			t.Errorf("expect %v, got %v", v.r, r)
 		}
 	}
 }

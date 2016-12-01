@@ -21,7 +21,7 @@ func TestFormatUint(t *testing.T) {
 	for _, v := range test {
 		s := FormatUint(v.i)
 		if s != v.s {
-			t.Errorf("Expected string: %s, got: %s", v.s, s)
+			t.Errorf("expect %s, got %s", v.s, s)
 		}
 	}
 }
@@ -40,7 +40,7 @@ func TestFormatUint8(t *testing.T) {
 	for _, v := range test {
 		s := FormatUint8(v.i)
 		if s != v.s {
-			t.Errorf("Expected string: %s, got: %s", v.s, s)
+			t.Errorf("expect %s, got %s", v.s, s)
 		}
 	}
 }
@@ -59,7 +59,7 @@ func TestFormatUint16(t *testing.T) {
 	for _, v := range test {
 		s := FormatUint16(v.i)
 		if s != v.s {
-			t.Errorf("Expected string: %s, got: %s", v.s, s)
+			t.Errorf("expect %s, got %s", v.s, s)
 		}
 	}
 }
@@ -78,7 +78,7 @@ func TestFormatUint32(t *testing.T) {
 	for _, v := range test {
 		s := FormatUint32(v.i)
 		if s != v.s {
-			t.Errorf("Expected string: %s, got: %s", v.s, s)
+			t.Errorf("expect %s, got %s", v.s, s)
 		}
 	}
 }
@@ -97,7 +97,7 @@ func TestFormatInt(t *testing.T) {
 	for _, v := range test {
 		s := FormatInt(v.i)
 		if s != v.s {
-			t.Errorf("Expected string: %s, got: %s", v.s, s)
+			t.Errorf("expect %s, got %s", v.s, s)
 		}
 	}
 }
@@ -116,7 +116,7 @@ func TestFormatInt8(t *testing.T) {
 	for _, v := range test {
 		s := FormatInt8(v.i)
 		if s != v.s {
-			t.Errorf("Expected string: %s, got: %s", v.s, s)
+			t.Errorf("expect %s, got %s", v.s, s)
 		}
 	}
 }
@@ -135,7 +135,7 @@ func TestFormatInt16(t *testing.T) {
 	for _, v := range test {
 		s := FormatInt16(v.i)
 		if s != v.s {
-			t.Errorf("Expected string: %s, got: %s", v.s, s)
+			t.Errorf("expect %s, got %s", v.s, s)
 		}
 	}
 }
@@ -154,7 +154,7 @@ func TestFormatInt32(t *testing.T) {
 	for _, v := range test {
 		s := FormatInt32(v.i)
 		if s != v.s {
-			t.Errorf("Expected string: %s, got: %s", v.s, s)
+			t.Errorf("expect %s, got %s", v.s, s)
 		}
 	}
 }
@@ -173,7 +173,7 @@ func TestFormatInt64(t *testing.T) {
 	for _, v := range test {
 		s := FormatInt64(v.i)
 		if s != v.s {
-			t.Errorf("Expected string: %s, got: %s", v.s, s)
+			t.Errorf("expect %s, got %s", v.s, s)
 		}
 	}
 }

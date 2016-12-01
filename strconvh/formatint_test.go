@@ -53,6 +53,8 @@ func init() {
 	}
 }
 
+//replacer:ignore
+//go:generate go run $GOPATH/src/github.com/apaxa-go/generator/replacer/main.go -- $GOFILE
 //replacer:replace
 //replacer:old uint64	Uint64
 //replacer:new uint	Uint
@@ -79,7 +81,7 @@ func TestFormatUint64(t *testing.T) {
 	for _, v := range test {
 		s := FormatUint64(v.i)
 		if s != v.s {
-			t.Errorf("Expected string: %s, got: %s", v.s, s)
+			t.Errorf("expect %s, got %s", v.s, s)
 		}
 	}
 }

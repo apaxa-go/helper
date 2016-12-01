@@ -34,18 +34,18 @@ func TestParseInt64(t *testing.T) {
 		{"10.05", 0, true},
 		{minInt64Str, mathh.MinInt64, false},
 		{maxInt64Str, mathh.MaxInt64, false},
-		{"18446744073709551616", 0, true}, // Max uint64+1
-		{"-9223372036854775809", 0, true}, // Min int64-1
+		{"18446744073709551616", 0, true}, // Maximum unsigned integer plus 1
+		{"-9223372036854775809", 0, true}, // Minimum signed integer minus 1
 	}
 
 	for _, v := range test {
 		r, err := ParseInt64(v.s)
 		if (err != nil) != v.err {
-			t.Errorf("Error expected: %v, got: %v", v.err, err)
+			t.Errorf("error expected: %v, got: %v", v.err, err)
 		}
 		if !v.err && (err == nil) {
 			if r != v.i {
-				t.Errorf("Wrong parse. Expected int: %v, got: %v", v.i, r)
+				t.Errorf("expect %v, got %v", v.i, r)
 			}
 		}
 	}

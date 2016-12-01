@@ -4,14 +4,14 @@ package mimeh
 const (
 	MimeTextHTMLUtf8          = "text/html; charset=UTF-8" // HTML, ".html"
 	MimeTextCSSUtf8           = "text/css; charset=UTF-8"  // CSS, ".css"
-	MimeTextLessUtf8          = "text/css; charset=UTF-8"  // Less (http://lesscss.org/), ".less", not sureabout mime type, but will good for development
+	MimeTextLessUtf8          = "text/css; charset=UTF-8"  // Less (http://lesscss.org/), ".less", not sure about mime type, but will good for development
 	MimeApplicationJavascript = "application/javascript"   // JavaScript, ".js"
 	MimeApplicationVndDart    = "application/vnd-dart"     // DartLang, ".dart"
 )
 
 // Fonts MIME types.
 const (
-	// TODO someday fonts mime types may be change - http://dev.w3.org/webfonts/WOFF2/spec/#IMT
+	// someday fonts mime types may be change - http://dev.w3.org/webfonts/WOFF2/spec/#IMT
 	MimeApplicationVndMsFontObject = "application/vnd.ms-fontobject" // Embedded OpenType font, ".eot"
 	MimeApplicationXFontTtf        = "application/x-font-ttf"        // TrueType font, ".ttf"
 	MimeApplicationXFontWoff       = "application/x-font-woff"       // Web Open Font Format, ".woff"
@@ -52,7 +52,7 @@ const (
 	MimeImageSvg = MimeImageSvgXML
 )
 
-// Arbitary data MIME type shorthands.
+// Arbitrary data MIME type shorthands.
 const (
 	MimeBinary   = MimeApplicationOctetStream
 	MimeFallback = MimeApplicationOctetStream

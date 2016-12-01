@@ -29,11 +29,11 @@ func TestParseFloat64(t *testing.T) {
 	for _, v := range test {
 		r, err := ParseFloat64(v.s)
 		if (err != nil) != v.err {
-			t.Errorf("Error expected: %v, got: %v", v.err, err)
+			t.Errorf("error expected: %v, got: %v", v.err, err)
 		}
 		if !v.err && (err == nil) {
 			if r != v.i {
-				t.Errorf("Wrong parse. Expected float64: %v, got: %v", v.i, r)
+				t.Errorf("expect %v, got: %v", v.i, r)
 			}
 		}
 	}

@@ -83,7 +83,7 @@ func TestBtoInt64(t *testing.T) {
 	}{{b: false, r: 0}, {b: true, r: 1}}
 	for _, test := range tests {
 		if r := BtoInt64(test.b); r != test.r {
-			t.Errorf("Error %v to int64 - expected %v, got %v", test.b, test.r, r)
+			t.Errorf("%v: expect %v, got %v", test.b, test.r, r)
 		}
 	}
 }
@@ -95,7 +95,7 @@ func TestNotInt64(t *testing.T) {
 	}{{i: 0, r: 1}, {i: 1, r: 0}}
 	for _, test := range tests {
 		if r := NotInt64(test.i); r != test.r {
-			t.Errorf("Error NotInt64(%v) - expected %v, got %v", test.i, test.r, r)
+			t.Errorf("%v: expect %v, got %v", test.i, test.r, r)
 		}
 	}
 }
@@ -111,25 +111,25 @@ func TestAllSignInt64(t *testing.T) {
 		notZero := NotZeroInt64(test)
 
 		if (test < 0 && sign >= 0) || (test == 0 && sign != 0) || (test > 0 && sign != 1) {
-			t.Errorf("Error SignInt64(%v) - got %v", test, sign)
+			t.Errorf("%v: got %v", test, sign)
 		}
 		if (test < 0 && negative != 1) || (test >= 0 && negative != 0) {
-			t.Errorf("Error NegativeInt64(%v) - got %v", test, negative)
+			t.Errorf("%v: got %v", test, negative)
 		}
 		if (test >= 0 && notNegative != 1) || (test < 0 && notNegative != 0) {
-			t.Errorf("Error NotNegativeInt64(%v) - got %v", test, notNegative)
+			t.Errorf("%v: got %v", test, notNegative)
 		}
 		if (test > 0 && positive != 1) || (test <= 0 && positive != 0) {
-			t.Errorf("Error PositiveInt64(%v) - got %v", test, positive)
+			t.Errorf("%v: got %v", test, positive)
 		}
 		if (test <= 0 && notPositive != 1) || (test > 0 && notPositive != 0) {
-			t.Errorf("Error NotPositiveInt64(%v) - got %v", test, notPositive)
+			t.Errorf("%v: got %v", test, notPositive)
 		}
 		if (test == 0 && zero != 1) || (test != 0 && zero != 0) {
-			t.Errorf("Error ZeroInt64(%v) - got %v", test, zero)
+			t.Errorf("%v: got %v", test, zero)
 		}
 		if (test != 0 && notZero != 1) || (test == 0 && notZero != 0) {
-			t.Errorf("Error NotZeroInt64(%v) - got %v", test, notZero)
+			t.Errorf("%v: got %v", test, notZero)
 		}
 	}
 }
@@ -147,28 +147,28 @@ func TestAllCompareInt64(t *testing.T) {
 			notLess := NotLessInt64(a, b)
 
 			if (((a < 0 && b > 0) || (a > 0 && b < 0)) && sameSign != 0) || (!((a < 0 && b > 0) || (a > 0 && b < 0)) && sameSign != 1) {
-				t.Errorf("Error SameSignInt64(%v,%v) - got %v", a, b, sameSign)
+				t.Errorf("%v,%v: got %v", a, b, sameSign)
 			}
 			if notSameSign != NotInt64(sameSign) {
-				t.Errorf("Error NotSameSignInt64(%v,%v) - got %v", a, b, notSameSign)
+				t.Errorf("%v,%v: got %v", a, b, notSameSign)
 			}
 			if (a == b && equal != 1) || (a != b && equal != 0) {
-				t.Errorf("Error EqualInt64(%v,%v) - got %v", a, b, equal)
+				t.Errorf("%v,%v: got %v", a, b, equal)
 			}
 			if (a != b && notEqual != 1) || (a == b && notEqual != 0) {
-				t.Errorf("Error NotEqualInt64(%v,%v) - got %v", a, b, notEqual)
+				t.Errorf("%v,%v: got %v", a, b, notEqual)
 			}
 			if (a > b && greater != 1) || (a <= b && greater != 0) {
-				t.Errorf("Error GreaterInt64(%v,%v) - got %v", a, b, greater)
+				t.Errorf("%v,%v: got %v", a, b, greater)
 			}
 			if (a <= b && notGreater != 1) || (a > b && notGreater != 0) {
-				t.Errorf("Error NotGreateInt64(%v,%v) - got %v", a, b, notGreater)
+				t.Errorf("%v,%v: got %v", a, b, notGreater)
 			}
 			if (a < b && less != 1) || (a >= b && less != 0) {
-				t.Errorf("Error LessInt64(%v,%v) - got %v", a, b, less)
+				t.Errorf("%v,%v: got %v", a, b, less)
 			}
 			if (a >= b && notLess != 1) || (a < b && notLess != 0) {
-				t.Errorf("Error NotLessInt64(%v,%v) - got %v", a, b, notLess)
+				t.Errorf("%v,%v: got %v", a, b, notLess)
 			}
 		}
 	}

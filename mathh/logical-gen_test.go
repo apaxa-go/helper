@@ -148,7 +148,7 @@ func TestBtoInt(t *testing.T) {
 	}{{b: false, r: 0}, {b: true, r: 1}}
 	for _, test := range tests {
 		if r := BtoInt(test.b); r != test.r {
-			t.Errorf("Error %v to int - expected %v, got %v", test.b, test.r, r)
+			t.Errorf("%v: expect %v, got %v", test.b, test.r, r)
 		}
 	}
 }
@@ -160,7 +160,7 @@ func TestNotInt(t *testing.T) {
 	}{{i: 0, r: 1}, {i: 1, r: 0}}
 	for _, test := range tests {
 		if r := NotInt(test.i); r != test.r {
-			t.Errorf("Error NotInt(%v) - expected %v, got %v", test.i, test.r, r)
+			t.Errorf("%v: expect %v, got %v", test.i, test.r, r)
 		}
 	}
 }
@@ -176,25 +176,25 @@ func TestAllSignInt(t *testing.T) {
 		notZero := NotZeroInt(test)
 
 		if (test < 0 && sign >= 0) || (test == 0 && sign != 0) || (test > 0 && sign != 1) {
-			t.Errorf("Error SignInt(%v) - got %v", test, sign)
+			t.Errorf("%v: got %v", test, sign)
 		}
 		if (test < 0 && negative != 1) || (test >= 0 && negative != 0) {
-			t.Errorf("Error NegativeInt(%v) - got %v", test, negative)
+			t.Errorf("%v: got %v", test, negative)
 		}
 		if (test >= 0 && notNegative != 1) || (test < 0 && notNegative != 0) {
-			t.Errorf("Error NotNegativeInt(%v) - got %v", test, notNegative)
+			t.Errorf("%v: got %v", test, notNegative)
 		}
 		if (test > 0 && positive != 1) || (test <= 0 && positive != 0) {
-			t.Errorf("Error PositiveInt(%v) - got %v", test, positive)
+			t.Errorf("%v: got %v", test, positive)
 		}
 		if (test <= 0 && notPositive != 1) || (test > 0 && notPositive != 0) {
-			t.Errorf("Error NotPositiveInt(%v) - got %v", test, notPositive)
+			t.Errorf("%v: got %v", test, notPositive)
 		}
 		if (test == 0 && zero != 1) || (test != 0 && zero != 0) {
-			t.Errorf("Error ZeroInt(%v) - got %v", test, zero)
+			t.Errorf("%v: got %v", test, zero)
 		}
 		if (test != 0 && notZero != 1) || (test == 0 && notZero != 0) {
-			t.Errorf("Error NotZeroInt(%v) - got %v", test, notZero)
+			t.Errorf("%v: got %v", test, notZero)
 		}
 	}
 }
@@ -212,28 +212,28 @@ func TestAllCompareInt(t *testing.T) {
 			notLess := NotLessInt(a, b)
 
 			if (((a < 0 && b > 0) || (a > 0 && b < 0)) && sameSign != 0) || (!((a < 0 && b > 0) || (a > 0 && b < 0)) && sameSign != 1) {
-				t.Errorf("Error SameSignInt(%v,%v) - got %v", a, b, sameSign)
+				t.Errorf("%v,%v: got %v", a, b, sameSign)
 			}
 			if notSameSign != NotInt(sameSign) {
-				t.Errorf("Error NotSameSignInt(%v,%v) - got %v", a, b, notSameSign)
+				t.Errorf("%v,%v: got %v", a, b, notSameSign)
 			}
 			if (a == b && equal != 1) || (a != b && equal != 0) {
-				t.Errorf("Error EqualInt(%v,%v) - got %v", a, b, equal)
+				t.Errorf("%v,%v: got %v", a, b, equal)
 			}
 			if (a != b && notEqual != 1) || (a == b && notEqual != 0) {
-				t.Errorf("Error NotEqualInt(%v,%v) - got %v", a, b, notEqual)
+				t.Errorf("%v,%v: got %v", a, b, notEqual)
 			}
 			if (a > b && greater != 1) || (a <= b && greater != 0) {
-				t.Errorf("Error GreaterInt(%v,%v) - got %v", a, b, greater)
+				t.Errorf("%v,%v: got %v", a, b, greater)
 			}
 			if (a <= b && notGreater != 1) || (a > b && notGreater != 0) {
-				t.Errorf("Error NotGreateInt(%v,%v) - got %v", a, b, notGreater)
+				t.Errorf("%v,%v: got %v", a, b, notGreater)
 			}
 			if (a < b && less != 1) || (a >= b && less != 0) {
-				t.Errorf("Error LessInt(%v,%v) - got %v", a, b, less)
+				t.Errorf("%v,%v: got %v", a, b, less)
 			}
 			if (a >= b && notLess != 1) || (a < b && notLess != 0) {
-				t.Errorf("Error NotLessInt(%v,%v) - got %v", a, b, notLess)
+				t.Errorf("%v,%v: got %v", a, b, notLess)
 			}
 		}
 	}
@@ -343,7 +343,7 @@ func TestBtoInt8(t *testing.T) {
 	}{{b: false, r: 0}, {b: true, r: 1}}
 	for _, test := range tests {
 		if r := BtoInt8(test.b); r != test.r {
-			t.Errorf("Error %v to int8 - expected %v, got %v", test.b, test.r, r)
+			t.Errorf("%v: expect %v, got %v", test.b, test.r, r)
 		}
 	}
 }
@@ -355,7 +355,7 @@ func TestNotInt8(t *testing.T) {
 	}{{i: 0, r: 1}, {i: 1, r: 0}}
 	for _, test := range tests {
 		if r := NotInt8(test.i); r != test.r {
-			t.Errorf("Error NotInt8(%v) - expected %v, got %v", test.i, test.r, r)
+			t.Errorf("%v: expect %v, got %v", test.i, test.r, r)
 		}
 	}
 }
@@ -371,25 +371,25 @@ func TestAllSignInt8(t *testing.T) {
 		notZero := NotZeroInt8(test)
 
 		if (test < 0 && sign >= 0) || (test == 0 && sign != 0) || (test > 0 && sign != 1) {
-			t.Errorf("Error SignInt8(%v) - got %v", test, sign)
+			t.Errorf("%v: got %v", test, sign)
 		}
 		if (test < 0 && negative != 1) || (test >= 0 && negative != 0) {
-			t.Errorf("Error NegativeInt8(%v) - got %v", test, negative)
+			t.Errorf("%v: got %v", test, negative)
 		}
 		if (test >= 0 && notNegative != 1) || (test < 0 && notNegative != 0) {
-			t.Errorf("Error NotNegativeInt8(%v) - got %v", test, notNegative)
+			t.Errorf("%v: got %v", test, notNegative)
 		}
 		if (test > 0 && positive != 1) || (test <= 0 && positive != 0) {
-			t.Errorf("Error PositiveInt8(%v) - got %v", test, positive)
+			t.Errorf("%v: got %v", test, positive)
 		}
 		if (test <= 0 && notPositive != 1) || (test > 0 && notPositive != 0) {
-			t.Errorf("Error NotPositiveInt8(%v) - got %v", test, notPositive)
+			t.Errorf("%v: got %v", test, notPositive)
 		}
 		if (test == 0 && zero != 1) || (test != 0 && zero != 0) {
-			t.Errorf("Error ZeroInt8(%v) - got %v", test, zero)
+			t.Errorf("%v: got %v", test, zero)
 		}
 		if (test != 0 && notZero != 1) || (test == 0 && notZero != 0) {
-			t.Errorf("Error NotZeroInt8(%v) - got %v", test, notZero)
+			t.Errorf("%v: got %v", test, notZero)
 		}
 	}
 }
@@ -407,28 +407,28 @@ func TestAllCompareInt8(t *testing.T) {
 			notLess := NotLessInt8(a, b)
 
 			if (((a < 0 && b > 0) || (a > 0 && b < 0)) && sameSign != 0) || (!((a < 0 && b > 0) || (a > 0 && b < 0)) && sameSign != 1) {
-				t.Errorf("Error SameSignInt8(%v,%v) - got %v", a, b, sameSign)
+				t.Errorf("%v,%v: got %v", a, b, sameSign)
 			}
 			if notSameSign != NotInt8(sameSign) {
-				t.Errorf("Error NotSameSignInt8(%v,%v) - got %v", a, b, notSameSign)
+				t.Errorf("%v,%v: got %v", a, b, notSameSign)
 			}
 			if (a == b && equal != 1) || (a != b && equal != 0) {
-				t.Errorf("Error EqualInt8(%v,%v) - got %v", a, b, equal)
+				t.Errorf("%v,%v: got %v", a, b, equal)
 			}
 			if (a != b && notEqual != 1) || (a == b && notEqual != 0) {
-				t.Errorf("Error NotEqualInt8(%v,%v) - got %v", a, b, notEqual)
+				t.Errorf("%v,%v: got %v", a, b, notEqual)
 			}
 			if (a > b && greater != 1) || (a <= b && greater != 0) {
-				t.Errorf("Error GreaterInt8(%v,%v) - got %v", a, b, greater)
+				t.Errorf("%v,%v: got %v", a, b, greater)
 			}
 			if (a <= b && notGreater != 1) || (a > b && notGreater != 0) {
-				t.Errorf("Error NotGreateInt8(%v,%v) - got %v", a, b, notGreater)
+				t.Errorf("%v,%v: got %v", a, b, notGreater)
 			}
 			if (a < b && less != 1) || (a >= b && less != 0) {
-				t.Errorf("Error LessInt8(%v,%v) - got %v", a, b, less)
+				t.Errorf("%v,%v: got %v", a, b, less)
 			}
 			if (a >= b && notLess != 1) || (a < b && notLess != 0) {
-				t.Errorf("Error NotLessInt8(%v,%v) - got %v", a, b, notLess)
+				t.Errorf("%v,%v: got %v", a, b, notLess)
 			}
 		}
 	}
@@ -538,7 +538,7 @@ func TestBtoInt16(t *testing.T) {
 	}{{b: false, r: 0}, {b: true, r: 1}}
 	for _, test := range tests {
 		if r := BtoInt16(test.b); r != test.r {
-			t.Errorf("Error %v to int16 - expected %v, got %v", test.b, test.r, r)
+			t.Errorf("%v: expect %v, got %v", test.b, test.r, r)
 		}
 	}
 }
@@ -550,7 +550,7 @@ func TestNotInt16(t *testing.T) {
 	}{{i: 0, r: 1}, {i: 1, r: 0}}
 	for _, test := range tests {
 		if r := NotInt16(test.i); r != test.r {
-			t.Errorf("Error NotInt16(%v) - expected %v, got %v", test.i, test.r, r)
+			t.Errorf("%v: expect %v, got %v", test.i, test.r, r)
 		}
 	}
 }
@@ -566,25 +566,25 @@ func TestAllSignInt16(t *testing.T) {
 		notZero := NotZeroInt16(test)
 
 		if (test < 0 && sign >= 0) || (test == 0 && sign != 0) || (test > 0 && sign != 1) {
-			t.Errorf("Error SignInt16(%v) - got %v", test, sign)
+			t.Errorf("%v: got %v", test, sign)
 		}
 		if (test < 0 && negative != 1) || (test >= 0 && negative != 0) {
-			t.Errorf("Error NegativeInt16(%v) - got %v", test, negative)
+			t.Errorf("%v: got %v", test, negative)
 		}
 		if (test >= 0 && notNegative != 1) || (test < 0 && notNegative != 0) {
-			t.Errorf("Error NotNegativeInt16(%v) - got %v", test, notNegative)
+			t.Errorf("%v: got %v", test, notNegative)
 		}
 		if (test > 0 && positive != 1) || (test <= 0 && positive != 0) {
-			t.Errorf("Error PositiveInt16(%v) - got %v", test, positive)
+			t.Errorf("%v: got %v", test, positive)
 		}
 		if (test <= 0 && notPositive != 1) || (test > 0 && notPositive != 0) {
-			t.Errorf("Error NotPositiveInt16(%v) - got %v", test, notPositive)
+			t.Errorf("%v: got %v", test, notPositive)
 		}
 		if (test == 0 && zero != 1) || (test != 0 && zero != 0) {
-			t.Errorf("Error ZeroInt16(%v) - got %v", test, zero)
+			t.Errorf("%v: got %v", test, zero)
 		}
 		if (test != 0 && notZero != 1) || (test == 0 && notZero != 0) {
-			t.Errorf("Error NotZeroInt16(%v) - got %v", test, notZero)
+			t.Errorf("%v: got %v", test, notZero)
 		}
 	}
 }
@@ -602,28 +602,28 @@ func TestAllCompareInt16(t *testing.T) {
 			notLess := NotLessInt16(a, b)
 
 			if (((a < 0 && b > 0) || (a > 0 && b < 0)) && sameSign != 0) || (!((a < 0 && b > 0) || (a > 0 && b < 0)) && sameSign != 1) {
-				t.Errorf("Error SameSignInt16(%v,%v) - got %v", a, b, sameSign)
+				t.Errorf("%v,%v: got %v", a, b, sameSign)
 			}
 			if notSameSign != NotInt16(sameSign) {
-				t.Errorf("Error NotSameSignInt16(%v,%v) - got %v", a, b, notSameSign)
+				t.Errorf("%v,%v: got %v", a, b, notSameSign)
 			}
 			if (a == b && equal != 1) || (a != b && equal != 0) {
-				t.Errorf("Error EqualInt16(%v,%v) - got %v", a, b, equal)
+				t.Errorf("%v,%v: got %v", a, b, equal)
 			}
 			if (a != b && notEqual != 1) || (a == b && notEqual != 0) {
-				t.Errorf("Error NotEqualInt16(%v,%v) - got %v", a, b, notEqual)
+				t.Errorf("%v,%v: got %v", a, b, notEqual)
 			}
 			if (a > b && greater != 1) || (a <= b && greater != 0) {
-				t.Errorf("Error GreaterInt16(%v,%v) - got %v", a, b, greater)
+				t.Errorf("%v,%v: got %v", a, b, greater)
 			}
 			if (a <= b && notGreater != 1) || (a > b && notGreater != 0) {
-				t.Errorf("Error NotGreateInt16(%v,%v) - got %v", a, b, notGreater)
+				t.Errorf("%v,%v: got %v", a, b, notGreater)
 			}
 			if (a < b && less != 1) || (a >= b && less != 0) {
-				t.Errorf("Error LessInt16(%v,%v) - got %v", a, b, less)
+				t.Errorf("%v,%v: got %v", a, b, less)
 			}
 			if (a >= b && notLess != 1) || (a < b && notLess != 0) {
-				t.Errorf("Error NotLessInt16(%v,%v) - got %v", a, b, notLess)
+				t.Errorf("%v,%v: got %v", a, b, notLess)
 			}
 		}
 	}
@@ -733,7 +733,7 @@ func TestBtoInt32(t *testing.T) {
 	}{{b: false, r: 0}, {b: true, r: 1}}
 	for _, test := range tests {
 		if r := BtoInt32(test.b); r != test.r {
-			t.Errorf("Error %v to int32 - expected %v, got %v", test.b, test.r, r)
+			t.Errorf("%v: expect %v, got %v", test.b, test.r, r)
 		}
 	}
 }
@@ -745,7 +745,7 @@ func TestNotInt32(t *testing.T) {
 	}{{i: 0, r: 1}, {i: 1, r: 0}}
 	for _, test := range tests {
 		if r := NotInt32(test.i); r != test.r {
-			t.Errorf("Error NotInt32(%v) - expected %v, got %v", test.i, test.r, r)
+			t.Errorf("%v: expect %v, got %v", test.i, test.r, r)
 		}
 	}
 }
@@ -761,25 +761,25 @@ func TestAllSignInt32(t *testing.T) {
 		notZero := NotZeroInt32(test)
 
 		if (test < 0 && sign >= 0) || (test == 0 && sign != 0) || (test > 0 && sign != 1) {
-			t.Errorf("Error SignInt32(%v) - got %v", test, sign)
+			t.Errorf("%v: got %v", test, sign)
 		}
 		if (test < 0 && negative != 1) || (test >= 0 && negative != 0) {
-			t.Errorf("Error NegativeInt32(%v) - got %v", test, negative)
+			t.Errorf("%v: got %v", test, negative)
 		}
 		if (test >= 0 && notNegative != 1) || (test < 0 && notNegative != 0) {
-			t.Errorf("Error NotNegativeInt32(%v) - got %v", test, notNegative)
+			t.Errorf("%v: got %v", test, notNegative)
 		}
 		if (test > 0 && positive != 1) || (test <= 0 && positive != 0) {
-			t.Errorf("Error PositiveInt32(%v) - got %v", test, positive)
+			t.Errorf("%v: got %v", test, positive)
 		}
 		if (test <= 0 && notPositive != 1) || (test > 0 && notPositive != 0) {
-			t.Errorf("Error NotPositiveInt32(%v) - got %v", test, notPositive)
+			t.Errorf("%v: got %v", test, notPositive)
 		}
 		if (test == 0 && zero != 1) || (test != 0 && zero != 0) {
-			t.Errorf("Error ZeroInt32(%v) - got %v", test, zero)
+			t.Errorf("%v: got %v", test, zero)
 		}
 		if (test != 0 && notZero != 1) || (test == 0 && notZero != 0) {
-			t.Errorf("Error NotZeroInt32(%v) - got %v", test, notZero)
+			t.Errorf("%v: got %v", test, notZero)
 		}
 	}
 }
@@ -797,28 +797,28 @@ func TestAllCompareInt32(t *testing.T) {
 			notLess := NotLessInt32(a, b)
 
 			if (((a < 0 && b > 0) || (a > 0 && b < 0)) && sameSign != 0) || (!((a < 0 && b > 0) || (a > 0 && b < 0)) && sameSign != 1) {
-				t.Errorf("Error SameSignInt32(%v,%v) - got %v", a, b, sameSign)
+				t.Errorf("%v,%v: got %v", a, b, sameSign)
 			}
 			if notSameSign != NotInt32(sameSign) {
-				t.Errorf("Error NotSameSignInt32(%v,%v) - got %v", a, b, notSameSign)
+				t.Errorf("%v,%v: got %v", a, b, notSameSign)
 			}
 			if (a == b && equal != 1) || (a != b && equal != 0) {
-				t.Errorf("Error EqualInt32(%v,%v) - got %v", a, b, equal)
+				t.Errorf("%v,%v: got %v", a, b, equal)
 			}
 			if (a != b && notEqual != 1) || (a == b && notEqual != 0) {
-				t.Errorf("Error NotEqualInt32(%v,%v) - got %v", a, b, notEqual)
+				t.Errorf("%v,%v: got %v", a, b, notEqual)
 			}
 			if (a > b && greater != 1) || (a <= b && greater != 0) {
-				t.Errorf("Error GreaterInt32(%v,%v) - got %v", a, b, greater)
+				t.Errorf("%v,%v: got %v", a, b, greater)
 			}
 			if (a <= b && notGreater != 1) || (a > b && notGreater != 0) {
-				t.Errorf("Error NotGreateInt32(%v,%v) - got %v", a, b, notGreater)
+				t.Errorf("%v,%v: got %v", a, b, notGreater)
 			}
 			if (a < b && less != 1) || (a >= b && less != 0) {
-				t.Errorf("Error LessInt32(%v,%v) - got %v", a, b, less)
+				t.Errorf("%v,%v: got %v", a, b, less)
 			}
 			if (a >= b && notLess != 1) || (a < b && notLess != 0) {
-				t.Errorf("Error NotLessInt32(%v,%v) - got %v", a, b, notLess)
+				t.Errorf("%v,%v: got %v", a, b, notLess)
 			}
 		}
 	}
@@ -928,7 +928,7 @@ func TestBtoUint(t *testing.T) {
 	}{{b: false, r: 0}, {b: true, r: 1}}
 	for _, test := range tests {
 		if r := BtoUint(test.b); r != test.r {
-			t.Errorf("Error %v to uint - expected %v, got %v", test.b, test.r, r)
+			t.Errorf("%v: expect %v, got %v", test.b, test.r, r)
 		}
 	}
 }
@@ -940,7 +940,7 @@ func TestNotUint(t *testing.T) {
 	}{{i: 0, r: 1}, {i: 1, r: 0}}
 	for _, test := range tests {
 		if r := NotUint(test.i); r != test.r {
-			t.Errorf("Error NotUint(%v) - expected %v, got %v", test.i, test.r, r)
+			t.Errorf("%v: expect %v, got %v", test.i, test.r, r)
 		}
 	}
 }
@@ -956,25 +956,25 @@ func TestAllSignUint(t *testing.T) {
 		notZero := NotZeroUint(test)
 
 		if (test < 0 && sign >= 0) || (test == 0 && sign != 0) || (test > 0 && sign != 1) {
-			t.Errorf("Error SignUint(%v) - got %v", test, sign)
+			t.Errorf("%v: got %v", test, sign)
 		}
 		if (test < 0 && negative != 1) || (test >= 0 && negative != 0) {
-			t.Errorf("Error NegativeUint(%v) - got %v", test, negative)
+			t.Errorf("%v: got %v", test, negative)
 		}
 		if (test >= 0 && notNegative != 1) || (test < 0 && notNegative != 0) {
-			t.Errorf("Error NotNegativeUint(%v) - got %v", test, notNegative)
+			t.Errorf("%v: got %v", test, notNegative)
 		}
 		if (test > 0 && positive != 1) || (test <= 0 && positive != 0) {
-			t.Errorf("Error PositiveUint(%v) - got %v", test, positive)
+			t.Errorf("%v: got %v", test, positive)
 		}
 		if (test <= 0 && notPositive != 1) || (test > 0 && notPositive != 0) {
-			t.Errorf("Error NotPositiveUint(%v) - got %v", test, notPositive)
+			t.Errorf("%v: got %v", test, notPositive)
 		}
 		if (test == 0 && zero != 1) || (test != 0 && zero != 0) {
-			t.Errorf("Error ZeroUint(%v) - got %v", test, zero)
+			t.Errorf("%v: got %v", test, zero)
 		}
 		if (test != 0 && notZero != 1) || (test == 0 && notZero != 0) {
-			t.Errorf("Error NotZeroUint(%v) - got %v", test, notZero)
+			t.Errorf("%v: got %v", test, notZero)
 		}
 	}
 }
@@ -992,28 +992,28 @@ func TestAllCompareUint(t *testing.T) {
 			notLess := NotLessUint(a, b)
 
 			if (((a < 0 && b > 0) || (a > 0 && b < 0)) && sameSign != 0) || (!((a < 0 && b > 0) || (a > 0 && b < 0)) && sameSign != 1) {
-				t.Errorf("Error SameSignUint(%v,%v) - got %v", a, b, sameSign)
+				t.Errorf("%v,%v: got %v", a, b, sameSign)
 			}
 			if notSameSign != NotUint(sameSign) {
-				t.Errorf("Error NotSameSignUint(%v,%v) - got %v", a, b, notSameSign)
+				t.Errorf("%v,%v: got %v", a, b, notSameSign)
 			}
 			if (a == b && equal != 1) || (a != b && equal != 0) {
-				t.Errorf("Error EqualUint(%v,%v) - got %v", a, b, equal)
+				t.Errorf("%v,%v: got %v", a, b, equal)
 			}
 			if (a != b && notEqual != 1) || (a == b && notEqual != 0) {
-				t.Errorf("Error NotEqualUint(%v,%v) - got %v", a, b, notEqual)
+				t.Errorf("%v,%v: got %v", a, b, notEqual)
 			}
 			if (a > b && greater != 1) || (a <= b && greater != 0) {
-				t.Errorf("Error GreaterUint(%v,%v) - got %v", a, b, greater)
+				t.Errorf("%v,%v: got %v", a, b, greater)
 			}
 			if (a <= b && notGreater != 1) || (a > b && notGreater != 0) {
-				t.Errorf("Error NotGreateUint(%v,%v) - got %v", a, b, notGreater)
+				t.Errorf("%v,%v: got %v", a, b, notGreater)
 			}
 			if (a < b && less != 1) || (a >= b && less != 0) {
-				t.Errorf("Error LessUint(%v,%v) - got %v", a, b, less)
+				t.Errorf("%v,%v: got %v", a, b, less)
 			}
 			if (a >= b && notLess != 1) || (a < b && notLess != 0) {
-				t.Errorf("Error NotLessUint(%v,%v) - got %v", a, b, notLess)
+				t.Errorf("%v,%v: got %v", a, b, notLess)
 			}
 		}
 	}
@@ -1123,7 +1123,7 @@ func TestBtoUint8(t *testing.T) {
 	}{{b: false, r: 0}, {b: true, r: 1}}
 	for _, test := range tests {
 		if r := BtoUint8(test.b); r != test.r {
-			t.Errorf("Error %v to uint8 - expected %v, got %v", test.b, test.r, r)
+			t.Errorf("%v: expect %v, got %v", test.b, test.r, r)
 		}
 	}
 }
@@ -1135,7 +1135,7 @@ func TestNotUint8(t *testing.T) {
 	}{{i: 0, r: 1}, {i: 1, r: 0}}
 	for _, test := range tests {
 		if r := NotUint8(test.i); r != test.r {
-			t.Errorf("Error NotUint8(%v) - expected %v, got %v", test.i, test.r, r)
+			t.Errorf("%v: expect %v, got %v", test.i, test.r, r)
 		}
 	}
 }
@@ -1151,25 +1151,25 @@ func TestAllSignUint8(t *testing.T) {
 		notZero := NotZeroUint8(test)
 
 		if (test < 0 && sign >= 0) || (test == 0 && sign != 0) || (test > 0 && sign != 1) {
-			t.Errorf("Error SignUint8(%v) - got %v", test, sign)
+			t.Errorf("%v: got %v", test, sign)
 		}
 		if (test < 0 && negative != 1) || (test >= 0 && negative != 0) {
-			t.Errorf("Error NegativeUint8(%v) - got %v", test, negative)
+			t.Errorf("%v: got %v", test, negative)
 		}
 		if (test >= 0 && notNegative != 1) || (test < 0 && notNegative != 0) {
-			t.Errorf("Error NotNegativeUint8(%v) - got %v", test, notNegative)
+			t.Errorf("%v: got %v", test, notNegative)
 		}
 		if (test > 0 && positive != 1) || (test <= 0 && positive != 0) {
-			t.Errorf("Error PositiveUint8(%v) - got %v", test, positive)
+			t.Errorf("%v: got %v", test, positive)
 		}
 		if (test <= 0 && notPositive != 1) || (test > 0 && notPositive != 0) {
-			t.Errorf("Error NotPositiveUint8(%v) - got %v", test, notPositive)
+			t.Errorf("%v: got %v", test, notPositive)
 		}
 		if (test == 0 && zero != 1) || (test != 0 && zero != 0) {
-			t.Errorf("Error ZeroUint8(%v) - got %v", test, zero)
+			t.Errorf("%v: got %v", test, zero)
 		}
 		if (test != 0 && notZero != 1) || (test == 0 && notZero != 0) {
-			t.Errorf("Error NotZeroUint8(%v) - got %v", test, notZero)
+			t.Errorf("%v: got %v", test, notZero)
 		}
 	}
 }
@@ -1187,28 +1187,28 @@ func TestAllCompareUint8(t *testing.T) {
 			notLess := NotLessUint8(a, b)
 
 			if (((a < 0 && b > 0) || (a > 0 && b < 0)) && sameSign != 0) || (!((a < 0 && b > 0) || (a > 0 && b < 0)) && sameSign != 1) {
-				t.Errorf("Error SameSignUint8(%v,%v) - got %v", a, b, sameSign)
+				t.Errorf("%v,%v: got %v", a, b, sameSign)
 			}
 			if notSameSign != NotUint8(sameSign) {
-				t.Errorf("Error NotSameSignUint8(%v,%v) - got %v", a, b, notSameSign)
+				t.Errorf("%v,%v: got %v", a, b, notSameSign)
 			}
 			if (a == b && equal != 1) || (a != b && equal != 0) {
-				t.Errorf("Error EqualUint8(%v,%v) - got %v", a, b, equal)
+				t.Errorf("%v,%v: got %v", a, b, equal)
 			}
 			if (a != b && notEqual != 1) || (a == b && notEqual != 0) {
-				t.Errorf("Error NotEqualUint8(%v,%v) - got %v", a, b, notEqual)
+				t.Errorf("%v,%v: got %v", a, b, notEqual)
 			}
 			if (a > b && greater != 1) || (a <= b && greater != 0) {
-				t.Errorf("Error GreaterUint8(%v,%v) - got %v", a, b, greater)
+				t.Errorf("%v,%v: got %v", a, b, greater)
 			}
 			if (a <= b && notGreater != 1) || (a > b && notGreater != 0) {
-				t.Errorf("Error NotGreateUint8(%v,%v) - got %v", a, b, notGreater)
+				t.Errorf("%v,%v: got %v", a, b, notGreater)
 			}
 			if (a < b && less != 1) || (a >= b && less != 0) {
-				t.Errorf("Error LessUint8(%v,%v) - got %v", a, b, less)
+				t.Errorf("%v,%v: got %v", a, b, less)
 			}
 			if (a >= b && notLess != 1) || (a < b && notLess != 0) {
-				t.Errorf("Error NotLessUint8(%v,%v) - got %v", a, b, notLess)
+				t.Errorf("%v,%v: got %v", a, b, notLess)
 			}
 		}
 	}
@@ -1318,7 +1318,7 @@ func TestBtoUint16(t *testing.T) {
 	}{{b: false, r: 0}, {b: true, r: 1}}
 	for _, test := range tests {
 		if r := BtoUint16(test.b); r != test.r {
-			t.Errorf("Error %v to uint16 - expected %v, got %v", test.b, test.r, r)
+			t.Errorf("%v: expect %v, got %v", test.b, test.r, r)
 		}
 	}
 }
@@ -1330,7 +1330,7 @@ func TestNotUint16(t *testing.T) {
 	}{{i: 0, r: 1}, {i: 1, r: 0}}
 	for _, test := range tests {
 		if r := NotUint16(test.i); r != test.r {
-			t.Errorf("Error NotUint16(%v) - expected %v, got %v", test.i, test.r, r)
+			t.Errorf("%v: expect %v, got %v", test.i, test.r, r)
 		}
 	}
 }
@@ -1346,25 +1346,25 @@ func TestAllSignUint16(t *testing.T) {
 		notZero := NotZeroUint16(test)
 
 		if (test < 0 && sign >= 0) || (test == 0 && sign != 0) || (test > 0 && sign != 1) {
-			t.Errorf("Error SignUint16(%v) - got %v", test, sign)
+			t.Errorf("%v: got %v", test, sign)
 		}
 		if (test < 0 && negative != 1) || (test >= 0 && negative != 0) {
-			t.Errorf("Error NegativeUint16(%v) - got %v", test, negative)
+			t.Errorf("%v: got %v", test, negative)
 		}
 		if (test >= 0 && notNegative != 1) || (test < 0 && notNegative != 0) {
-			t.Errorf("Error NotNegativeUint16(%v) - got %v", test, notNegative)
+			t.Errorf("%v: got %v", test, notNegative)
 		}
 		if (test > 0 && positive != 1) || (test <= 0 && positive != 0) {
-			t.Errorf("Error PositiveUint16(%v) - got %v", test, positive)
+			t.Errorf("%v: got %v", test, positive)
 		}
 		if (test <= 0 && notPositive != 1) || (test > 0 && notPositive != 0) {
-			t.Errorf("Error NotPositiveUint16(%v) - got %v", test, notPositive)
+			t.Errorf("%v: got %v", test, notPositive)
 		}
 		if (test == 0 && zero != 1) || (test != 0 && zero != 0) {
-			t.Errorf("Error ZeroUint16(%v) - got %v", test, zero)
+			t.Errorf("%v: got %v", test, zero)
 		}
 		if (test != 0 && notZero != 1) || (test == 0 && notZero != 0) {
-			t.Errorf("Error NotZeroUint16(%v) - got %v", test, notZero)
+			t.Errorf("%v: got %v", test, notZero)
 		}
 	}
 }
@@ -1382,28 +1382,28 @@ func TestAllCompareUint16(t *testing.T) {
 			notLess := NotLessUint16(a, b)
 
 			if (((a < 0 && b > 0) || (a > 0 && b < 0)) && sameSign != 0) || (!((a < 0 && b > 0) || (a > 0 && b < 0)) && sameSign != 1) {
-				t.Errorf("Error SameSignUint16(%v,%v) - got %v", a, b, sameSign)
+				t.Errorf("%v,%v: got %v", a, b, sameSign)
 			}
 			if notSameSign != NotUint16(sameSign) {
-				t.Errorf("Error NotSameSignUint16(%v,%v) - got %v", a, b, notSameSign)
+				t.Errorf("%v,%v: got %v", a, b, notSameSign)
 			}
 			if (a == b && equal != 1) || (a != b && equal != 0) {
-				t.Errorf("Error EqualUint16(%v,%v) - got %v", a, b, equal)
+				t.Errorf("%v,%v: got %v", a, b, equal)
 			}
 			if (a != b && notEqual != 1) || (a == b && notEqual != 0) {
-				t.Errorf("Error NotEqualUint16(%v,%v) - got %v", a, b, notEqual)
+				t.Errorf("%v,%v: got %v", a, b, notEqual)
 			}
 			if (a > b && greater != 1) || (a <= b && greater != 0) {
-				t.Errorf("Error GreaterUint16(%v,%v) - got %v", a, b, greater)
+				t.Errorf("%v,%v: got %v", a, b, greater)
 			}
 			if (a <= b && notGreater != 1) || (a > b && notGreater != 0) {
-				t.Errorf("Error NotGreateUint16(%v,%v) - got %v", a, b, notGreater)
+				t.Errorf("%v,%v: got %v", a, b, notGreater)
 			}
 			if (a < b && less != 1) || (a >= b && less != 0) {
-				t.Errorf("Error LessUint16(%v,%v) - got %v", a, b, less)
+				t.Errorf("%v,%v: got %v", a, b, less)
 			}
 			if (a >= b && notLess != 1) || (a < b && notLess != 0) {
-				t.Errorf("Error NotLessUint16(%v,%v) - got %v", a, b, notLess)
+				t.Errorf("%v,%v: got %v", a, b, notLess)
 			}
 		}
 	}
@@ -1513,7 +1513,7 @@ func TestBtoUint32(t *testing.T) {
 	}{{b: false, r: 0}, {b: true, r: 1}}
 	for _, test := range tests {
 		if r := BtoUint32(test.b); r != test.r {
-			t.Errorf("Error %v to uint32 - expected %v, got %v", test.b, test.r, r)
+			t.Errorf("%v: expect %v, got %v", test.b, test.r, r)
 		}
 	}
 }
@@ -1525,7 +1525,7 @@ func TestNotUint32(t *testing.T) {
 	}{{i: 0, r: 1}, {i: 1, r: 0}}
 	for _, test := range tests {
 		if r := NotUint32(test.i); r != test.r {
-			t.Errorf("Error NotUint32(%v) - expected %v, got %v", test.i, test.r, r)
+			t.Errorf("%v: expect %v, got %v", test.i, test.r, r)
 		}
 	}
 }
@@ -1541,25 +1541,25 @@ func TestAllSignUint32(t *testing.T) {
 		notZero := NotZeroUint32(test)
 
 		if (test < 0 && sign >= 0) || (test == 0 && sign != 0) || (test > 0 && sign != 1) {
-			t.Errorf("Error SignUint32(%v) - got %v", test, sign)
+			t.Errorf("%v: got %v", test, sign)
 		}
 		if (test < 0 && negative != 1) || (test >= 0 && negative != 0) {
-			t.Errorf("Error NegativeUint32(%v) - got %v", test, negative)
+			t.Errorf("%v: got %v", test, negative)
 		}
 		if (test >= 0 && notNegative != 1) || (test < 0 && notNegative != 0) {
-			t.Errorf("Error NotNegativeUint32(%v) - got %v", test, notNegative)
+			t.Errorf("%v: got %v", test, notNegative)
 		}
 		if (test > 0 && positive != 1) || (test <= 0 && positive != 0) {
-			t.Errorf("Error PositiveUint32(%v) - got %v", test, positive)
+			t.Errorf("%v: got %v", test, positive)
 		}
 		if (test <= 0 && notPositive != 1) || (test > 0 && notPositive != 0) {
-			t.Errorf("Error NotPositiveUint32(%v) - got %v", test, notPositive)
+			t.Errorf("%v: got %v", test, notPositive)
 		}
 		if (test == 0 && zero != 1) || (test != 0 && zero != 0) {
-			t.Errorf("Error ZeroUint32(%v) - got %v", test, zero)
+			t.Errorf("%v: got %v", test, zero)
 		}
 		if (test != 0 && notZero != 1) || (test == 0 && notZero != 0) {
-			t.Errorf("Error NotZeroUint32(%v) - got %v", test, notZero)
+			t.Errorf("%v: got %v", test, notZero)
 		}
 	}
 }
@@ -1577,28 +1577,28 @@ func TestAllCompareUint32(t *testing.T) {
 			notLess := NotLessUint32(a, b)
 
 			if (((a < 0 && b > 0) || (a > 0 && b < 0)) && sameSign != 0) || (!((a < 0 && b > 0) || (a > 0 && b < 0)) && sameSign != 1) {
-				t.Errorf("Error SameSignUint32(%v,%v) - got %v", a, b, sameSign)
+				t.Errorf("%v,%v: got %v", a, b, sameSign)
 			}
 			if notSameSign != NotUint32(sameSign) {
-				t.Errorf("Error NotSameSignUint32(%v,%v) - got %v", a, b, notSameSign)
+				t.Errorf("%v,%v: got %v", a, b, notSameSign)
 			}
 			if (a == b && equal != 1) || (a != b && equal != 0) {
-				t.Errorf("Error EqualUint32(%v,%v) - got %v", a, b, equal)
+				t.Errorf("%v,%v: got %v", a, b, equal)
 			}
 			if (a != b && notEqual != 1) || (a == b && notEqual != 0) {
-				t.Errorf("Error NotEqualUint32(%v,%v) - got %v", a, b, notEqual)
+				t.Errorf("%v,%v: got %v", a, b, notEqual)
 			}
 			if (a > b && greater != 1) || (a <= b && greater != 0) {
-				t.Errorf("Error GreaterUint32(%v,%v) - got %v", a, b, greater)
+				t.Errorf("%v,%v: got %v", a, b, greater)
 			}
 			if (a <= b && notGreater != 1) || (a > b && notGreater != 0) {
-				t.Errorf("Error NotGreateUint32(%v,%v) - got %v", a, b, notGreater)
+				t.Errorf("%v,%v: got %v", a, b, notGreater)
 			}
 			if (a < b && less != 1) || (a >= b && less != 0) {
-				t.Errorf("Error LessUint32(%v,%v) - got %v", a, b, less)
+				t.Errorf("%v,%v: got %v", a, b, less)
 			}
 			if (a >= b && notLess != 1) || (a < b && notLess != 0) {
-				t.Errorf("Error NotLessUint32(%v,%v) - got %v", a, b, notLess)
+				t.Errorf("%v,%v: got %v", a, b, notLess)
 			}
 		}
 	}
@@ -1708,7 +1708,7 @@ func TestBtoUint64(t *testing.T) {
 	}{{b: false, r: 0}, {b: true, r: 1}}
 	for _, test := range tests {
 		if r := BtoUint64(test.b); r != test.r {
-			t.Errorf("Error %v to uint64 - expected %v, got %v", test.b, test.r, r)
+			t.Errorf("%v: expect %v, got %v", test.b, test.r, r)
 		}
 	}
 }
@@ -1720,7 +1720,7 @@ func TestNotUint64(t *testing.T) {
 	}{{i: 0, r: 1}, {i: 1, r: 0}}
 	for _, test := range tests {
 		if r := NotUint64(test.i); r != test.r {
-			t.Errorf("Error NotUint64(%v) - expected %v, got %v", test.i, test.r, r)
+			t.Errorf("%v: expect %v, got %v", test.i, test.r, r)
 		}
 	}
 }
@@ -1736,25 +1736,25 @@ func TestAllSignUint64(t *testing.T) {
 		notZero := NotZeroUint64(test)
 
 		if (test < 0 && sign >= 0) || (test == 0 && sign != 0) || (test > 0 && sign != 1) {
-			t.Errorf("Error SignUint64(%v) - got %v", test, sign)
+			t.Errorf("%v: got %v", test, sign)
 		}
 		if (test < 0 && negative != 1) || (test >= 0 && negative != 0) {
-			t.Errorf("Error NegativeUint64(%v) - got %v", test, negative)
+			t.Errorf("%v: got %v", test, negative)
 		}
 		if (test >= 0 && notNegative != 1) || (test < 0 && notNegative != 0) {
-			t.Errorf("Error NotNegativeUint64(%v) - got %v", test, notNegative)
+			t.Errorf("%v: got %v", test, notNegative)
 		}
 		if (test > 0 && positive != 1) || (test <= 0 && positive != 0) {
-			t.Errorf("Error PositiveUint64(%v) - got %v", test, positive)
+			t.Errorf("%v: got %v", test, positive)
 		}
 		if (test <= 0 && notPositive != 1) || (test > 0 && notPositive != 0) {
-			t.Errorf("Error NotPositiveUint64(%v) - got %v", test, notPositive)
+			t.Errorf("%v: got %v", test, notPositive)
 		}
 		if (test == 0 && zero != 1) || (test != 0 && zero != 0) {
-			t.Errorf("Error ZeroUint64(%v) - got %v", test, zero)
+			t.Errorf("%v: got %v", test, zero)
 		}
 		if (test != 0 && notZero != 1) || (test == 0 && notZero != 0) {
-			t.Errorf("Error NotZeroUint64(%v) - got %v", test, notZero)
+			t.Errorf("%v: got %v", test, notZero)
 		}
 	}
 }
@@ -1772,28 +1772,28 @@ func TestAllCompareUint64(t *testing.T) {
 			notLess := NotLessUint64(a, b)
 
 			if (((a < 0 && b > 0) || (a > 0 && b < 0)) && sameSign != 0) || (!((a < 0 && b > 0) || (a > 0 && b < 0)) && sameSign != 1) {
-				t.Errorf("Error SameSignUint64(%v,%v) - got %v", a, b, sameSign)
+				t.Errorf("%v,%v: got %v", a, b, sameSign)
 			}
 			if notSameSign != NotUint64(sameSign) {
-				t.Errorf("Error NotSameSignUint64(%v,%v) - got %v", a, b, notSameSign)
+				t.Errorf("%v,%v: got %v", a, b, notSameSign)
 			}
 			if (a == b && equal != 1) || (a != b && equal != 0) {
-				t.Errorf("Error EqualUint64(%v,%v) - got %v", a, b, equal)
+				t.Errorf("%v,%v: got %v", a, b, equal)
 			}
 			if (a != b && notEqual != 1) || (a == b && notEqual != 0) {
-				t.Errorf("Error NotEqualUint64(%v,%v) - got %v", a, b, notEqual)
+				t.Errorf("%v,%v: got %v", a, b, notEqual)
 			}
 			if (a > b && greater != 1) || (a <= b && greater != 0) {
-				t.Errorf("Error GreaterUint64(%v,%v) - got %v", a, b, greater)
+				t.Errorf("%v,%v: got %v", a, b, greater)
 			}
 			if (a <= b && notGreater != 1) || (a > b && notGreater != 0) {
-				t.Errorf("Error NotGreateUint64(%v,%v) - got %v", a, b, notGreater)
+				t.Errorf("%v,%v: got %v", a, b, notGreater)
 			}
 			if (a < b && less != 1) || (a >= b && less != 0) {
-				t.Errorf("Error LessUint64(%v,%v) - got %v", a, b, less)
+				t.Errorf("%v,%v: got %v", a, b, less)
 			}
 			if (a >= b && notLess != 1) || (a < b && notLess != 0) {
-				t.Errorf("Error NotLessUint64(%v,%v) - got %v", a, b, notLess)
+				t.Errorf("%v,%v: got %v", a, b, notLess)
 			}
 		}
 	}

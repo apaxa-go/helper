@@ -20,7 +20,7 @@ func TestLen(t *testing.T) {
 	}
 	for _, v := range tests {
 		if r := Len(v.s); r != v.l {
-			t.Errorf("String '%v', expected: %v, got: %v", v.s, v.l, r)
+			t.Errorf("string '%v', expected: %v, got: %v", v.s, v.l, r)
 		}
 	}
 }

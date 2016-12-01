@@ -19,20 +19,20 @@ func TestRead(t *testing.T) {
 	n := 0
 	i, err := Read(buf)
 	if err != nil {
-		t.Errorf("TestRead. Got error: %v", err)
+		t.Errorf("got error: %v", err)
 	} else if i != n {
-		t.Errorf("TestRead. Expected numder of arguments: %v, got: %v", n, i)
+		t.Errorf("expected numder of arguments: %v, got: %v", n, i)
 	}
 
 	//check 2 arguments
 	n = 2
 	i, err = Read(buf, b1, b2)
 	if err != nil {
-		t.Errorf("TestRead. Got error: %v", err)
+		t.Errorf("got error: %v", err)
 	} else if i != n {
-		t.Errorf("TestRead. Expected numder of arguments: %v, got: %v", n, i)
-	} else if !reflect.DeepEqual(b1, b[:1]) && reflect.DeepEqual(b2, b[1:]) {
-		t.Errorf("TestRead. Wrong read. Slices are not equal.\nExpected b1: %v\ngot: %v\nExpected b1: %v\ngot: %v", b1, b[:1], b2, b[1:])
+		t.Errorf("expected numder of arguments: %v, got: %v", n, i)
+	} else if !reflect.DeepEqual(b1, b[:1]) || !reflect.DeepEqual(b2, b[1:]) {
+		t.Errorf("expect %v %v, got %v %v", b1, b2, b[:1], b[1:])
 	}
 
 	//check 1 argument
@@ -40,11 +40,11 @@ func TestRead(t *testing.T) {
 	buf = bytes.NewReader(b2)
 	i, err = Read(buf, b1)
 	if err != nil {
-		t.Errorf("TestRead. Got error: %v", err)
+		t.Errorf("got error: %v", err)
 	} else if i != n {
-		t.Errorf("TestRead. Expected numder of arguments: %v, got: %v", n, i)
+		t.Errorf("expected numder of arguments: %v, got: %v", n, i)
 	} else if !reflect.DeepEqual(b1, b2[:1]) {
-		t.Errorf("TestRead. Wrong read. Slices are not equal.\nExpected b1: %v\ngot: %v", b1, b2[:1])
+		t.Errorf("expect %v, got %v", b1, b2[:1])
 	}
 
 	//check 1000 arguments
@@ -60,13 +60,13 @@ func TestRead(t *testing.T) {
 	buf = bytes.NewReader(b)
 	i, err = Read(buf, m...)
 	if err != nil {
-		t.Errorf("TestRead. Got error: %v", err)
+		t.Errorf("got error: %v", err)
 	} else if i != n {
-		t.Errorf("TestRead. Expected numder of arguments: %v, got: %v", n, i)
+		t.Errorf("expected numder of arguments: %v, got: %v", n, i)
 	}
 	for i := 0; i < n; i++ {
 		if m[i][0] != b[i] {
-			t.Errorf("TestRead. Wrong read. Slices are not equal.\nExpected b[%v]: %v\ngot: %v", i, b[i], m[i][0])
+			t.Errorf("expected b[%v]: %v, got: %v", i, b[i], m[i][0])
 		}
 	}
 
@@ -75,7 +75,7 @@ func TestRead(t *testing.T) {
 	buf = bytes.NewReader(b)
 	_, err = Read(buf, b2)
 	if err != nil {
-		t.Errorf("TestRead. Expected no error but got %v", err)
+		t.Errorf("expected no error but got %v", err)
 	}
 }
 
@@ -89,20 +89,20 @@ func TestWrite(t *testing.T) {
 	n := 0
 	i, err := Write(buf)
 	if err != nil {
-		t.Errorf("TestWrite. Got error: %v", err)
+		t.Errorf("got error: %v", err)
 	} else if i != n {
-		t.Errorf("TestWrite. Expected numder  of arguments: %v, got: %v", n, i)
+		t.Errorf("expected numder  of arguments: %v, got: %v", n, i)
 	}
 
 	// check 1 arguments
 	n = 1
 	i, err = Write(buf, b2)
 	if err != nil {
-		t.Errorf("TestWrite. Got error: %v", err)
+		t.Errorf("got error: %v", err)
 	} else if i != n {
-		t.Errorf("TestWrite. Expected numder  of arguments: %v, got: %v", n, i)
+		t.Errorf("expected numder  of arguments: %v, got: %v", n, i)
 	} else if !reflect.DeepEqual(buf.Bytes(), b2) {
-		t.Errorf("TestWrite. Wrong write. Slices are not equal.\nExpected b1: %v\ngot: %v", b2, buf.Bytes())
+		t.Errorf("expect %v, got %v", b2, buf.Bytes())
 	}
 
 	// check 2 arguments
@@ -110,11 +110,11 @@ func TestWrite(t *testing.T) {
 	buf = bytesh.NewBufferDetail(0, 1)
 	i, err = Write(buf, b1, b2)
 	if err != nil {
-		t.Errorf("TestWrite. Got error: %v", err)
+		t.Errorf("got error: %v", err)
 	} else if i != n {
-		t.Errorf("TestWrite. Expected numder  of arguments: %v, got: %v", n, i)
+		t.Errorf("expected numder  of arguments: %v, got: %v", n, i)
 	} else if !reflect.DeepEqual(buf.Bytes(), append(b1, b2...)) {
-		t.Errorf("TestWrite. Wrong write. Slices are not equal.\nExpected b1: %v\ngot: %v", buf.Bytes(), append(b1, b2...))
+		t.Errorf("expect %v, got %v", buf.Bytes(), append(b1, b2...))
 	}
 
 	//check 1000 arguments
@@ -128,17 +128,17 @@ func TestWrite(t *testing.T) {
 	buf = bytesh.NewBufferDetail(n, 1)
 	i, err = Write(buf, m...)
 	if err != nil {
-		t.Errorf("TestWrite. Got error: %v", err)
+		t.Errorf("got error: %v", err)
 	} else if i != n {
-		t.Errorf("TestWrite. Expected numder  of arguments: %v, got: %v", n, i)
+		t.Errorf("expected numder  of arguments: %v, got: %v", n, i)
 	} else if !reflect.DeepEqual(buf.Bytes(), b) {
-		t.Errorf("TestWrite. Wrong write. Slices are not equal.\nExpected b1: %v\ngot: %v", buf.Bytes(), b)
+		t.Errorf("expect %v, got %v", buf.Bytes(), b)
 	}
 
 	//check error
 	buf2 := iotesth.ErrorWriter(nil, 2, nil)
 	i, err = Write(buf2, b1, b2)
 	if err != io.ErrShortWrite || i != 1 {
-		t.Errorf("TestWrite. Expected %v %v, bot %v %v", 1, io.ErrShortWrite, i, err)
+		t.Errorf("expected %v %v, bot %v %v", 1, io.ErrShortWrite, i, err)
 	}
 }

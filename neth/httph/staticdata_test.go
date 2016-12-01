@@ -12,7 +12,7 @@ func TestStaticDataElement_Time(t *testing.T) {
 	now := time.Now().Truncate(time.Second)
 	sde := StaticDataElement{UnixTime: now.Unix()}
 	if r := sde.Time(); !r.Equal(now) {
-		t.Errorf("TestStaticDataElement_Time: expected '%v', but got '%v'", now, r)
+		t.Errorf("expect %v, got %v", now, r)
 	}
 }
 
@@ -62,28 +62,28 @@ func TestStaticDataElement_ServeHTTP(t *testing.T) {
 		sde.ServeHTTP(w, req)
 
 		if w.Code != test.status {
-			t.Errorf("TestStaticDataElement_ServeHTTP: expected status code is %v, but got %v", test.status, w.Code)
+			t.Errorf("expected status code is %v, but got %v", test.status, w.Code)
 		}
 
 		if test.emptyBody && w.Body.Len() != 0 {
-			t.Errorf("TestStaticDataElement_ServeHTTP: expected empty body, but got '%v'", w.Body.String())
+			t.Errorf("expected empty body, but got '%v'", w.Body.String())
 		}
 		if !test.emptyBody && string(w.Body.Bytes()) != data {
-			t.Errorf("TestStaticDataElement_ServeHTTP: expected body is '%v', but got '%v'", message, w.Body.String())
+			t.Errorf("expected body is '%v', but got '%v'", message, w.Body.String())
 		}
 
 		if r := w.Header().Get("Content-type"); test.emptyType && r != "" {
-			t.Errorf("TestStaticDataElement_ServeHTTP: expect no mime, but got '%v'", r)
+			t.Errorf("expect no mime, but got '%v'", r)
 		} else if !test.emptyType && r != mime {
-			t.Errorf("TestStaticDataElement_ServeHTTP: expected mime is '%v', but got '%v'", mime, r)
+			t.Errorf("expected mime is '%v', but got '%v'", mime, r)
 		}
 
 		if r := w.Header().Get("Last-Modified"); test.emptyModT && r != "" {
-			t.Errorf("TestStaticDataElement_ServeHTTP: expect no last-modified, but got '%v'", r)
+			t.Errorf("expect no last-modified, but got '%v'", r)
 		} else if r2, err := time.Parse(http.TimeFormat, r); !test.emptyModT && err != nil {
-			t.Errorf("TestStaticDataElement_ServeHTTP: expect last-modified, but unable to parse '%v': %v", r, err)
+			t.Errorf("expect last-modified, but unable to parse '%v': %v", r, err)
 		} else if !test.emptyModT && !r2.Equal(testTimeStamp) {
-			t.Errorf("TestStaticDataElement_ServeHTTP: expected last-modified is '%v', but got '%v'", testTimeStamp, r2)
+			t.Errorf("expected last-modified is '%v', but got '%v'", testTimeStamp, r2)
 		}
 	}
 }

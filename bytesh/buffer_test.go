@@ -11,24 +11,24 @@ import (
 
 //TODO add more tests
 
-func checkSlicesEqual(t *testing.T, testname string, b, v []byte) {
+func checkSlicesEqual(t *testing.T, testName string, b, v []byte) {
 	if (b == nil && v != nil) || (b != nil && v == nil) {
-		t.Errorf("%s: slices not equal. One slice is nill.", testname)
+		t.Errorf("%s: slices not equal, one slice is nill", testName)
 	}
 	if len(b) != len(v) {
-		t.Errorf("%s: slices not equal. Wrong len. Len(bytes)=%v. Len(v)=%v", testname, len(b), len(v))
+		t.Errorf("%s: slices not equal, wrong length: Len(bytes)=%v, Len(v)=%v", testName, len(b), len(v))
 	} else {
 		for i := range b {
 			if b[i] != v[i] {
-				t.Errorf("%s: Slises not equal!", testname)
+				t.Errorf("%s: slises not equal", testName)
 			}
 		}
 	}
 }
 
-func checkPos(t *testing.T, testname string, b Buffer, i int) {
+func checkPos(t *testing.T, testName string, b Buffer, i int) {
 	if b.Pos() != i {
-		t.Errorf("%s: Wrong Pos. Expected %v, got %v", testname, i, b.Pos())
+		t.Errorf("%s: wrong Pos, expected %v, got %v", testName, i, b.Pos())
 	}
 }
 
@@ -53,13 +53,13 @@ func TestLen(t *testing.T) {
 	}
 	l := b.Len()
 	if l != 3 {
-		t.Errorf("\n(1) Expected len:\n%v\ngot:\n%v", 3, l)
+		t.Errorf("expected len: %v, got: %v", 3, l)
 	}
 
 	var b1 Buffer
 	l1 := b1.Len()
 	if l1 != 0 {
-		t.Errorf("\n(2) Expected len:\n%v\ngot:\n%v", 0, l1)
+		t.Errorf("expected len: %v, got: %v", 0, l1)
 	}
 }
 
@@ -71,33 +71,33 @@ func TestRemainingBytes(t *testing.T) {
 	}
 	p := []byte{0x05, 0x06, 0x07, 0x08, 0x09, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x20}
 	if n, err := b.Read(make([]byte, 5)); err != nil || n != 5 {
-		t.Errorf("TestRemainingBytes. Error while reading: %v. n should be 5 but n=%v", err, n)
+		t.Errorf("expect %v %v, got %v %v", 5, nil, n, err)
 	}
 	c := b.RemainingBytes()
 	checkSlicesEqual(t, "TestRemainingBytes", c, p)
 	if n, err := b.SeekRead(10, 0); err != nil || n != 10 {
-		t.Errorf("TestRemainingBytes. Error while seeking: %v. n should be 10 but n=%v", err, n)
+		t.Errorf("expect %v %v, got %v %v", 10, nil, n, err)
 	}
 	p1 := []byte{0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x20}
 	c1 := b.RemainingBytes()
 	checkSlicesEqual(t, "TestRemainingBytes 2", c1, p1)
 	if n, err := b.SeekRead(21, 0); err != nil || n != 21 {
-		t.Errorf("TestRemainingBytes. Error while seeking: %v. n should be 21 but n=%v", err, n)
+		t.Errorf("expect %v %v, got %v %v", 21, nil, n, err)
 	}
 	c2 := b.RemainingBytes()
 	checkSlicesEqual(t, "TestRemainingBytes 3", c2, make([]byte, 0))
 	// check nil
 	if n, err := b.SeekRead(22, 0); err != nil || n != 22 {
-		t.Errorf("TestRemainingBytes. Error while seekding: %v. n should be 22 but n=%v", err, n)
+		t.Errorf("expect %v %v, got %v %v", 22, nil, n, err)
 	}
 	c3 := b.RemainingBytes()
 	if c3 != nil {
-		t.Errorf("Expexted nil, got %v", c3)
+		t.Errorf("expect %v, got %v", nil, c3)
 	}
 	var b4 Buffer
 	c4 := b4.RemainingBytes()
 	if c4 != nil {
-		t.Errorf("Expected nil , got %v", c4)
+		t.Errorf("expected %v, got %v", nil, c4)
 	}
 }
 
@@ -105,7 +105,7 @@ func TestRemainingBytesNil2(t *testing.T) {
 	var b Buffer
 	c := b.RemainingBytes()
 	if c != nil {
-		t.Errorf("Expected nil, got error %v", c)
+		t.Errorf("expected %v, got %v", nil, c)
 	}
 }
 
@@ -116,25 +116,25 @@ func TestRemainingLen(t *testing.T) {
 	}
 	p := make([]byte, 5)
 	if n, err := b.Read(p); err != nil || n != 5 {
-		t.Errorf("TestRemainingLen. Error while reading: %v. n should be 5 but n=%v", err, n)
+		t.Errorf("expect %v %v, got %v %v", 5, nil, n, err)
 	}
 	c := b.RemainingLen()
 	if c != 4 {
-		t.Errorf("Expected RemainingLen: %v, got %v", 4, c)
+		t.Errorf("expect %v, got %v", 4, c)
 	}
 	if n, err := b.SeekRead(9, 0); err != nil || n != 9 {
-		t.Errorf("TestRemainingLen. Error while seeking: %v. n should be 9 but n=%v", err, n)
+		t.Errorf("expect %v %v, got %v %v", 9, nil, n, err)
 	}
 	c1 := b.RemainingLen()
 	if c1 != 0 {
-		t.Errorf("Expected RemainingLen: %v, got %v", 0, c1)
+		t.Errorf("expect %v, got %v", 0, c1)
 	}
 	if n, err := b.SeekRead(12, 0); err != nil || n != 12 {
-		t.Errorf("TestRemainingLen. Error while seeking: %v. n should be 12 but n=%v", err, n)
+		t.Errorf("expect %v %v, got %v %v", 12, nil, n, err)
 	}
 	c2 := b.RemainingLen()
 	if c2 != -3 {
-		t.Errorf("Expected RemainingLen: %v, got %v", -3, c2)
+		t.Errorf("expect %v, got %v", -3, c2)
 	}
 
 	var b3 = Buffer{
@@ -142,17 +142,17 @@ func TestRemainingLen(t *testing.T) {
 	}
 
 	if n, err := b3.ReadByte(); err != nil || n != b3.Bytes()[0] {
-		t.Errorf("TestRemainingLen. Error while reading: %v. n should be: %v but n: %v", err, b3.Bytes()[0], n)
+		t.Errorf("expect %v %v, got %v %v", b3.Bytes()[0], nil, n, err)
 	}
 	c3 := b3.RemainingLen()
 	if c3 != 0 {
-		t.Errorf("Expected RemainingLen: %v, got %v", 0, c3)
+		t.Errorf("expect %v, got %v", 0, c3)
 	}
 
 	var b4 Buffer
 	c4 := b4.RemainingLen()
 	if c4 != 0 {
-		t.Errorf("Expected RemainingLen: %v, got %v", 0, c4)
+		t.Errorf("expect %v, got %v", 0, c4)
 	}
 }
 
@@ -166,31 +166,31 @@ func TestGrowFactor(t *testing.T) {
 	}
 	e := b.GrowFactor()
 	if e != 3 {
-		t.Errorf("\n(1) Expected activeGrowFactor: %v, got: %v", 3, e)
+		t.Errorf("expect %v, got %v", 3, e)
 	}
 
 	var b1 Buffer
 	e1 := b1.GrowFactor()
 	if e1 != defaultGrowFactor {
-		t.Errorf("\n(2) Expected activeGrowFactor: %v, got: %v", defaultGrowFactor, e)
+		t.Errorf("expect %v, got %v", defaultGrowFactor, e)
 	}
 
 	b2 := NewBufferDetail(1, 10)
 	e2 := b2.GrowFactor()
 	if e2 != defaultGrowFactor {
-		t.Errorf("\n(3) Expected activeGrowFactor: %v, got: %v", defaultGrowFactor, e2)
+		t.Errorf("expect %v, got %v", defaultGrowFactor, e2)
 	}
 
 	b3 := NewBuffer(make([]byte, 2))
 	e3 := b3.GrowFactor()
 	if e3 != defaultGrowFactor {
-		t.Errorf("\n(3) Expected activeGrowFactor: %v, got: %v", defaultGrowFactor, e3)
+		t.Errorf("expect %v, got %v", defaultGrowFactor, e3)
 	}
 
 	b3.SetGrowFactor(20)
 	e4 := b3.GrowFactor()
 	if e4 != 20 {
-		t.Errorf("\n(3) Expected activeGrowFactor: %v, got: %v", 20, e4)
+		t.Errorf("expect %v, got %v", 20, e4)
 	}
 }
 
@@ -202,17 +202,16 @@ func TestGrow(t *testing.T) {
 		xBytes := bytes.Repeat(x, startLen)
 		for _, growLen := range []int{0, 1000, 10000} {
 			if n, err := b.Write(xBytes); err != nil || n != startLen {
-				t.Errorf("TestGrow. Error while writing: %v. Expected n = %v, got %v", err, startLen, n)
+				t.Errorf("expect %v %v, got %v %v", startLen, nil, n, err)
 			}
 			b.Grow(growLen)
 			yBytes := bytes.Repeat(y, growLen)
 			if n, err := b.Write(yBytes); err != nil || n != growLen {
-				t.Errorf("TestGrow. Error while writing: %v. Expected n = %v, got %v", err, growLen, n)
+				t.Errorf("expect %v %v, got %v %v", growLen, nil, n, err)
 			}
 			if cap(b.Bytes()) != startLen+growLen {
-				t.Errorf("TestGrow: Wrong cap - cap(b) = %v, startLen+growLen = %v", cap(b.Bytes()), startLen+growLen)
+				t.Errorf("expect %v, got %v", startLen+growLen, cap(b.Bytes()))
 			}
-			//t.Errorf("startLen=%v, growLen=%v\nbuf:%v, cap: %v",startLen, growLen, b.Bytes(), cap(b.Bytes()))
 			b.Reset()
 			b.buf = make([]byte, 0, 0)
 		}
@@ -227,12 +226,11 @@ func TestGrow2(t *testing.T) {
 		b.Grow(growLen)
 		_, err := b.Write(xBytes)
 		if err != nil {
-			t.Errorf("TestGrow2 - Error while writing to buf %v", err)
+			t.Errorf("expect %v, got %v", nil, err)
 		}
 		if cap(b.Bytes()) != growLen {
-			t.Errorf("TestGrow2 - error with grow. Wrong capacity. Expected: %v, got: %v", growLen, cap(b.Bytes()))
+			t.Errorf("expect %v, got %v", growLen, cap(b.Bytes()))
 		}
-		//t.Errorf("growLen=%v\nbuf:%v, cap: %v", growLen, b.Bytes(), cap(b.Bytes()))
 	}
 }
 
@@ -240,7 +238,7 @@ func TestGrowNegative(t *testing.T) {
 	var b Buffer
 	defer func() {
 		if r := recover(); r == nil {
-			t.Error("Panic expected but no panic had happend")
+			t.Error("panic expected but no panic")
 		}
 	}()
 	b.Grow(-1)
@@ -257,7 +255,7 @@ func TestNext(t *testing.T) {
 				buf := NewBuffer(b[0:j])
 				n, _ := buf.Read(tmp[0:i])
 				if n != i {
-					t.Fatalf("TestNext - Read %d returned %d", i, n)
+					t.Errorf("expect %v, got %v", i, n)
 				}
 				bb := buf.Next(k)
 				want := k
@@ -265,11 +263,11 @@ func TestNext(t *testing.T) {
 					want = j - i
 				}
 				if len(bb) != want {
-					t.Fatalf("TestNext - in %d,%d: len(Next(%d)) == %d", i, j, k, len(bb))
+					t.Errorf("for %v,%v expect %v, got %v", i, j, want, len(bb))
 				}
 				for l, v := range bb {
 					if v != byte(l+i) {
-						t.Fatalf("TestNext - in %d,%d: Next(%d)[%d] = %d, want %d", i, j, k, l, v, l+i)
+						t.Errorf("for %v,%v expect Next(%v)[%v] = %v, got %v", i, j, k, l, l+i, v)
 					}
 				}
 			}
@@ -283,7 +281,7 @@ func TestNext2(t *testing.T) {
 		seekBehaviour: false,
 	}
 	if n, err := b.Seek(5, 0); err != nil || n != 5 {
-		t.Errorf("TestNext2. Seek error: %v. Expeted n: 5, got: %v", err, n)
+		t.Errorf("expect %v %v, got %v %v", 5, nil, n, err)
 	}
 	c := b.Next(6)
 	checkSlicesEqual(t, "(1) TestNext2", c, b.buf[5:11])
@@ -301,7 +299,7 @@ func TestNext2(t *testing.T) {
 	}
 	c4 := b4.Next(2)
 	if c4 != nil {
-		t.Errorf("(5) TestNext2. Expected nil, got %v", c4)
+		t.Errorf("expect %v, got %v", nil, c4)
 	}
 }
 
@@ -309,7 +307,7 @@ func TestNextNegative(t *testing.T) {
 	var b Buffer
 	defer func() {
 		if r := recover(); r == nil {
-			t.Error("Panic expected but no panic had happend")
+			t.Error("panic expected but no panic")
 		}
 	}()
 	b.Next(-1)
@@ -322,7 +320,7 @@ func TestNextNegativeReadOff(t *testing.T) {
 	}
 	defer func() {
 		if r := recover(); r == nil {
-			t.Error("Panic expected but no panic had happend")
+			t.Error("panic expected but no panic")
 		}
 	}()
 	b.Next(1)
@@ -333,7 +331,7 @@ func TestNewBuffer(t *testing.T) {
 	buf := NewBuffer(p)
 	checkSlicesEqual(t, "TestNewBuffer", buf.Bytes(), p)
 	if buf.activeGrowFactor != defaultGrowFactor {
-		t.Errorf("TestNewBuffer: Expected activeGrowFactor: %v, got %v", defaultGrowFactor, buf.activeGrowFactor)
+		t.Errorf("expect %v, got %v", defaultGrowFactor, buf.activeGrowFactor)
 	}
 
 	var p1 []byte
@@ -345,20 +343,20 @@ func TestNewBuffer(t *testing.T) {
 func TestNewBufferDetail(t *testing.T) {
 	b := NewBufferDetail(1, 10)
 	if cap(b.buf) != 10 {
-		t.Errorf("TestNewBufferDetail. Expected capacity %v, got %v", 10, cap(b.buf))
+		t.Errorf("expect %v, got %v", 10, cap(b.buf))
 	}
 	b1 := NewBufferDetail(20, 10)
 	if cap(b1.buf) != 20 {
-		t.Errorf("TestNewBufferDetail. Expected capacity %v, got %v", 20, cap(b1.buf))
+		t.Errorf("expect %v, got %v", 20, cap(b1.buf))
 	}
 	b2 := NewBufferDetail(0, 0)
 	if cap(b2.buf) != 0 {
-		t.Errorf("TestNewBufferDetail. Expected capacity %v, got %v", 0, cap(b2.buf))
+		t.Errorf("expect %v, got %v", 0, cap(b2.buf))
 	}
 
 	b3 := NewBufferDetail(0, 10)
 	if cap(b3.buf) != 10 {
-		t.Errorf("TestNewBufferDetail. Expected capacity %v, got %v", 10, cap(b3.buf))
+		t.Errorf("expect %v, got %v", 10, cap(b3.buf))
 	}
 }
 
@@ -368,33 +366,27 @@ func TestBasicOperations(t *testing.T) {
 	p := []byte{0xff, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x20}
 	for i := 0; i < 5; i++ {
 		n, err := buf.Write(p[0:1])
-		if n != 1 {
-			t.Errorf("TestBasicOperations. Wrote 1 byte, but n == %d\n", n)
-		}
-		if err != nil {
-			t.Errorf("TestBasicOperations. Error should always be nil, but err == %s", err)
+		if err != nil || n != 1 {
+			t.Errorf("expect %v %v, got %v %v", 1, nil, n, err)
 		}
 		checkSlicesEqual(t, "TestBasicOperations (1)", buf.Bytes(), p[0:1])
 		if err = buf.WriteByte(p[1]); err != nil {
-			t.Errorf("WriteByte error: %v", err)
+			t.Errorf("expect %v, got %v", nil, err)
 		}
 		checkSlicesEqual(t, "TestBasicOperations (2)", buf.Bytes(), p[0:2])
 		n, err = buf.Write(p[2:19])
 		if n != 17 {
-			t.Errorf("TestBasicOperations. Wrote 17 bytes, but n == %d", n)
+			t.Errorf("expect %v, got %v", 17, n)
 		}
 		checkSlicesEqual(t, "TestBasicOperations (3)", buf.Bytes(), p[0:19])
 		c, err := buf.ReadByte()
-		if err != nil {
-			t.Error("TestBasicOperations. ReadByte unexpected eof")
-		}
-		if c != p[0] {
-			t.Errorf("TestBasicOperations. ReadByte wrong value c=%v", c)
+		if err != nil || c != p[0] {
+			t.Errorf("expect %v %v, got %v %v", p[0], nil, c, err)
 		}
 		buf.Reset()
 		_, err = buf.ReadByte()
 		if err == nil {
-			t.Error("TestBasicOperations. ReadByte unexpected not eof")
+			t.Error("expect error but no error")
 		}
 	}
 }
@@ -404,11 +396,8 @@ func TestReadEmptyAtEOF(t *testing.T) {
 	var slice []byte
 	b := new(Buffer)
 	n, err := b.Read(slice)
-	if err != nil {
-		t.Errorf("read error: %v", err)
-	}
-	if n != 0 {
-		t.Errorf("wrong count; got %d want 0", n)
+	if err != nil || n != 0 {
+		t.Errorf("expect %v %v, got %v %v", 0, nil, n, err)
 	}
 }
 
@@ -422,44 +411,32 @@ func TestRead(t *testing.T) {
 	}
 	p := []byte{0x05, 0x06}
 	n, err := b.Read(p)
-	if err != nil {
-		t.Errorf("(1)TestRead. Error got: %v", err)
-	}
-	if n != len(p) {
-		t.Errorf("(1)TestRead. Expected n: %v, got: %v", len(p), n)
+	if err != nil || n != len(p) {
+		t.Errorf("expect %v %v, got %v %v", len(p), nil, n, err)
 	}
 	checkSlicesEqual(t, "(1)TestRead", b.buf[1:3], p)
 
 	p1 := make([]byte, 20)
 	_, err1 := b.Read(p1)
 	if err1 == nil {
-		t.Errorf("(2)TestRead. Expected nil, got error: %v", err1)
+		t.Error("expect error but no error")
 	}
 
 	p2 := make([]byte, 0, 20)
 	n2, err2 := b.Read(p2)
-	if err2 != nil {
-		t.Errorf("(3)TestRead. Error got: %v", err2)
-	}
-	if n2 != len(p2) {
-		t.Errorf("(3)TestRead. Expected n: %v, got: %v", len(p2), n2)
+	if err2 != nil || n2 != len(p2) {
+		t.Errorf("expect %v %v, got %v %v", len(p2), nil, n2, err2)
 	}
 
 	var p3 []byte
 	n3, err3 := b.Read(p3)
-	if err3 != nil {
-		t.Errorf("(3)TestRead. Error got: %v", err3)
-	}
-	if n3 != 0 {
-		t.Errorf("(3)TestRead. Expected n: %v, got: %v", 0, n3)
+	if err3 != nil || n3 != 0 {
+		t.Errorf("expect %v %v, got %v %v", 0, nil, n3, err3)
 	}
 
 	n4, err4 := b.Read(nil)
-	if err4 != nil {
-		t.Errorf("(4)TestRead. Error got: %v", err4)
-	}
-	if n4 != 0 {
-		t.Errorf("(4)TestRead. Expected n: %v, got: %v", 0, n4)
+	if err4 != nil || n4 != 0 {
+		t.Errorf("expect %v %v, got %v %v", 0, nil, n4, err4)
 	}
 }
 
@@ -468,11 +445,8 @@ func TestReadFrom(t *testing.T) {
 	p := []byte{0xff, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x20}
 	buf := bytes.NewReader(p)
 	n, err := b.ReadFrom(buf)
-	if err != nil {
-		t.Errorf("(1)TestReadFrom. Error got: %v", err)
-	}
-	if n != int64(len(p)) {
-		t.Errorf("(1)TestReadFrom. Expected n: %v, got: %v", len(p), n)
+	if err != nil || n != int64(len(p)) {
+		t.Errorf("expect %v %v, got %v %v", len(p), nil, n, err)
 	}
 	checkSlicesEqual(t, "(1)TestReadFrom", b.Bytes(), p)
 
@@ -480,20 +454,17 @@ func TestReadFrom(t *testing.T) {
 	var p1 []byte
 	buf1 := bytes.NewReader(p1)
 	n1, err1 := b1.ReadFrom(buf1)
-	if err1 != nil {
-		t.Errorf("(2)TestReadFrom. Error got: %v", err1)
-	}
-	if n1 != 0 {
-		t.Errorf("(2)TestReadFrom. Expected n: %v, got: %v", 0, n1)
+	if err1 != nil || n1 != 0 {
+		t.Errorf("expect %v %v, got %v %v", 0, nil, n1, err1)
 	}
 
 	buf2 := iotest.TimeoutReader(bytes.NewReader(p))
 	n2, err2 := b.ReadFrom(buf2)
 	if err2 == nil {
-		t.Error("Expected error, got no error")
+		t.Error("expect error but no error")
 	}
 	if n2 == 0 {
-		t.Error("Expected non zero byte read")
+		t.Error("expect non zero")
 	}
 }
 
@@ -501,11 +472,8 @@ func TestWrite(t *testing.T) {
 	var b Buffer
 	p := []byte{0xff, 0x01, 0x02}
 	n, err := b.Write(p)
-	if err != nil {
-		t.Errorf("(1)TestWrite. Error got: %v", err)
-	}
-	if n != 3 {
-		t.Errorf("(1)TestWrite. Expected n: %v, got: %v", 3, n)
+	if err != nil || n != 3 {
+		t.Errorf("expect %v %v, got %v %v", 3, nil, n, err)
 	}
 	checkSlicesEqual(t, "(1)TestWrite", b.Bytes(), p)
 	b.SetSeekWrite()
@@ -514,11 +482,8 @@ func TestWrite(t *testing.T) {
 	var b1 Buffer
 	var p1 []byte
 	n1, err1 := b1.Write(p1)
-	if err1 != nil {
-		t.Errorf("(2)TestWrite. Error got: %v", err1)
-	}
-	if n1 != 0 {
-		t.Errorf("(2)TestWrite. Expected n: %v, got: %v", 0, n1)
+	if err1 != nil || n1 != 0 {
+		t.Errorf("expect %v %v, got %v %v", 0, nil, n1, err1)
 	}
 	checkSlicesEqual(t, "(2)TestWrite", b1.Bytes(), p1)
 	b.SetSeekWrite()
@@ -536,11 +501,8 @@ func TestWriteTo(t *testing.T) {
 	var p []byte
 	buf := bytes.NewBuffer(p)
 	n, err := b.WriteTo(buf)
-	if err != nil {
-		t.Errorf("(1)TestWriteTo. Error got: %v", err)
-	}
-	if n != 8 {
-		t.Errorf("(1)TestWriteTo. Expected n: %v, got: %v", 8, n)
+	if err != nil || n != 8 {
+		t.Errorf("expect %v %v, got %v %v", 8, nil, n, err)
 	}
 	checkSlicesEqual(t, "(1)TestWriteTo", buf.Bytes(), b.buf[2:])
 
@@ -554,14 +516,11 @@ func TestWriteTo(t *testing.T) {
 	var p1 []byte
 	buf1 := bytes.NewBuffer(p1)
 	n1, err1 := b1.WriteTo(buf1)
-	if err1 != nil {
-		t.Errorf("(2)TestWriteTo. Error got: %v", err1)
-	}
-	if n1 != 0 {
-		t.Errorf("(2)TestWriteTo. Expected n: %v, got: %v", 0, n1)
+	if err1 != nil || n1 != 0 {
+		t.Errorf("expect %v %v, got %v %v", 0, nil, n1, err1)
 	}
 	if len(buf1.Bytes()) != 0 {
-		t.Errorf("(2)TestWriteTo. Expected len(buf.Bytes()): %v, got: %v", 0, len(buf1.Bytes()))
+		t.Errorf("expect %v, got %v", 0, len(buf1.Bytes()))
 	}
 
 	// 3
@@ -571,11 +530,8 @@ func TestWriteTo(t *testing.T) {
 	p2 := []byte{0x01, 0x02, 0x03}
 	buf2 := bytes.NewBuffer(p2)
 	n2, err2 := b2.WriteTo(buf2)
-	if err2 != nil {
-		t.Errorf("(3)TestWriteTo. Error got: %v", err2)
-	}
-	if n2 != 10 {
-		t.Errorf("(3)TestWriteTo. Expected n: %v, got: %v", 10, n2)
+	if err2 != nil || n2 != 10 {
+		t.Errorf("expect %v %v, got %v %v", 10, nil, n2, err2)
 	}
 	checkSlicesEqual(t, "(3)TestWriteTo2", buf2.Bytes(), append(p2, b2.buf...))
 
@@ -585,11 +541,8 @@ func TestWriteTo(t *testing.T) {
 	}
 	buf3 := iotesth.ErrorWriter(nil, 3, nil)
 	n3, err3 := b3.WriteTo(buf3)
-	if err3 != io.ErrShortWrite {
-		t.Errorf("(4)TestWriteTo. Expect %v, got %v", io.ErrShortWrite, err3)
-	}
-	if n3 != 3 {
-		t.Errorf("(4)TestWriteTo. Expected n: %v, got: %v", 3, n3)
+	if err3 != io.ErrShortWrite || n3 != 3 {
+		t.Errorf("expect %v %v, got %v %v", 3, io.ErrShortWrite, n3, err3)
 	}
 }
 
@@ -600,15 +553,12 @@ func TestReadWriteByte(t *testing.T) {
 	for i, v := range p {
 		err := b.WriteByte(v)
 		if err != nil {
-			t.Errorf("err should always be nil, but err == %s", err)
+			t.Errorf("expect %v, got %v", nil, err)
 		}
 		checkSlicesEqual(t, "TestReadWriteByte", b.Bytes(), p[:i+1])
 		c, err := b.ReadByte()
-		if c != p[i] {
-			t.Error("read wrong byte")
-		}
-		if err != nil {
-			t.Errorf("err should always be nil, but err == %s", err)
+		if c != p[i] || err != nil {
+			t.Errorf("expect %v %v, got %v %v", p[i], nil, c, err)
 		}
 	}
 }
@@ -621,29 +571,23 @@ func TestReadWrite(t *testing.T) {
 
 	b.SetSeekWrite()
 	if n, err := b.Seek(2, 0); err != nil || n != 2 {
-		t.Errorf("Seek error: %v. Expected n: 2, got: %v", err, n)
+		t.Errorf("expect %v %v, got: %v %v", 2, nil, n, err)
 	}
 	n, err := b.Write(p[0:4])
-	if n != 4 {
-		t.Errorf("wrote 4 byte, but n == %d\n", n)
-	}
-	if err != nil {
-		t.Errorf("err should always be nil, but err == %s", err)
+	if n != 4 || err != nil {
+		t.Errorf("expect %v %v, got %v %v", 4, nil, n, err)
 	}
 	checkSlicesEqual(t, "TestReadWrite (1)", b.Bytes(), pCompare[0:6])
 	checkPos(t, "TestReadWrite (1)", b, 6)
 	b.SetSeekRead()
 	checkPos(t, "TestReadWrite (2)", b, 0)
 	if n, err := b.Seek(3, 0); err != nil || n != 3 {
-		t.Errorf("Seek error: %v. Expected n: 3, got: %v", err, n)
+		t.Errorf("expect %v %v, got %v %v", 3, nil, n, err)
 	}
 	p1 := make([]byte, 2)
 	n1, err1 := b.Read(p1)
-	if n1 != 2 {
-		t.Errorf("read _ byte, but n == %d\n", n1)
-	}
-	if err1 != nil {
-		t.Errorf("err should always be nil, but err == %s", err1)
+	if n1 != 2 || err1 != nil {
+		t.Errorf("expect %v %v, got %v %v", 2, nil, n1, err1)
 	}
 	checkSlicesEqual(t, "TestReadWrite (2)", p1, pCompare[3:5])
 	checkPos(t, "TestReadWrite (3)", b, 5)
@@ -651,14 +595,11 @@ func TestReadWrite(t *testing.T) {
 	b.SetSeekWrite()
 	position := int64(b.Pos() + 1)
 	if n, err := b.Seek(int64(b.Pos()+1), 0); err != nil || n != position {
-		t.Errorf("Seek error: %v. Expected n: %v, got: %v", err, p, n)
+		t.Errorf("expect %v %v, got %v %v", position, nil, n, err)
 	}
 	n2, err2 := b.Write(p[4:])
-	if n2 != 17 {
-		t.Errorf("wrote 4 byte, but n == %d\n", n2)
-	}
-	if err2 != nil {
-		t.Errorf("err should always be nil, but err == %s", err2)
+	if n2 != 17 || err2 != nil {
+		t.Errorf("expect %v %v, got %v %v", 17, nil, n2, err2)
 	}
 
 	checkSlicesEqual(t, "TestReadWrite (3)", b.Bytes(), pCompare)
@@ -668,15 +609,11 @@ func TestReadWrite(t *testing.T) {
 	checkPos(t, "TestReadWrite (5)", b, 5)
 	p2 := make([]byte, 17)
 	n3, err3 := b.Read(p2)
-	if n3 != 17 {
-		t.Errorf("read _ byte, but n == %d\n", n3)
-	}
-	if err3 != nil {
-		t.Errorf("err should always be nil, but err == %s", err3)
+	if n3 != 17 || err3 != nil {
+		t.Errorf("expect %v %v, got %v %v", 17, nil, n3, err3)
 	}
 	checkSlicesEqual(t, "TestReadWrite (3)", b.buf[3:22], append(p1, p2...))
 	checkPos(t, "TestReadWrite (6)", b, 22)
-	//t.Errorf("\nb: %v\np_c: %v\np: %v\np1: %v\np2: %v",b.buf, p_compare, p, p1, p2)
 }
 
 func TestSeekWrite(t *testing.T) {
@@ -752,19 +689,19 @@ func TestSeekWrite(t *testing.T) {
 		buf.SetSeekWrite()
 		n, err := buf.Seek(v.offset, v.whence)
 		if (err != nil) != v.err {
-			t.Errorf("Test seekWrite - %d\nError expected: %v, got: %v", i, v.err, err)
+			t.Errorf("#%v error expected: %v, got %v", i, v.err, err)
 		}
 		if !v.err && (err == nil) {
 			if n != v.n {
-				t.Errorf("Test seekWrite - %d\nExpected n: %v, got: %v", i, v.n, n)
+				t.Errorf("#%v expect %v, got %v", i, v.n, n)
 			}
 			_, err := buf.Write(v.p)
 			if err != nil {
-				t.Errorf("Test seekWrite - %d\nError%v", i, err)
+				t.Errorf("#%v expect %v, got %v", i, nil, err)
 			}
 			//	checkSlicesEqual(t, "SeekWrite", buf.buf[12:], v.p)
 			if int64(buf.Pos()) != v.fOffset {
-				t.Errorf("Test seekWrite - %d\n\nExpected offset: %v, got %v", i, v.fOffset, buf.Pos())
+				t.Errorf("#%v expect %v, got %v", i, v.fOffset, buf.Pos())
 			}
 		}
 	}
@@ -921,18 +858,19 @@ func TestSeekRead(t *testing.T) {
 		v.b.SetSeekRead()
 		n, err := v.b.Seek(int64(v.offset), v.whence)
 		if (err != nil) != v.err {
-			t.Errorf("Test seekRead - %d\nError expected: %v, got: %v", i, v.err, err)
+			t.Errorf("#%v error expected: %v, got %v", i, v.err, err)
+
 		}
 		if !v.err && (err == nil) {
 			if n != v.n {
-				t.Errorf("Test seekRead - %d\nExpected n: %v, got: %v", i, v.n, n)
+				t.Errorf("#%v expect %v, got %v", i, v.n, n)
 			}
 			_, err1 := v.b.Read(p)
 			if err1 != nil {
-				t.Errorf("Test seekRead - %d\nError while reading: %v", i, err1)
+				t.Errorf("#%v expect %v, got %v", i, nil, err1)
 			}
 			if int64(v.b.Pos()) != v.fOffset {
-				t.Errorf("Test seekRead - %d\nExpected offset: %v, got %v", i, v.fOffset, v.b.Pos())
+				t.Errorf("#%v expect %v, got %v", i, v.fOffset, v.b.Pos())
 			}
 		}
 	}
@@ -947,12 +885,11 @@ func TestSetGrowFactor(t *testing.T) {
 		//		b.Grow(growLen)
 		_, err := b.Write(xBytes)
 		if err != nil {
-			t.Errorf("TestSetGrowFactor. Expected error: nil, got %v", err)
+			t.Errorf("expect %v, got %v", nil, err)
 		}
 		if cap(b.Bytes()) != growLen*2 {
-			t.Errorf("TestSetGrowFactor. Expected capacity: %v, got: %v", cap(b.Bytes()), growLen)
+			t.Errorf("expect %v, got %v", growLen*2, cap(b.Bytes()))
 		}
-		//t.Errorf("growLen=%v\nbuf:%v, cap: %v", growLen, b.Bytes(), cap(b.Bytes()))
 
 		b.Reset()
 		b.buf = make([]byte, 0, 0)
@@ -963,7 +900,7 @@ func TestSetGrowFactorNegative(t *testing.T) {
 	var b Buffer
 	defer func() {
 		if r1 := recover(); r1 == nil {
-			t.Error("Panic expected but no panic had happend")
+			t.Error("panic expected but no panic")
 		}
 	}()
 	b.SetGrowFactor(-1)
@@ -986,10 +923,10 @@ func TestPos(t *testing.T) {
 		writeOff: 20,
 	}
 	if b1.PosRead() != 10 {
-		t.Errorf("(3)TestPos. Error read position, expected %v, got %v", 10, b1.PosRead())
+		t.Errorf("expect %v, got %v", 10, b1.PosRead())
 	}
 	if b1.PosWrite() != 20 {
-		t.Errorf("(4)TestPos. Error write position, expected %v, got %v", 20, b1.PosWrite())
+		t.Errorf("expect %v, got %v", 20, b1.PosWrite())
 	}
 }
 
@@ -1004,13 +941,13 @@ func TestReset(t *testing.T) {
 	}
 	b.Reset()
 	if b.Len() != 0 || b.PosRead() != 0 || b.PosWrite() != 0 {
-		t.Errorf("TestReset. Buffer doesn't reset - %v", b)
+		t.Errorf("expect %v %v %v, got %v %v %v", 0, 0, 0, b.Len(), b.PosRead(), b.PosWrite())
 	}
 
 	var b1 Buffer
 	b1.Reset()
 	if b1.Len() != 0 || b1.PosRead() != 0 || b1.PosWrite() != 0 {
-		t.Errorf("(1)TestReset. Buffer doesn't reset - %v", b1)
+		t.Errorf("expect %v %v %v, got %v %v %v", 0, 0, 0, b1.Len(), b1.PosRead(), b1.PosWrite())
 	}
 }
 
@@ -1020,24 +957,24 @@ func TestCut(t *testing.T) {
 	}
 	err := b.Cut(-1)
 	if err == nil {
-		t.Error("TestCut. Expected error but got nil")
+		t.Error("expect error but no error")
 	}
 
 	err1 := b.Cut(8)
 	if err1 == nil {
-		t.Errorf("(1)TestCut. Expected error but got nil. %v", b)
+		t.Error("expect error but no error")
 	}
 
 	p2 := []byte{0xff, 0x01, 0x02}
 	err2 := b.Cut(3)
 	if err2 != nil {
-		t.Errorf("(2)TestCut. Error %v", err2)
+		t.Errorf("expect %v, got %v", nil, err2)
 	}
 	checkSlicesEqual(t, "(3)TestCut", p2, b.Bytes())
 
 	err3 := b.Cut(0)
 	if err3 != nil {
-		t.Error("(4)TestCut. Expected error but got nil")
+		t.Errorf("expect %v, got %v", nil, err3)
 	}
 	checkSlicesEqual(t, "(5)TestCut", make([]byte, 0), b.Bytes())
 }
@@ -1081,7 +1018,7 @@ func BenchmarkSNRead(b *testing.B) {
 		var buf Buffer
 		p := []byte{0xff, 0x01, 0x02}
 		if _, err := buf.Write(p); err != nil {
-			b.Errorf("Write error: %v", err)
+			b.Errorf("expect %v, got %v", nil, err)
 		}
 	}
 }
@@ -1091,7 +1028,7 @@ func BenchmarkSNWrite(b *testing.B) {
 		var buf Buffer
 		p := []byte{0xff, 0x01, 0x02}
 		if _, err := buf.Read(p); err != nil {
-			b.Errorf("Read error: %v", err)
+			b.Errorf("expect %v, got %v", nil, err)
 		}
 	}
 }

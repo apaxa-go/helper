@@ -9,7 +9,7 @@ func TestNewEmptySlice(t *testing.T) {
 	tests := []int{0, 1, 2, 10, 100}
 	for _, v := range tests {
 		if r := NewEmptySlice(v); len(r) != v || cap(r) != v {
-			t.Errorf("Expected length and capacity are %v, but got %v and %v", v, len(r), cap(r))
+			t.Errorf("expected length and capacity are %v, but got %v and %v", v, len(r), cap(r))
 		}
 	}
 }
@@ -33,7 +33,7 @@ func TestNewRange(t *testing.T) {
 	}
 	for _, v := range tests {
 		if r := NewRange(v.f, v.t, v.s); !reflect.DeepEqual(r, v.r) {
-			t.Errorf("Expected slice %v, but got %v", v.r, r)
+			t.Errorf("expected slice %v, but got %v", v.r, r)
 		}
 	}
 }
@@ -41,7 +41,7 @@ func TestNewRange(t *testing.T) {
 func TestNewRange2(t *testing.T) {
 	defer func() { recover() }()
 	NewRange(1, 10, -1)
-	t.Error("Panic expected, but no panic")
+	t.Error("panic expected, but no panic")
 }
 
 func TestDict(t *testing.T) {
@@ -61,10 +61,10 @@ func TestDict(t *testing.T) {
 	for _, v := range tests {
 		r, err := Dict(v.v...)
 		if (err != nil) != v.err {
-			t.Errorf("Expect error for %v - %v, but got %v", v.v, v.err, err)
+			t.Errorf("expect error for %v - %v, but got %v", v.v, v.err, err)
 		}
 		if !v.err && err == nil && !reflect.DeepEqual(v.r, r) {
-			t.Errorf("Expected map %v, but got %v", v.r, r)
+			t.Errorf("expect map %v, got %v", v.r, r)
 		}
 	}
 }
@@ -75,7 +75,7 @@ func TestAdd(t *testing.T) {
 	for _, v1 := range arithmeticTests {
 		for _, v2 := range arithmeticTests {
 			if r := Add(v1, v2); r != v1+v2 {
-				t.Errorf("Expected %v, but got %v", v1+v2, r)
+				t.Errorf("expect %v, got %v", v1+v2, r)
 			}
 		}
 	}
@@ -85,7 +85,7 @@ func TestSub(t *testing.T) {
 	for _, v1 := range arithmeticTests {
 		for _, v2 := range arithmeticTests {
 			if r := Sub(v1, v2); r != v1-v2 {
-				t.Errorf("Expected %v, but got %v", v1-v2, r)
+				t.Errorf("expect %v, got %v", v1-v2, r)
 			}
 		}
 	}

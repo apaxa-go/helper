@@ -72,7 +72,7 @@ func testWriteBytes(t *testing.T, f func([]byte, io.Writer, bool) error, array b
 		buf := bytesh.NewBufferDetail(0, 1)
 		err := f(v.b, buf, array)
 		if (err != nil) != v.err {
-			t.Errorf("%v - %v (%v). Got error: %v", fName, i, kind, err)
+			t.Errorf("%v - %v (%v): got error: %v", fName, i, kind, err)
 		}
 		if !v.err && (err == nil) {
 			var cmpWith string
@@ -82,7 +82,7 @@ func testWriteBytes(t *testing.T, f func([]byte, io.Writer, bool) error, array b
 				cmpWith = v.sSlice
 			}
 			if string(buf.Bytes()) != cmpWith {
-				t.Errorf("%v - %v (%v). Expected: %s, got %s", fName, i, kind, cmpWith, string(buf.Bytes()))
+				t.Errorf("%v - %v (%v): expect %s, got %s", fName, i, kind, cmpWith, string(buf.Bytes()))
 			}
 		}
 	}
@@ -103,24 +103,24 @@ func TestWriteBytes2(t *testing.T) {
 	for _, array := range []bool{false, true} {
 		buf.Reset()
 		if err := WriteBytes(b, buf, array); err != nil {
-			t.Errorf("Got error %v", err)
+			t.Errorf("got error %v", err)
 		}
 		s := string(buf.Bytes())
 
 		buf.Reset()
 		if err := WriteBytesAst(b, buf, array); err != nil {
-			t.Errorf("Got error %v", err)
+			t.Errorf("got error %v", err)
 		}
 		sAst := string(buf.Bytes())
 
 		buf.Reset()
 		if err := WriteBytesStr(b, buf, array); err != nil {
-			t.Errorf("Got error %v", err)
+			t.Errorf("got error %v", err)
 		}
 		sStr := string(buf.Bytes())
 
 		if s != sAst || s != sStr {
-			t.Errorf("Different results:\n%v\n%v\n%v", s, sAst, sStr)
+			t.Errorf("different results: %v %v %v", s, sAst, sStr)
 		}
 	}
 }
@@ -141,7 +141,7 @@ func TestWriteBytesStr2(t *testing.T) {
 	for _, i := range []int{1, 7, 9, 14} {
 		w := iotesth.ErrorWriter(nil, int64(i), nil)
 		if err := WriteBytesStr(data, w, false); err != io.ErrShortWrite {
-			t.Errorf("Expect %v, got %v", io.ErrShortWrite, err)
+			t.Errorf("expect %v, got %v", io.ErrShortWrite, err)
 		}
 	}
 }

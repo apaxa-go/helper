@@ -20,7 +20,7 @@ func TestPadLeft(t *testing.T) {
 	}
 	for _, v := range tests {
 		if r := PadLeft(v.s, v.g, v.l); r != v.r {
-			t.Errorf("Expected %v, but got %v", v.r, r)
+			t.Errorf("expect %v, got %v", v.r, r)
 		}
 	}
 }
@@ -43,7 +43,7 @@ func TestPadRight(t *testing.T) {
 	}
 	for _, v := range tests {
 		if r := PadRight(v.s, v.g, v.l); r != v.r {
-			t.Errorf("Expected %v, but got %v", v.r, r)
+			t.Errorf("expect %v, got %v", v.r, r)
 		}
 	}
 }
@@ -66,7 +66,7 @@ func TestPadLeftWithByte(t *testing.T) {
 	}
 	for _, v := range tests {
 		if r := PadLeftWithByte(v.s, v.b, v.l); r != v.r {
-			t.Errorf("Expected %v, but got %v", v.r, r)
+			t.Errorf("expect %v, got %v", v.r, r)
 		}
 	}
 }
@@ -89,7 +89,7 @@ func TestPadRightWithByte(t *testing.T) {
 	}
 	for _, v := range tests {
 		if r := PadRightWithByte(v.s, v.b, v.l); r != v.r {
-			t.Errorf("Expected %v, but got %v", v.r, r)
+			t.Errorf("expect %v, got %v", v.r, r)
 		}
 	}
 }

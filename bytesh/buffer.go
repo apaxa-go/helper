@@ -64,7 +64,7 @@ func (b *Buffer) Len() int { return len(b.buf) }
 // If n is negative, Grow will panic. If the buffer can't grow it will panic with ErrTooLarge.
 func (b *Buffer) Grow(n int) {
 	if n < 0 {
-		panic("buffer.Buffer.Grow: negative count")
+		panic("Buffer.Grow: negative count")
 	}
 
 	if b.writeOff+n > cap(b.buf) {
@@ -268,10 +268,10 @@ func (b *Buffer) Reset() {
 // Cut to negative number of bytes or to size greater than Len cause error.
 func (b *Buffer) Cut(toBytes int) error {
 	if toBytes < 0 {
-		return errors.New("Cut to negative position")
+		return errors.New("cut to negative position")
 	}
 	if toBytes > len(b.buf) {
-		return errors.New("Cut to unexisted position")
+		return errors.New("cut to unexisted position")
 	}
 	b.buf = b.buf[:toBytes]
 	return nil

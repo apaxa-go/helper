@@ -47,6 +47,8 @@ func divideInt64AsBig(a, b int64) (r int64) {
 	return
 }
 
+//replacer:ignore
+//go:generate go run $GOPATH/src/github.com/apaxa-go/generator/replacer/main.go -- $GOFILE
 //replacer:replace
 //replacer:old int64	Int64
 //replacer:new int	Int
@@ -101,7 +103,7 @@ func TestAbsInt64(t *testing.T) {
 			continue
 		}
 		if r := AbsInt64(test); r < 0 || ((test < 0 && r != -test) || (test >= 0 && r != test)) {
-			t.Errorf("Error AbsInt64(%v) - got %v", test, r)
+			t.Errorf("%v: got %v", test, r)
 		}
 	}
 }
@@ -109,7 +111,7 @@ func TestAbsInt64(t *testing.T) {
 func TestAbsFixInt64(t *testing.T) {
 	for _, test := range testsInt64 {
 		if r := AbsFixInt64(test); r < 0 || ((test < 0 && r != -test && (test != MinInt64 || r != MaxInt64)) || (test >= 0 && r != test)) {
-			t.Errorf("Error AbsFixInt64(%v) - got %v", test, r)
+			t.Errorf("%v: got %v", test, r)
 		}
 	}
 }
@@ -117,7 +119,7 @@ func TestAbsFixInt64(t *testing.T) {
 func TestAntiAbsInt64(t *testing.T) {
 	for _, test := range testsInt64 {
 		if r := AntiAbsInt64(test); r > 0 || ((test > 0 && r != -test) || (test <= 0 && r != test)) {
-			t.Errorf("Error AntiAbsInt64(%v) - got %v", test, r)
+			t.Errorf("%v: got %v", test, r)
 		}
 	}
 }
@@ -125,7 +127,7 @@ func TestAntiAbsInt64(t *testing.T) {
 func TestDivideRoundInt64(t *testing.T) {
 	for _, test := range testsDivideInt64 {
 		if r := DivideRoundInt64(test.a, test.b); r != test.round {
-			t.Errorf("Expected f(%v, %v) = %v, got %v", test.a, test.b, test.round, r)
+			t.Errorf("%v,%v: expect %v, got %v", test.a, test.b, test.round, r)
 		}
 	}
 }
@@ -137,7 +139,7 @@ func TestDivideRoundFixInt64(t *testing.T) {
 			rightR = MaxInt64
 		}
 		if r := DivideRoundFixInt64(test.a, test.b); r != rightR {
-			t.Errorf("Error DivideFixInt64(%v, %v) - expected %v, got %v", test.a, test.b, rightR, r)
+			t.Errorf("%v,%v: expect %v, got %v", test.a, test.b, rightR, r)
 		}
 	}
 }
@@ -151,7 +153,7 @@ func TestDivideRoundInt64Overflow(t *testing.T) {
 			validR := int64(divideRoundAsBig(customI(a), customI(b)))
 			r := DivideRoundInt64(a, b)
 			if r != validR {
-				t.Errorf("Error DivideInt64(%v, %v) - got %v, expected %v", a, b, r, validR)
+				t.Errorf("%v,%v: expect %v, got %v", a, b, validR, r)
 			}
 		}
 	}
@@ -171,7 +173,7 @@ func TestDivideRoundFixInt64Overflow(t *testing.T) {
 			}
 			r := DivideRoundFixInt64(a, b)
 			if r != validR {
-				t.Errorf("Error DivideFixInt64(%v, %v) - got %v, expected %v", a, b, r, validR)
+				t.Errorf("%v,%v: expect %v,got %v", a, b, validR, r)
 			}
 		}
 	}
@@ -180,7 +182,7 @@ func TestDivideRoundFixInt64Overflow(t *testing.T) {
 func TestDivideCeilInt64(t *testing.T) {
 	for _, test := range testsDivideInt64 {
 		if r := DivideCeilInt64(test.a, test.b); r != test.ceil {
-			t.Errorf("Expected f(%v, %v) = %v, got %v", test.a, test.b, test.ceil, r)
+			t.Errorf("%v,%v: expect %v, got %v", test.a, test.b, test.ceil, r)
 		}
 	}
 }
@@ -192,7 +194,7 @@ func TestDivideCeilFixInt64(t *testing.T) {
 			rightR = MaxInt64
 		}
 		if r := DivideCeilFixInt64(test.a, test.b); r != rightR {
-			t.Errorf("Expect f(%v, %v) = %v, got %v", test.a, test.b, rightR, r)
+			t.Errorf("%v,%v: expect %v, got %v", test.a, test.b, rightR, r)
 		}
 	}
 }
@@ -200,7 +202,7 @@ func TestDivideCeilFixInt64(t *testing.T) {
 func TestDivideFloorInt64(t *testing.T) {
 	for _, test := range testsDivideInt64 {
 		if r := DivideFloorInt64(test.a, test.b); r != test.floor {
-			t.Errorf("Expected f(%v, %v) = %v, got %v", test.a, test.b, test.floor, r)
+			t.Errorf("%v,%v: expect %v, got %v", test.a, test.b, test.floor, r)
 		}
 	}
 }
@@ -212,7 +214,7 @@ func TestDivideFloorFixInt64(t *testing.T) {
 			rightR = MaxInt64
 		}
 		if r := DivideFloorFixInt64(test.a, test.b); r != rightR {
-			t.Errorf("Expect f(%v, %v) = %v, got %v", test.a, test.b, rightR, r)
+			t.Errorf("%v,%v: expect %v, got %v", test.a, test.b, rightR, r)
 		}
 	}
 }
@@ -220,7 +222,7 @@ func TestDivideFloorFixInt64(t *testing.T) {
 func TestDivideRafzInt64(t *testing.T) {
 	for _, test := range testsDivideInt64 {
 		if r := DivideRafzInt64(test.a, test.b); r != test.rafz {
-			t.Errorf("Expected f(%v, %v) = %v, got %v", test.a, test.b, test.rafz, r)
+			t.Errorf("%v,%v: expect %v, got %v", test.a, test.b, test.rafz, r)
 		}
 	}
 }
@@ -232,7 +234,7 @@ func TestDivideRafzFixInt64(t *testing.T) {
 			rightR = MaxInt64
 		}
 		if r := DivideRafzFixInt64(test.a, test.b); r != rightR {
-			t.Errorf("Expect f(%v, %v) = %v, got %v", test.a, test.b, rightR, r)
+			t.Errorf("%v,%v: expect %v, got %v", test.a, test.b, rightR, r)
 		}
 	}
 }
@@ -240,7 +242,7 @@ func TestDivideRafzFixInt64(t *testing.T) {
 func TestDivideTruncInt64(t *testing.T) {
 	for _, test := range testsDivideInt64 {
 		if r := DivideTruncInt64(test.a, test.b); r != test.a/test.b {
-			t.Errorf("Expected f(%v, %v) = %v, got %v", test.a, test.b, test.a/test.b, r)
+			t.Errorf("%v,%v: expect %v, got %v", test.a, test.b, test.a/test.b, r)
 		}
 	}
 }
@@ -252,7 +254,7 @@ func TestDivideTruncFixInt64(t *testing.T) {
 			rightR = MaxInt64
 		}
 		if r := DivideTruncFixInt64(test.a, test.b); r != rightR {
-			t.Errorf("Expect f(%v, %v) = %v, got %v", test.a, test.b, rightR, r)
+			t.Errorf("%v,%v: expect %v, got %v", test.a, test.b, rightR, r)
 		}
 	}
 }

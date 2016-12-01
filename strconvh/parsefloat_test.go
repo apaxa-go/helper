@@ -33,11 +33,11 @@ func TestParseFloat32(t *testing.T) {
 	for _, v := range test {
 		r, err := ParseFloat32(v.s)
 		if (err != nil) != v.err {
-			t.Errorf("Error expected: %v, got: %v", v.err, err)
+			t.Errorf("error expected: %v, got: %v", v.err, err)
 		}
 		if !v.err && (err == nil) {
 			if r != v.i {
-				t.Errorf("Wrong parse. Expected float32: %v, got: %v", v.i, r)
+				t.Errorf("expect %v, got: %v", v.i, r)
 			}
 		}
 	}

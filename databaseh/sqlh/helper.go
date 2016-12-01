@@ -8,7 +8,7 @@ import "database/sql"
 func MustPrepare(db *sql.DB, sql string) (stmt *sql.Stmt) {
 	var err error
 	if stmt, err = db.Prepare(sql); err != nil {
-		panic(`sqlh: Prepare(` + sql + `): ` + err.Error())
+		panic(err.Error())
 	}
 	return
 }

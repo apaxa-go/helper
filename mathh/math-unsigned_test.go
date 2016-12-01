@@ -47,6 +47,8 @@ func divideUint64AsBig(a, b uint64) (r uint64) {
 	return
 }
 
+//replacer:ignore
+//go:generate go run $GOPATH/src/github.com/apaxa-go/generator/replacer/main.go -- $GOFILE
 //replacer:replace
 //replacer:old uint64	Uint64
 //replacer:new uint	Uint
@@ -73,7 +75,7 @@ var testsDivideUint64 = []testDivideUint64{
 func TestDivideUint64(t *testing.T) {
 	for _, test := range testsDivideUint64 {
 		if r := DivideRoundUint64(test.a, test.b); r != test.r {
-			t.Errorf("Error DivideUint64(%v, %v) - expected %v, got %v", test.a, test.b, test.r, r)
+			t.Errorf("%v, %v: expect %v, got %v", test.a, test.b, test.r, r)
 		}
 	}
 }
@@ -87,7 +89,7 @@ func TestDivideUint64Overflow(t *testing.T) {
 			validR := uint64(divideAsUBig(customU(a), customU(b)))
 			r := DivideRoundUint64(a, b)
 			if r != validR {
-				t.Errorf("Error Divide(%v, %v) - got %v, expected %v", a, b, r, validR)
+				t.Errorf("%v, %v: expect %v, got %v, ", a, b, validR, r)
 			}
 		}
 	}

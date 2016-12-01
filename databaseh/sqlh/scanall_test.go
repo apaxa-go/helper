@@ -6,20 +6,20 @@ import (
 )
 
 type Label struct {
-	Id   int32
+	ID   int32
 	Name string
 }
 
-func (l *Label) SqlScanInterface() []interface{} {
+func (l *Label) SQLScanInterface() []interface{} {
 	return []interface{}{
-		&l.Id,
+		&l.ID,
 		&l.Name,
 	}
 }
 
 type Labels []*Label
 
-func (l *Labels) SqlNewElement() SingleScannable {
+func (l *Labels) SQLNewElement() SingleScannable {
 	e := &Label{}
 	*l = append(*l, e)
 	return e
@@ -50,14 +50,14 @@ func TestStmtScanAll(t *testing.T) {
 		t.Error(err)
 	}
 	if len(labels) != 2 {
-		t.Errorf("Expect 2 rows, got %v", len(labels))
-	} else if labels[0].Id != 1 || labels[0].Name != "One" || labels[1].Id != 2 || labels[1].Name != "Two" {
-		t.Errorf("Expect 1 One 2 Two, got %v %v %v %v", labels[0].Id, labels[0].Name, labels[1].Id, labels[1].Name)
+		t.Errorf("expect 2 rows, got %v", len(labels))
+	} else if labels[0].ID != 1 || labels[0].Name != "One" || labels[1].ID != 2 || labels[1].Name != "Two" {
+		t.Errorf("expect 1 One 2 Two, got %v %v %v %v", labels[0].ID, labels[0].Name, labels[1].ID, labels[1].Name)
 	}
 
 	// Preform negative tests 1 - invalid arguments to stmt
 	if err := StmtScanAll(stmt, &labels, 0xbeef); err == nil {
-		t.Error("Expect error, got no error")
+		t.Error("expect error but no error")
 	}
 
 	// Additional DB preparation
@@ -65,6 +65,6 @@ func TestStmtScanAll(t *testing.T) {
 
 	// Preform negative tests 2 - incompatible types
 	if err := StmtScanAll(stmt, &labels); err == nil {
-		t.Error("Expect error, got no error")
+		t.Error("expect error but no error")
 	}
 }

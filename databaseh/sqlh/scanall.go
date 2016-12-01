@@ -5,14 +5,14 @@ import "database/sql"
 // SingleScannable represent object in that single row can be saved.
 type SingleScannable interface {
 	// SqlScanInterface return slice of interfaces which will be passed into Row.Scan at once.
-	SqlScanInterface() []interface{}
+	SQLScanInterface() []interface{}
 }
 
 // MultiScannable represent object in that any amount of rows can be saved.
 type MultiScannable interface {
 	// SqlNewElement called for each row in query result. It should returns SingleScannable object for scanning row.
 	// Usually this method add new element to the underlying slice and return this element.
-	SqlNewElement() SingleScannable
+	SQLNewElement() SingleScannable
 }
 
 // StmtScanAll performs prepared statement stmt with arguments 'args' and stores all result rows in dst.
@@ -50,8 +50,8 @@ func StmtScanAll(stmt *sql.Stmt, dst MultiScannable, args ...interface{}) error 
 	defer rows.Close()
 
 	for rows.Next() {
-		rowContainer := dst.SqlNewElement()
-		if err := rows.Scan(rowContainer.SqlScanInterface()...); err != nil {
+		rowContainer := dst.SQLNewElement()
+		if err := rows.Scan(rowContainer.SQLScanInterface()...); err != nil {
 			return err
 		}
 	}

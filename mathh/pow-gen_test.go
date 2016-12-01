@@ -24,7 +24,7 @@ func TestPowUint(t *testing.T) {
 	}
 	for _, test := range tests {
 		if r := PowUint(test.a, test.b); r != test.r {
-			t.Errorf("Expect f(%v, %v) = %v, got %v", test.a, test.b, test.r, r)
+			t.Errorf("%v,%v: expect %v, got %v", test.a, test.b, test.r, r)
 		}
 	}
 }
@@ -51,7 +51,7 @@ func TestPowModUint(t *testing.T) {
 	}
 	for _, test := range tests {
 		if r := PowModUint(test.a, test.b, test.m); r != test.r {
-			t.Errorf("Expect f(%v, %v, %v) = %v, got %v", test.a, test.b, test.m, test.r, r)
+			t.Errorf("%v,%v,%v: expect %v, got %v", test.a, test.b, test.m, test.r, r)
 		}
 	}
 }
@@ -76,7 +76,7 @@ func TestPowUint8(t *testing.T) {
 	}
 	for _, test := range tests {
 		if r := PowUint8(test.a, test.b); r != test.r {
-			t.Errorf("Expect f(%v, %v) = %v, got %v", test.a, test.b, test.r, r)
+			t.Errorf("%v,%v: expect %v, got %v", test.a, test.b, test.r, r)
 		}
 	}
 }
@@ -103,7 +103,7 @@ func TestPowModUint8(t *testing.T) {
 	}
 	for _, test := range tests {
 		if r := PowModUint8(test.a, test.b, test.m); r != test.r {
-			t.Errorf("Expect f(%v, %v, %v) = %v, got %v", test.a, test.b, test.m, test.r, r)
+			t.Errorf("%v,%v,%v: expect %v, got %v", test.a, test.b, test.m, test.r, r)
 		}
 	}
 }
@@ -128,7 +128,7 @@ func TestPowUint16(t *testing.T) {
 	}
 	for _, test := range tests {
 		if r := PowUint16(test.a, test.b); r != test.r {
-			t.Errorf("Expect f(%v, %v) = %v, got %v", test.a, test.b, test.r, r)
+			t.Errorf("%v,%v: expect %v, got %v", test.a, test.b, test.r, r)
 		}
 	}
 }
@@ -155,7 +155,7 @@ func TestPowModUint16(t *testing.T) {
 	}
 	for _, test := range tests {
 		if r := PowModUint16(test.a, test.b, test.m); r != test.r {
-			t.Errorf("Expect f(%v, %v, %v) = %v, got %v", test.a, test.b, test.m, test.r, r)
+			t.Errorf("%v,%v,%v: expect %v, got %v", test.a, test.b, test.m, test.r, r)
 		}
 	}
 }
@@ -180,7 +180,7 @@ func TestPowUint32(t *testing.T) {
 	}
 	for _, test := range tests {
 		if r := PowUint32(test.a, test.b); r != test.r {
-			t.Errorf("Expect f(%v, %v) = %v, got %v", test.a, test.b, test.r, r)
+			t.Errorf("%v,%v: expect %v, got %v", test.a, test.b, test.r, r)
 		}
 	}
 }
@@ -207,7 +207,7 @@ func TestPowModUint32(t *testing.T) {
 	}
 	for _, test := range tests {
 		if r := PowModUint32(test.a, test.b, test.m); r != test.r {
-			t.Errorf("Expect f(%v, %v, %v) = %v, got %v", test.a, test.b, test.m, test.r, r)
+			t.Errorf("%v,%v,%v: expect %v, got %v", test.a, test.b, test.m, test.r, r)
 		}
 	}
 }
@@ -232,7 +232,7 @@ func TestPowInt(t *testing.T) {
 	}
 	for _, test := range tests {
 		if r := PowInt(test.a, test.b); r != test.r {
-			t.Errorf("Expect f(%v, %v) = %v, got %v", test.a, test.b, test.r, r)
+			t.Errorf("%v,%v: expect %v, got %v", test.a, test.b, test.r, r)
 		}
 	}
 }
@@ -259,7 +259,7 @@ func TestPowModInt(t *testing.T) {
 	}
 	for _, test := range tests {
 		if r := PowModInt(test.a, test.b, test.m); r != test.r {
-			t.Errorf("Expect f(%v, %v, %v) = %v, got %v", test.a, test.b, test.m, test.r, r)
+			t.Errorf("%v,%v,%v: expect %v, got %v", test.a, test.b, test.m, test.r, r)
 		}
 	}
 }
@@ -284,7 +284,7 @@ func TestPowInt8(t *testing.T) {
 	}
 	for _, test := range tests {
 		if r := PowInt8(test.a, test.b); r != test.r {
-			t.Errorf("Expect f(%v, %v) = %v, got %v", test.a, test.b, test.r, r)
+			t.Errorf("%v,%v: expect %v, got %v", test.a, test.b, test.r, r)
 		}
 	}
 }
@@ -311,7 +311,7 @@ func TestPowModInt8(t *testing.T) {
 	}
 	for _, test := range tests {
 		if r := PowModInt8(test.a, test.b, test.m); r != test.r {
-			t.Errorf("Expect f(%v, %v, %v) = %v, got %v", test.a, test.b, test.m, test.r, r)
+			t.Errorf("%v,%v,%v: expect %v, got %v", test.a, test.b, test.m, test.r, r)
 		}
 	}
 }
@@ -336,7 +336,7 @@ func TestPowInt16(t *testing.T) {
 	}
 	for _, test := range tests {
 		if r := PowInt16(test.a, test.b); r != test.r {
-			t.Errorf("Expect f(%v, %v) = %v, got %v", test.a, test.b, test.r, r)
+			t.Errorf("%v,%v: expect %v, got %v", test.a, test.b, test.r, r)
 		}
 	}
 }
@@ -363,7 +363,7 @@ func TestPowModInt16(t *testing.T) {
 	}
 	for _, test := range tests {
 		if r := PowModInt16(test.a, test.b, test.m); r != test.r {
-			t.Errorf("Expect f(%v, %v, %v) = %v, got %v", test.a, test.b, test.m, test.r, r)
+			t.Errorf("%v,%v,%v: expect %v, got %v", test.a, test.b, test.m, test.r, r)
 		}
 	}
 }
@@ -388,7 +388,7 @@ func TestPowInt32(t *testing.T) {
 	}
 	for _, test := range tests {
 		if r := PowInt32(test.a, test.b); r != test.r {
-			t.Errorf("Expect f(%v, %v) = %v, got %v", test.a, test.b, test.r, r)
+			t.Errorf("%v,%v: expect %v, got %v", test.a, test.b, test.r, r)
 		}
 	}
 }
@@ -415,7 +415,7 @@ func TestPowModInt32(t *testing.T) {
 	}
 	for _, test := range tests {
 		if r := PowModInt32(test.a, test.b, test.m); r != test.r {
-			t.Errorf("Expect f(%v, %v, %v) = %v, got %v", test.a, test.b, test.m, test.r, r)
+			t.Errorf("%v,%v,%v: expect %v, got %v", test.a, test.b, test.m, test.r, r)
 		}
 	}
 }
@@ -440,7 +440,7 @@ func TestPowInt64(t *testing.T) {
 	}
 	for _, test := range tests {
 		if r := PowInt64(test.a, test.b); r != test.r {
-			t.Errorf("Expect f(%v, %v) = %v, got %v", test.a, test.b, test.r, r)
+			t.Errorf("%v,%v: expect %v, got %v", test.a, test.b, test.r, r)
 		}
 	}
 }
@@ -467,7 +467,7 @@ func TestPowModInt64(t *testing.T) {
 	}
 	for _, test := range tests {
 		if r := PowModInt64(test.a, test.b, test.m); r != test.r {
-			t.Errorf("Expect f(%v, %v, %v) = %v, got %v", test.a, test.b, test.m, test.r, r)
+			t.Errorf("%v,%v,%v: expect %v, got %v", test.a, test.b, test.m, test.r, r)
 		}
 	}
 }
