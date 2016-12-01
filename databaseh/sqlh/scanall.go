@@ -32,14 +32,14 @@ type MultiScannable interface {
 //
 //  type Labels []*Label
 //
-//  func (l *Labels) SqlNewElement() sqlhelper.SingleScannable {
+//  func (l *Labels) SqlNewElement() sqlh.SingleScannable {
 //	e := &Label{}
 //	*l = append(*l, e)
 //	return e
 //  }
 //  ...
 //  var labels Labels
-//  if err := sqlhelper.StmtScanAll(someStmtGetLabels, &labels, someId, someOtherParam); err != nil {
+//  if err := sqlh.StmtScanAll(someStmtGetLabels, &labels, someId, someOtherParam); err != nil {
 //  	return err
 //  }
 func StmtScanAll(stmt *sql.Stmt, dst MultiScannable, args ...interface{}) error {

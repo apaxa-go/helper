@@ -27,6 +27,7 @@ func TestExec(t *testing.T) {
 		{name: "grep", stdin: []byte{}, arg: []string{"2"}, stdout: []byte{}, err: true},
 		{name: "grep", stdin: []byte{0x31, 0x0a, 0x32}, arg: []string{"25"}, stdout: []byte{}, err: true},
 		{name: "", stdin: []byte{0x31, 0x0a, 0x32}, arg: []string{"25"}, stdout: []byte{}, err: true},
+		{name: "man", stdin: []byte{0x31, 0x0a, 0x32}, arg: []string{"25"}, stdout: []byte{}, err: true},
 	}
 
 	for i, v := range test {
