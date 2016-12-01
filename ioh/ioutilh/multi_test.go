@@ -136,7 +136,6 @@ func TestWrite(t *testing.T) {
 	}
 
 	//check error
-
 	buf2 := iotesth.ErrorWriter(nil, 2, nil)
 	i, err = Write(buf2, b1, b2)
 	if err != io.ErrShortWrite || i != 1 {

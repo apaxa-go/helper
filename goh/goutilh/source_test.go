@@ -3,6 +3,7 @@ package goutilh
 import (
 	"github.com/apaxa-go/helper/bytesh"
 	"github.com/apaxa-go/helper/mathh"
+	"github.com/apaxa-go/helper/testingh/iotesth"
 	"io"
 	"reflect"
 	"runtime"
@@ -132,6 +133,17 @@ func TestWriteBytesStr(t *testing.T) {
 func TestWriteBytesAst(t *testing.T) {
 	testWriteBytes(t, WriteBytesAst, true)
 	testWriteBytes(t, WriteBytesAst, false)
+}
+
+func TestWriteBytesStr2(t *testing.T) {
+	data := []byte{1, 2, 3}
+
+	for _, i := range []int{1, 7, 9, 14} {
+		w := iotesth.ErrorWriter(nil, int64(i), nil)
+		if err := WriteBytesStr(data, w, false); err != io.ErrShortWrite {
+			t.Errorf("Expect %v, got %v", io.ErrShortWrite, err)
+		}
+	}
 }
 
 func benchmarkWriteBytes(b *testing.B, f func([]byte, io.Writer, bool) error) {
