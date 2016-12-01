@@ -32,7 +32,7 @@ func TestWalk(t *testing.T) {
 	for i, v := range dirs {
 		errMkdir := os.Mkdir(v, 0777)
 		if errMkdir != nil {
-			t.Errorf("Got error while making dir №%v: %v", i, errMkdir)
+			t.Errorf("Got error while making dir #%v: %v", i, errMkdir)
 		}
 	}
 	//call Walk
@@ -117,4 +117,81 @@ func TestWalk3(t *testing.T) {
 	if errRemove != nil {
 		t.Errorf("Got error while removing dir: %v", errRemove)
 	}
+}
+
+func TestWalk4(t *testing.T) {
+	if err := Walk("/sadsadfjhsaduirqewnvxz", nil, false, false); err == nil {
+		t.Error("Expect error, got nil")
+	} else if _, ok := err.(*os.PathError); !ok {
+		t.Errorf("Expect error of type os.PathError, got %v", err)
+	}
+}
+
+func TestWalk5(t *testing.T) {
+	var tmpDir string
+	var err error
+	if tmpDir, err = ioutil.TempDir("", "temp"); err != nil {
+		t.Error(err)
+	}
+	defer func() {
+		err := os.RemoveAll(tmpDir)
+		if err != nil {
+			t.Error(err)
+		}
+	}()
+
+	if err = os.Mkdir(tmpDir+"/denied", 0x0); err != nil {
+		t.Error(err)
+	}
+
+	//call Walk
+	wf := func(path string, info os.FileInfo, err error) error { return err }
+	if err = Walk(tmpDir, wf, true, true); err == nil {
+		t.Error("Error expected but got nil")
+	}
+
+}
+
+func TestWalk6(t *testing.T) {
+	var tmpDir string
+	var err error
+	if tmpDir, err = ioutil.TempDir("", "temp"); err != nil {
+		t.Error(err)
+	}
+	defer func() {
+		err := os.RemoveAll(tmpDir)
+		if err != nil {
+			t.Error(err)
+		}
+	}()
+
+	if f, err := os.Create(tmpDir + "/file1"); err != nil {
+		t.Error(err)
+	} else {
+		if err = f.Close(); err != nil {
+			t.Error(err)
+		}
+	}
+	if f, err := os.Create(tmpDir + "/file2"); err != nil {
+		t.Error(err)
+	} else {
+		if err = f.Close(); err != nil {
+			t.Error(err)
+		}
+	}
+
+	//call Walk
+	wf := func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if info.Name() == "file1" {
+			return os.Remove(tmpDir + "/file2")
+		}
+		return nil
+	}
+	if err = Walk(tmpDir, wf, true, true); err == nil {
+		t.Error("Error expected but got nil")
+	}
+
 }
