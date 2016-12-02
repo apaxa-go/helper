@@ -1,3 +1,4 @@
+// Package exech provides simple way to execute binary.
 package exech
 
 import (

@@ -1,3 +1,4 @@
+// Package templateh provides simple functions for using inside templates.
 package templateh
 
 import (

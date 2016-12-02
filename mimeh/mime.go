@@ -1,3 +1,4 @@
+// Package mimeh defines some common used mime types as a string constant.
 package mimeh
 
 // Common WEB MIME types.

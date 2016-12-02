@@ -1,4 +1,5 @@
 //replacer:generated-file
+
 package mathh
 
 // AbsInt returns absolute value of passed integer.

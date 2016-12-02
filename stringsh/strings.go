@@ -1,3 +1,4 @@
+// Package stringsh is helper for system package strings.
 package stringsh
 
 import "golang.org/x/text/unicode/norm"

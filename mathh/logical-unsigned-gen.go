@@ -1,4 +1,5 @@
 //replacer:generated-file
+
 package mathh
 
 // BtoUint does false=>0, true=>1.

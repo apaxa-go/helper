@@ -1,3 +1,4 @@
+// Package iotesth is a helper for iotest system package.
 package iotesth
 
 import "io"

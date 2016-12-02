@@ -1,5 +1,3 @@
-// Package mathh contains a lot of logical function returning 0/1 instead of false/true.
-// Most of this functions have suffix defining its input and output types ([u]int[8/16/32/64]). So you no need to do a lot of converts.
 package mathh
 
 //replacer:ignore

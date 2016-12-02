@@ -1,6 +1,6 @@
+// Package filepathh provides function to walk over a directory tree.
+// It is based on original go package path/filepath, but have differences.
 package filepathh
-
-// Based on original go package path/filepath
 
 import (
 	"github.com/apaxa-go/helper/ioh/ioutilh"

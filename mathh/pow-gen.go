@@ -1,4 +1,5 @@
 //replacer:generated-file
+
 package mathh
 
 // PowUint returns a**b (a raised to power b).

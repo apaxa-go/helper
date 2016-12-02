@@ -1,4 +1,5 @@
 //replacer:generated-file
+
 package mathh
 
 import (

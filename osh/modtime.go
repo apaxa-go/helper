@@ -1,3 +1,4 @@
+// Package osh provides some helpers for system os package.
 package osh
 
 import (

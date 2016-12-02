@@ -1,4 +1,5 @@
 //replacer:generated-file
+
 package mathh
 
 // Min2Uint returns minimum of two passed uint.

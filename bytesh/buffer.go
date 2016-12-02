@@ -1,4 +1,5 @@
-// Package byteh provides some helper functions and types to simplify working with byte package.
+// Package bytesh provides types for the manipulation of byte slices.
+// This package is a helper for bytes base package.
 package bytesh
 
 import (

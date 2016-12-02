@@ -1,4 +1,5 @@
 //replacer:generated-file
+
 package mathh
 
 // DivideRoundUint divides a to b and round result to nearest.

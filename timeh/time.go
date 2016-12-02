@@ -1,3 +1,4 @@
+// Package timeh provides some time-related constants and helper function for system package time.
 package timeh
 
 import "time"
