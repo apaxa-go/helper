@@ -16,3 +16,10 @@ func ModTime(fileName string) (modTime time.Time, err error) {
 	}
 	return
 }
+
+// Exists check if file exists.
+// It does not check for type of file (regular, directory, ...).
+func Exists(name string) bool {
+	_, err := os.Stat(name)
+	return !os.IsNotExist(err)
+}
