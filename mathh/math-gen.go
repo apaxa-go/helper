@@ -1,7 +1,6 @@
 //replacer:generated-file
 package mathh
 
-
 // AbsInt returns absolute value of passed integer.
 // It has a bug for MinInt (because MinInt * -1 = MinInt), see AbsFixInt for resolution.
 func AbsInt(i int) int {
@@ -126,6 +125,7 @@ func DivideRafzFixInt(a, b int) int {
 }
 
 // DivideTruncInt is just a/b.
+// A.k.a. round away from infinity, round towards zero.
 // It has a bug if a=MinInt and b=-1 (because MinInt/-1 = MinInt), see DivideTruncFixInt for resolution.
 func DivideTruncInt(a, b int) int {
 	return a / b
@@ -264,6 +264,7 @@ func DivideRafzFixInt8(a, b int8) int8 {
 }
 
 // DivideTruncInt8 is just a/b.
+// A.k.a. round away from infinity, round towards zero.
 // It has a bug if a=MinInt8 and b=-1 (because MinInt8/-1 = MinInt8), see DivideTruncFixInt8 for resolution.
 func DivideTruncInt8(a, b int8) int8 {
 	return a / b
@@ -402,6 +403,7 @@ func DivideRafzFixInt16(a, b int16) int16 {
 }
 
 // DivideTruncInt16 is just a/b.
+// A.k.a. round away from infinity, round towards zero.
 // It has a bug if a=MinInt16 and b=-1 (because MinInt16/-1 = MinInt16), see DivideTruncFixInt16 for resolution.
 func DivideTruncInt16(a, b int16) int16 {
 	return a / b
@@ -540,6 +542,7 @@ func DivideRafzFixInt32(a, b int32) int32 {
 }
 
 // DivideTruncInt32 is just a/b.
+// A.k.a. round away from infinity, round towards zero.
 // It has a bug if a=MinInt32 and b=-1 (because MinInt32/-1 = MinInt32), see DivideTruncFixInt32 for resolution.
 func DivideTruncInt32(a, b int32) int32 {
 	return a / b

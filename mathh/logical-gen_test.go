@@ -5,7 +5,6 @@ import (
 	"testing"
 )
 
-
 const (
 	testSegmentsAmountInt = 10
 	testsLenInt           = testSegmentsAmountInt*6 + 1
@@ -21,7 +20,6 @@ func initInt() {
 		panic("Wrong tests len")
 	}
 }
-
 
 const (
 	testSegmentsAmountInt8 = 10
@@ -39,7 +37,6 @@ func initInt8() {
 	}
 }
 
-
 const (
 	testSegmentsAmountInt16 = 10
 	testsLenInt16           = testSegmentsAmountInt16*6 + 1
@@ -55,7 +52,6 @@ func initInt16() {
 		panic("Wrong tests len")
 	}
 }
-
 
 const (
 	testSegmentsAmountInt32 = 10
@@ -73,7 +69,6 @@ func initInt32() {
 	}
 }
 
-
 const (
 	testSegmentsAmountUint = 10
 	testsLenUint           = testSegmentsAmountUint * 3
@@ -89,7 +84,6 @@ func initUint() {
 		panic("Wrong tests len")
 	}
 }
-
 
 const (
 	testSegmentsAmountUint8 = 10
@@ -107,7 +101,6 @@ func initUint8() {
 	}
 }
 
-
 const (
 	testSegmentsAmountUint16 = 10
 	testsLenUint16           = testSegmentsAmountUint16 * 3
@@ -123,7 +116,6 @@ func initUint16() {
 		panic("Wrong tests len")
 	}
 }
-
 
 const (
 	testSegmentsAmountUint32 = 10

@@ -2,14 +2,11 @@ package bytesh
 
 import (
 	"bytes"
-	//	"math"
 	"github.com/apaxa-go/helper/testingh/iotesth"
 	"io"
 	"testing"
 	"testing/iotest"
 )
-
-//TODO add more tests
 
 func checkSlicesEqual(t *testing.T, testName string, b, v []byte) {
 	if (b == nil && v != nil) || (b != nil && v == nil) {
@@ -63,7 +60,6 @@ func TestLen(t *testing.T) {
 	}
 }
 
-//TODO split func
 func TestRemainingBytes(t *testing.T) {
 	var b = Buffer{
 		buf:     []byte{0xff, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x20},
@@ -109,7 +105,6 @@ func TestRemainingBytesNil2(t *testing.T) {
 	}
 }
 
-//TODO split func
 func TestRemainingLen(t *testing.T) {
 	var b = Buffer{
 		buf: []byte{0xff, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08},
@@ -360,7 +355,6 @@ func TestNewBufferDetail(t *testing.T) {
 	}
 }
 
-// TODO remove func name from all errors
 func TestBasicOperations(t *testing.T) {
 	var buf Buffer
 	p := []byte{0xff, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x20}
@@ -563,7 +557,6 @@ func TestReadWriteByte(t *testing.T) {
 	}
 }
 
-//TODO split func
 func TestReadWrite(t *testing.T) {
 	var b Buffer
 	p := []byte{0xff, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x20}
@@ -835,22 +828,6 @@ func TestSeekRead(t *testing.T) {
 			0,
 			true,
 		},
-
-		//TODO why it's commented
-		// 8
-		// 9223372036854775807
-		/*		testSeek{
-				Buffer{
-					buf: make([]byte, 9223372036854775809, 9223372036854775809),
-
-				},
-				10,
-				2,
-				2,
-				0,
-				0,
-				false,
-			},*/
 	}
 
 	for i, v := range test {
@@ -930,7 +907,6 @@ func TestPos(t *testing.T) {
 	}
 }
 
-//TODO add check capacity after fix
 func TestReset(t *testing.T) {
 	var b = Buffer{
 		buf:              []byte{0xff, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09},
@@ -940,14 +916,14 @@ func TestReset(t *testing.T) {
 		activeGrowFactor: 2,
 	}
 	b.Reset()
-	if b.Len() != 0 || b.PosRead() != 0 || b.PosWrite() != 0 {
-		t.Errorf("expect %v %v %v, got %v %v %v", 0, 0, 0, b.Len(), b.PosRead(), b.PosWrite())
+	if b.Len() != 0 || b.PosRead() != 0 || b.PosWrite() != 0 || cap(b.buf) != 10 {
+		t.Errorf("expect %v %v %v %v, got %v %v %v %v", 0, 0, 0, 10, b.Len(), b.PosRead(), b.PosWrite(), cap(b.buf))
 	}
 
 	var b1 Buffer
 	b1.Reset()
-	if b1.Len() != 0 || b1.PosRead() != 0 || b1.PosWrite() != 0 {
-		t.Errorf("expect %v %v %v, got %v %v %v", 0, 0, 0, b1.Len(), b1.PosRead(), b1.PosWrite())
+	if b1.Len() != 0 || b1.PosRead() != 0 || b1.PosWrite() != 0 || cap(b1.buf) != 0 {
+		t.Errorf("expect %v %v %v %v, got %v %v %v %v", 0, 0, 0, 0, b1.Len(), b1.PosRead(), b1.PosWrite(), cap(b1.buf))
 	}
 }
 

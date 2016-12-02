@@ -3,7 +3,6 @@ package mathh
 
 import "testing"
 
-
 func TestRound32(t *testing.T) {
 	test := []struct {
 		f float32

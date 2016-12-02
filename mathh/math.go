@@ -133,6 +133,7 @@ func DivideRafzFixInt64(a, b int64) int64 {
 }
 
 // DivideTruncInt64 is just a/b.
+// A.k.a. round away from infinity, round towards zero.
 // It has a bug if a=MinInt64 and b=-1 (because MinInt64/-1 = MinInt64), see DivideTruncFixInt64 for resolution.
 func DivideTruncInt64(a, b int64) int64 {
 	return a / b

@@ -1,7 +1,6 @@
 //replacer:generated-file
 package mathh
 
-
 // Min2Uint returns minimum of two passed uint.
 func Min2Uint(a, b uint) uint {
 	if a <= b {

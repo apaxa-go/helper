@@ -1,7 +1,6 @@
 package mathh
 
 //replacer:ignore
-// TODO implement other rounding functions (as for signed integer)
 //go:generate go run $GOPATH/src/github.com/apaxa-go/generator/replacer/main.go -- $GOFILE
 //replacer:replace
 //replacer:old uint64	Uint64
@@ -18,4 +17,31 @@ func DivideRoundUint64(a, b uint64) (c uint64) {
 		c++
 	}
 	return
+}
+
+// DivideCeilUint64 divide a to b and round result to nearest not less number.
+// A.k.a. round up, round towards plus infinity.
+// 3 / 2 =  2
+func DivideCeilUint64(a, b uint64) uint64 {
+	return a/b + NotZeroUint64(a%b)
+}
+
+// DivideFloorUint64 divide a to b and round result to nearest not large number.
+// A.k.a. round down, round towards minus infinity.
+// 3 / 2 =  1
+func DivideFloorUint64(a, b uint64) uint64 {
+	return a / b
+}
+
+// DivideRafzUint64 divide a to b and Round result Away From Zero.
+// A.k.a. round towards infinity.
+// 3 / 2 =  2
+func DivideRafzUint64(a, b uint64) uint64 {
+	return a/b + NotZeroUint64(a%b)
+}
+
+// DivideTruncUint64 is just a/b.
+// A.k.a. round away from infinity, round towards zero.
+func DivideTruncUint64(a, b uint64) uint64 {
+	return a / b
 }

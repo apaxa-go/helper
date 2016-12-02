@@ -3,7 +3,6 @@ package strconvh
 
 import "testing"
 
-
 func TestParseFloat64(t *testing.T) {
 	type testElement struct {
 		s   string

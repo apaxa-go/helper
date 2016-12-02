@@ -3,7 +3,6 @@
 // Most of this functions have suffix defining its input and output types ([u]int[8/16/32/64]). So you no need to do a lot of converts.
 package mathh
 
-
 // BtoInt does false=>0, true=>1.
 func BtoInt(b bool) int {
 	//*(*byte)(unsafe.Pointer(&i)) = *(*byte)(unsafe.Pointer(&b))

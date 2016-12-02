@@ -41,7 +41,6 @@ func scanErrorIncompatibleType(fieldNum int, fieldName string) ScanError {
 	return ScanError{FieldNum: fieldNum, FieldName: fieldName, Type: ScanErrorTypeIncompatibleType, SubError: nil}
 }
 
-// TODO error strings should not end with punctuation
 // Error Implement error interface for ScanError. It returns text representation of error.
 func (e ScanError) Error() string {
 	prefix := "scan error in #" + strconvh.FormatInt(e.FieldNum) + " field with name '" + e.FieldName + "': "

@@ -3,7 +3,6 @@ package strconvh
 
 import "strconv"
 
-
 // FormatInt returns the string representation of i in the 10-base.
 func FormatInt(i int) string {
 	return strconv.FormatInt(int64(i), defaultIntegerBase)

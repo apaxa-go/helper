@@ -3,27 +3,29 @@ package mathh
 
 import "testing"
 
-
 type testDivideUint struct {
-	a uint
-	b uint
-	r uint
+	a     uint
+	b     uint
+	round uint
+	up    uint
+	down  uint
 }
 
 var testsDivideUint = []testDivideUint{
-	{a: 3, b: 7, r: 0},
-	{a: 3, b: 6, r: 1},
-	{a: 3, b: 5, r: 1},
-	{a: 3, b: 4, r: 1},
-	{a: 3, b: 3, r: 1},
-	{a: 3, b: 2, r: 2},
-	{a: 3, b: 1, r: 3},
+	{a: 3, b: 1, round: 3, up: 3, down: 3}, // 3
+	{a: 3, b: 2, round: 2, up: 2, down: 1}, // 1.5
+	{a: 3, b: 3, round: 1, up: 1, down: 1}, // 1
+	{a: 3, b: 4, round: 1, up: 1, down: 0}, // 0.75
+	{a: 3, b: 5, round: 1, up: 1, down: 0}, // 0.6
+	{a: 3, b: 6, round: 1, up: 1, down: 0}, // 0.5
+	{a: 3, b: 7, round: 0, up: 1, down: 0}, // 0.43...
+	{a: 0, b: 7, round: 0, up: 0, down: 0}, // 0
 }
 
-func TestDivideUint(t *testing.T) {
+func TestDivideRoundUint(t *testing.T) {
 	for _, test := range testsDivideUint {
-		if r := DivideRoundUint(test.a, test.b); r != test.r {
-			t.Errorf("%v, %v: expect %v, got %v", test.a, test.b, test.r, r)
+		if r := DivideRoundUint(test.a, test.b); r != test.round {
+			t.Errorf("%v, %v: expect %v, got %v", test.a, test.b, test.round, r)
 		}
 	}
 }
@@ -43,6 +45,38 @@ func TestDivideUintOverflow(t *testing.T) {
 	}
 }
 
+func TestDivideCeilUint(t *testing.T) {
+	for _, test := range testsDivideUint {
+		if r := DivideCeilUint(test.a, test.b); r != test.up {
+			t.Errorf("%v, %v: expect %v, got %v", test.a, test.b, test.up, r)
+		}
+	}
+}
+
+func TestDivideFloorUint(t *testing.T) {
+	for _, test := range testsDivideUint {
+		if r := DivideFloorUint(test.a, test.b); r != test.down {
+			t.Errorf("%v, %v: expect %v, got %v", test.a, test.b, test.down, r)
+		}
+	}
+}
+
+func TestDivideRafzUint(t *testing.T) {
+	for _, test := range testsDivideUint {
+		if r := DivideRafzUint(test.a, test.b); r != test.up {
+			t.Errorf("%v, %v: expect %v, got %v", test.a, test.b, test.up, r)
+		}
+	}
+}
+
+func TestDivideTruncUint(t *testing.T) {
+	for _, test := range testsDivideUint {
+		if r := DivideTruncUint(test.a, test.b); r != test.a/test.b {
+			t.Errorf("%v, %v: expect %v, got %v", test.a, test.b, test.a/test.b, r)
+		}
+	}
+}
+
 func BenchmarkDivideUint(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		DivideRoundUint(testsUint[i%testsLenUint], testsUint[(i+testsLenUint/4)%(testsLenUint-1)+1]) // -+1 is to avoid division by zero
@@ -50,25 +84,28 @@ func BenchmarkDivideUint(b *testing.B) {
 }
 
 type testDivideUint8 struct {
-	a uint8
-	b uint8
-	r uint8
+	a     uint8
+	b     uint8
+	round uint8
+	up    uint8
+	down  uint8
 }
 
 var testsDivideUint8 = []testDivideUint8{
-	{a: 3, b: 7, r: 0},
-	{a: 3, b: 6, r: 1},
-	{a: 3, b: 5, r: 1},
-	{a: 3, b: 4, r: 1},
-	{a: 3, b: 3, r: 1},
-	{a: 3, b: 2, r: 2},
-	{a: 3, b: 1, r: 3},
+	{a: 3, b: 1, round: 3, up: 3, down: 3}, // 3
+	{a: 3, b: 2, round: 2, up: 2, down: 1}, // 1.5
+	{a: 3, b: 3, round: 1, up: 1, down: 1}, // 1
+	{a: 3, b: 4, round: 1, up: 1, down: 0}, // 0.75
+	{a: 3, b: 5, round: 1, up: 1, down: 0}, // 0.6
+	{a: 3, b: 6, round: 1, up: 1, down: 0}, // 0.5
+	{a: 3, b: 7, round: 0, up: 1, down: 0}, // 0.43...
+	{a: 0, b: 7, round: 0, up: 0, down: 0}, // 0
 }
 
-func TestDivideUint8(t *testing.T) {
+func TestDivideRoundUint8(t *testing.T) {
 	for _, test := range testsDivideUint8 {
-		if r := DivideRoundUint8(test.a, test.b); r != test.r {
-			t.Errorf("%v, %v: expect %v, got %v", test.a, test.b, test.r, r)
+		if r := DivideRoundUint8(test.a, test.b); r != test.round {
+			t.Errorf("%v, %v: expect %v, got %v", test.a, test.b, test.round, r)
 		}
 	}
 }
@@ -88,6 +125,38 @@ func TestDivideUint8Overflow(t *testing.T) {
 	}
 }
 
+func TestDivideCeilUint8(t *testing.T) {
+	for _, test := range testsDivideUint8 {
+		if r := DivideCeilUint8(test.a, test.b); r != test.up {
+			t.Errorf("%v, %v: expect %v, got %v", test.a, test.b, test.up, r)
+		}
+	}
+}
+
+func TestDivideFloorUint8(t *testing.T) {
+	for _, test := range testsDivideUint8 {
+		if r := DivideFloorUint8(test.a, test.b); r != test.down {
+			t.Errorf("%v, %v: expect %v, got %v", test.a, test.b, test.down, r)
+		}
+	}
+}
+
+func TestDivideRafzUint8(t *testing.T) {
+	for _, test := range testsDivideUint8 {
+		if r := DivideRafzUint8(test.a, test.b); r != test.up {
+			t.Errorf("%v, %v: expect %v, got %v", test.a, test.b, test.up, r)
+		}
+	}
+}
+
+func TestDivideTruncUint8(t *testing.T) {
+	for _, test := range testsDivideUint8 {
+		if r := DivideTruncUint8(test.a, test.b); r != test.a/test.b {
+			t.Errorf("%v, %v: expect %v, got %v", test.a, test.b, test.a/test.b, r)
+		}
+	}
+}
+
 func BenchmarkDivideUint8(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		DivideRoundUint8(testsUint8[i%testsLenUint8], testsUint8[(i+testsLenUint8/4)%(testsLenUint8-1)+1]) // -+1 is to avoid division by zero
@@ -95,25 +164,28 @@ func BenchmarkDivideUint8(b *testing.B) {
 }
 
 type testDivideUint16 struct {
-	a uint16
-	b uint16
-	r uint16
+	a     uint16
+	b     uint16
+	round uint16
+	up    uint16
+	down  uint16
 }
 
 var testsDivideUint16 = []testDivideUint16{
-	{a: 3, b: 7, r: 0},
-	{a: 3, b: 6, r: 1},
-	{a: 3, b: 5, r: 1},
-	{a: 3, b: 4, r: 1},
-	{a: 3, b: 3, r: 1},
-	{a: 3, b: 2, r: 2},
-	{a: 3, b: 1, r: 3},
+	{a: 3, b: 1, round: 3, up: 3, down: 3}, // 3
+	{a: 3, b: 2, round: 2, up: 2, down: 1}, // 1.5
+	{a: 3, b: 3, round: 1, up: 1, down: 1}, // 1
+	{a: 3, b: 4, round: 1, up: 1, down: 0}, // 0.75
+	{a: 3, b: 5, round: 1, up: 1, down: 0}, // 0.6
+	{a: 3, b: 6, round: 1, up: 1, down: 0}, // 0.5
+	{a: 3, b: 7, round: 0, up: 1, down: 0}, // 0.43...
+	{a: 0, b: 7, round: 0, up: 0, down: 0}, // 0
 }
 
-func TestDivideUint16(t *testing.T) {
+func TestDivideRoundUint16(t *testing.T) {
 	for _, test := range testsDivideUint16 {
-		if r := DivideRoundUint16(test.a, test.b); r != test.r {
-			t.Errorf("%v, %v: expect %v, got %v", test.a, test.b, test.r, r)
+		if r := DivideRoundUint16(test.a, test.b); r != test.round {
+			t.Errorf("%v, %v: expect %v, got %v", test.a, test.b, test.round, r)
 		}
 	}
 }
@@ -133,6 +205,38 @@ func TestDivideUint16Overflow(t *testing.T) {
 	}
 }
 
+func TestDivideCeilUint16(t *testing.T) {
+	for _, test := range testsDivideUint16 {
+		if r := DivideCeilUint16(test.a, test.b); r != test.up {
+			t.Errorf("%v, %v: expect %v, got %v", test.a, test.b, test.up, r)
+		}
+	}
+}
+
+func TestDivideFloorUint16(t *testing.T) {
+	for _, test := range testsDivideUint16 {
+		if r := DivideFloorUint16(test.a, test.b); r != test.down {
+			t.Errorf("%v, %v: expect %v, got %v", test.a, test.b, test.down, r)
+		}
+	}
+}
+
+func TestDivideRafzUint16(t *testing.T) {
+	for _, test := range testsDivideUint16 {
+		if r := DivideRafzUint16(test.a, test.b); r != test.up {
+			t.Errorf("%v, %v: expect %v, got %v", test.a, test.b, test.up, r)
+		}
+	}
+}
+
+func TestDivideTruncUint16(t *testing.T) {
+	for _, test := range testsDivideUint16 {
+		if r := DivideTruncUint16(test.a, test.b); r != test.a/test.b {
+			t.Errorf("%v, %v: expect %v, got %v", test.a, test.b, test.a/test.b, r)
+		}
+	}
+}
+
 func BenchmarkDivideUint16(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		DivideRoundUint16(testsUint16[i%testsLenUint16], testsUint16[(i+testsLenUint16/4)%(testsLenUint16-1)+1]) // -+1 is to avoid division by zero
@@ -140,25 +244,28 @@ func BenchmarkDivideUint16(b *testing.B) {
 }
 
 type testDivideUint32 struct {
-	a uint32
-	b uint32
-	r uint32
+	a     uint32
+	b     uint32
+	round uint32
+	up    uint32
+	down  uint32
 }
 
 var testsDivideUint32 = []testDivideUint32{
-	{a: 3, b: 7, r: 0},
-	{a: 3, b: 6, r: 1},
-	{a: 3, b: 5, r: 1},
-	{a: 3, b: 4, r: 1},
-	{a: 3, b: 3, r: 1},
-	{a: 3, b: 2, r: 2},
-	{a: 3, b: 1, r: 3},
+	{a: 3, b: 1, round: 3, up: 3, down: 3}, // 3
+	{a: 3, b: 2, round: 2, up: 2, down: 1}, // 1.5
+	{a: 3, b: 3, round: 1, up: 1, down: 1}, // 1
+	{a: 3, b: 4, round: 1, up: 1, down: 0}, // 0.75
+	{a: 3, b: 5, round: 1, up: 1, down: 0}, // 0.6
+	{a: 3, b: 6, round: 1, up: 1, down: 0}, // 0.5
+	{a: 3, b: 7, round: 0, up: 1, down: 0}, // 0.43...
+	{a: 0, b: 7, round: 0, up: 0, down: 0}, // 0
 }
 
-func TestDivideUint32(t *testing.T) {
+func TestDivideRoundUint32(t *testing.T) {
 	for _, test := range testsDivideUint32 {
-		if r := DivideRoundUint32(test.a, test.b); r != test.r {
-			t.Errorf("%v, %v: expect %v, got %v", test.a, test.b, test.r, r)
+		if r := DivideRoundUint32(test.a, test.b); r != test.round {
+			t.Errorf("%v, %v: expect %v, got %v", test.a, test.b, test.round, r)
 		}
 	}
 }
@@ -174,6 +281,38 @@ func TestDivideUint32Overflow(t *testing.T) {
 			if r != validR {
 				t.Errorf("%v, %v: expect %v, got %v, ", a, b, validR, r)
 			}
+		}
+	}
+}
+
+func TestDivideCeilUint32(t *testing.T) {
+	for _, test := range testsDivideUint32 {
+		if r := DivideCeilUint32(test.a, test.b); r != test.up {
+			t.Errorf("%v, %v: expect %v, got %v", test.a, test.b, test.up, r)
+		}
+	}
+}
+
+func TestDivideFloorUint32(t *testing.T) {
+	for _, test := range testsDivideUint32 {
+		if r := DivideFloorUint32(test.a, test.b); r != test.down {
+			t.Errorf("%v, %v: expect %v, got %v", test.a, test.b, test.down, r)
+		}
+	}
+}
+
+func TestDivideRafzUint32(t *testing.T) {
+	for _, test := range testsDivideUint32 {
+		if r := DivideRafzUint32(test.a, test.b); r != test.up {
+			t.Errorf("%v, %v: expect %v, got %v", test.a, test.b, test.up, r)
+		}
+	}
+}
+
+func TestDivideTruncUint32(t *testing.T) {
+	for _, test := range testsDivideUint32 {
+		if r := DivideTruncUint32(test.a, test.b); r != test.a/test.b {
+			t.Errorf("%v, %v: expect %v, got %v", test.a, test.b, test.a/test.b, r)
 		}
 	}
 }

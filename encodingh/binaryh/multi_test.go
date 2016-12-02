@@ -10,7 +10,6 @@ import (
 	"testing"
 )
 
-//TODO divide to different function
 func TestRead(t *testing.T) {
 	b := []byte{0x01, 0x02, 0x03}
 	b1 := make([]byte, 1)

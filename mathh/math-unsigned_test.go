@@ -57,25 +57,28 @@ func divideUint64AsBig(a, b uint64) (r uint64) {
 //replacer:new uint32	Uint32
 
 type testDivideUint64 struct {
-	a uint64
-	b uint64
-	r uint64
+	a     uint64
+	b     uint64
+	round uint64
+	up    uint64
+	down  uint64
 }
 
 var testsDivideUint64 = []testDivideUint64{
-	{a: 3, b: 7, r: 0},
-	{a: 3, b: 6, r: 1},
-	{a: 3, b: 5, r: 1},
-	{a: 3, b: 4, r: 1},
-	{a: 3, b: 3, r: 1},
-	{a: 3, b: 2, r: 2},
-	{a: 3, b: 1, r: 3},
+	{a: 3, b: 1, round: 3, up: 3, down: 3}, // 3
+	{a: 3, b: 2, round: 2, up: 2, down: 1}, // 1.5
+	{a: 3, b: 3, round: 1, up: 1, down: 1}, // 1
+	{a: 3, b: 4, round: 1, up: 1, down: 0}, // 0.75
+	{a: 3, b: 5, round: 1, up: 1, down: 0}, // 0.6
+	{a: 3, b: 6, round: 1, up: 1, down: 0}, // 0.5
+	{a: 3, b: 7, round: 0, up: 1, down: 0}, // 0.43...
+	{a: 0, b: 7, round: 0, up: 0, down: 0}, // 0
 }
 
-func TestDivideUint64(t *testing.T) {
+func TestDivideRoundUint64(t *testing.T) {
 	for _, test := range testsDivideUint64 {
-		if r := DivideRoundUint64(test.a, test.b); r != test.r {
-			t.Errorf("%v, %v: expect %v, got %v", test.a, test.b, test.r, r)
+		if r := DivideRoundUint64(test.a, test.b); r != test.round {
+			t.Errorf("%v, %v: expect %v, got %v", test.a, test.b, test.round, r)
 		}
 	}
 }
@@ -91,6 +94,38 @@ func TestDivideUint64Overflow(t *testing.T) {
 			if r != validR {
 				t.Errorf("%v, %v: expect %v, got %v, ", a, b, validR, r)
 			}
+		}
+	}
+}
+
+func TestDivideCeilUint64(t *testing.T) {
+	for _, test := range testsDivideUint64 {
+		if r := DivideCeilUint64(test.a, test.b); r != test.up {
+			t.Errorf("%v, %v: expect %v, got %v", test.a, test.b, test.up, r)
+		}
+	}
+}
+
+func TestDivideFloorUint64(t *testing.T) {
+	for _, test := range testsDivideUint64 {
+		if r := DivideFloorUint64(test.a, test.b); r != test.down {
+			t.Errorf("%v, %v: expect %v, got %v", test.a, test.b, test.down, r)
+		}
+	}
+}
+
+func TestDivideRafzUint64(t *testing.T) {
+	for _, test := range testsDivideUint64 {
+		if r := DivideRafzUint64(test.a, test.b); r != test.up {
+			t.Errorf("%v, %v: expect %v, got %v", test.a, test.b, test.up, r)
+		}
+	}
+}
+
+func TestDivideTruncUint64(t *testing.T) {
+	for _, test := range testsDivideUint64 {
+		if r := DivideTruncUint64(test.a, test.b); r != test.a/test.b {
+			t.Errorf("%v, %v: expect %v, got %v", test.a, test.b, test.a/test.b, r)
 		}
 	}
 }

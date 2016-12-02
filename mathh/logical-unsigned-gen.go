@@ -1,7 +1,6 @@
 //replacer:generated-file
 package mathh
 
-
 // BtoUint does false=>0, true=>1.
 func BtoUint(b bool) uint {
 	//*(*byte)(unsafe.Pointer(&i)) = *(*byte)(unsafe.Pointer(&b))

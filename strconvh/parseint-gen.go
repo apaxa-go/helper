@@ -6,12 +6,10 @@ import (
 	"strconv"
 )
 
-
 // ParseUint64 interprets a string s in 10-base and returns the corresponding value i (uint64) and error.
 func ParseUint64(stringValue string) (uint64, error) {
 	return strconv.ParseUint(stringValue, defaultIntegerBase, mathh.Uint64Bits)
 }
-
 
 // ParseInt interprets a string s in 10-base and returns the corresponding value i (int) and error.
 func ParseInt(stringValue string) (i int, err error) {

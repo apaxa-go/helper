@@ -6,7 +6,6 @@ import (
 	"testing"
 )
 
-
 func TestFormatUint(t *testing.T) {
 	type testElement struct {
 		i uint

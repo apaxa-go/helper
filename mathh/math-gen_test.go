@@ -3,7 +3,6 @@ package mathh
 
 import "testing"
 
-
 type testDivideInt struct {
 	a     int
 	b     int
@@ -14,21 +13,21 @@ type testDivideInt struct {
 }
 
 var testsDivideInt = []testDivideInt{
-	{a: 3, b: 1, round: 3, ceil: 3, floor: 3, rafz: 3},                                     // 3
-	{a: 3, b: 2, round: 2, ceil: 2, floor: 1, rafz: 2},                                     // 1.5
-	{a: 3, b: 3, round: 1, ceil: 1, floor: 1, rafz: 1},                                     // 1
-	{a: 3, b: 4, round: 1, ceil: 1, floor: 0, rafz: 1},                                     // 0.75
-	{a: 3, b: 5, round: 1, ceil: 1, floor: 0, rafz: 1},                                     // 0.6
-	{a: 3, b: 6, round: 1, ceil: 1, floor: 0, rafz: 1},                                     // 0.5
-	{a: 3, b: 7, round: 0, ceil: 1, floor: 0, rafz: 1},                                     // 0.43...
-	{a: 0, b: 7, round: 0, ceil: 0, floor: 0, rafz: 0},                                     // 0
-	{a: -3, b: 7, round: 0, ceil: 0, floor: -1, rafz: -1},                                  // -0.43...
-	{a: -3, b: 6, round: -1, ceil: 0, floor: -1, rafz: -1},                                 // -0.5
-	{a: -3, b: 5, round: -1, ceil: 0, floor: -1, rafz: -1},                                 // -0.6
-	{a: -3, b: 4, round: -1, ceil: 0, floor: -1, rafz: -1},                                 // -0.75
-	{a: -3, b: 3, round: -1, ceil: -1, floor: -1, rafz: -1},                                // -1
-	{a: -3, b: 2, round: -2, ceil: -1, floor: -2, rafz: -2},                                // -1.5
-	{a: -3, b: 1, round: -3, ceil: -3, floor: -3, rafz: -3},                                // -3
+	{a: 3, b: 1, round: 3, ceil: 3, floor: 3, rafz: 3},                           // 3
+	{a: 3, b: 2, round: 2, ceil: 2, floor: 1, rafz: 2},                           // 1.5
+	{a: 3, b: 3, round: 1, ceil: 1, floor: 1, rafz: 1},                           // 1
+	{a: 3, b: 4, round: 1, ceil: 1, floor: 0, rafz: 1},                           // 0.75
+	{a: 3, b: 5, round: 1, ceil: 1, floor: 0, rafz: 1},                           // 0.6
+	{a: 3, b: 6, round: 1, ceil: 1, floor: 0, rafz: 1},                           // 0.5
+	{a: 3, b: 7, round: 0, ceil: 1, floor: 0, rafz: 1},                           // 0.43...
+	{a: 0, b: 7, round: 0, ceil: 0, floor: 0, rafz: 0},                           // 0
+	{a: -3, b: 7, round: 0, ceil: 0, floor: -1, rafz: -1},                        // -0.43...
+	{a: -3, b: 6, round: -1, ceil: 0, floor: -1, rafz: -1},                       // -0.5
+	{a: -3, b: 5, round: -1, ceil: 0, floor: -1, rafz: -1},                       // -0.6
+	{a: -3, b: 4, round: -1, ceil: 0, floor: -1, rafz: -1},                       // -0.75
+	{a: -3, b: 3, round: -1, ceil: -1, floor: -1, rafz: -1},                      // -1
+	{a: -3, b: 2, round: -2, ceil: -1, floor: -2, rafz: -2},                      // -1.5
+	{a: -3, b: 1, round: -3, ceil: -3, floor: -3, rafz: -3},                      // -3
 	{a: MinInt, b: -1, round: MinInt, ceil: MinInt, floor: MinInt, rafz: MinInt}, // MinInt / -1 = MinInt
 }
 
@@ -247,21 +246,21 @@ type testDivideInt8 struct {
 }
 
 var testsDivideInt8 = []testDivideInt8{
-	{a: 3, b: 1, round: 3, ceil: 3, floor: 3, rafz: 3},                                     // 3
-	{a: 3, b: 2, round: 2, ceil: 2, floor: 1, rafz: 2},                                     // 1.5
-	{a: 3, b: 3, round: 1, ceil: 1, floor: 1, rafz: 1},                                     // 1
-	{a: 3, b: 4, round: 1, ceil: 1, floor: 0, rafz: 1},                                     // 0.75
-	{a: 3, b: 5, round: 1, ceil: 1, floor: 0, rafz: 1},                                     // 0.6
-	{a: 3, b: 6, round: 1, ceil: 1, floor: 0, rafz: 1},                                     // 0.5
-	{a: 3, b: 7, round: 0, ceil: 1, floor: 0, rafz: 1},                                     // 0.43...
-	{a: 0, b: 7, round: 0, ceil: 0, floor: 0, rafz: 0},                                     // 0
-	{a: -3, b: 7, round: 0, ceil: 0, floor: -1, rafz: -1},                                  // -0.43...
-	{a: -3, b: 6, round: -1, ceil: 0, floor: -1, rafz: -1},                                 // -0.5
-	{a: -3, b: 5, round: -1, ceil: 0, floor: -1, rafz: -1},                                 // -0.6
-	{a: -3, b: 4, round: -1, ceil: 0, floor: -1, rafz: -1},                                 // -0.75
-	{a: -3, b: 3, round: -1, ceil: -1, floor: -1, rafz: -1},                                // -1
-	{a: -3, b: 2, round: -2, ceil: -1, floor: -2, rafz: -2},                                // -1.5
-	{a: -3, b: 1, round: -3, ceil: -3, floor: -3, rafz: -3},                                // -3
+	{a: 3, b: 1, round: 3, ceil: 3, floor: 3, rafz: 3},                                // 3
+	{a: 3, b: 2, round: 2, ceil: 2, floor: 1, rafz: 2},                                // 1.5
+	{a: 3, b: 3, round: 1, ceil: 1, floor: 1, rafz: 1},                                // 1
+	{a: 3, b: 4, round: 1, ceil: 1, floor: 0, rafz: 1},                                // 0.75
+	{a: 3, b: 5, round: 1, ceil: 1, floor: 0, rafz: 1},                                // 0.6
+	{a: 3, b: 6, round: 1, ceil: 1, floor: 0, rafz: 1},                                // 0.5
+	{a: 3, b: 7, round: 0, ceil: 1, floor: 0, rafz: 1},                                // 0.43...
+	{a: 0, b: 7, round: 0, ceil: 0, floor: 0, rafz: 0},                                // 0
+	{a: -3, b: 7, round: 0, ceil: 0, floor: -1, rafz: -1},                             // -0.43...
+	{a: -3, b: 6, round: -1, ceil: 0, floor: -1, rafz: -1},                            // -0.5
+	{a: -3, b: 5, round: -1, ceil: 0, floor: -1, rafz: -1},                            // -0.6
+	{a: -3, b: 4, round: -1, ceil: 0, floor: -1, rafz: -1},                            // -0.75
+	{a: -3, b: 3, round: -1, ceil: -1, floor: -1, rafz: -1},                           // -1
+	{a: -3, b: 2, round: -2, ceil: -1, floor: -2, rafz: -2},                           // -1.5
+	{a: -3, b: 1, round: -3, ceil: -3, floor: -3, rafz: -3},                           // -3
 	{a: MinInt8, b: -1, round: MinInt8, ceil: MinInt8, floor: MinInt8, rafz: MinInt8}, // MinInt8 / -1 = MinInt8
 }
 

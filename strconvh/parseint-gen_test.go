@@ -6,7 +6,6 @@ import (
 	"testing"
 )
 
-
 func TestParseInt(t *testing.T) {
 
 	type testElement struct {

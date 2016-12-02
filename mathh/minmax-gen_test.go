@@ -5,7 +5,6 @@ import (
 	"testing"
 )
 
-
 var testsMinMaxUint = []struct {
 	a, b     uint
 	min, max uint
@@ -16,7 +15,6 @@ var testsMinMaxUint = []struct {
 	{a: 2, b: 2, min: 2, max: 2},
 	{a: 4, b: 1, min: 1, max: 4},
 }
-
 
 var testsMinMaxUint8 = []struct {
 	a, b     uint8
@@ -29,7 +27,6 @@ var testsMinMaxUint8 = []struct {
 	{a: 4, b: 1, min: 1, max: 4},
 }
 
-
 var testsMinMaxUint16 = []struct {
 	a, b     uint16
 	min, max uint16
@@ -41,7 +38,6 @@ var testsMinMaxUint16 = []struct {
 	{a: 4, b: 1, min: 1, max: 4},
 }
 
-
 var testsMinMaxUint32 = []struct {
 	a, b     uint32
 	min, max uint32
@@ -52,7 +48,6 @@ var testsMinMaxUint32 = []struct {
 	{a: 2, b: 2, min: 2, max: 2},
 	{a: 4, b: 1, min: 1, max: 4},
 }
-
 
 var testsMinMaxInt = []struct {
 	a, b     int
@@ -71,7 +66,6 @@ var testsMinMaxInt = []struct {
 	{a: 4, b: -1, min: -1, max: 4},
 }
 
-
 var testsMinMaxInt8 = []struct {
 	a, b     int8
 	min, max int8
@@ -88,7 +82,6 @@ var testsMinMaxInt8 = []struct {
 	{a: -4, b: 1, min: -4, max: 1},
 	{a: 4, b: -1, min: -1, max: 4},
 }
-
 
 var testsMinMaxInt16 = []struct {
 	a, b     int16
@@ -107,7 +100,6 @@ var testsMinMaxInt16 = []struct {
 	{a: 4, b: -1, min: -1, max: 4},
 }
 
-
 var testsMinMaxInt32 = []struct {
 	a, b     int32
 	min, max int32
@@ -124,7 +116,6 @@ var testsMinMaxInt32 = []struct {
 	{a: -4, b: 1, min: -4, max: 1},
 	{a: 4, b: -1, min: -1, max: 4},
 }
-
 
 func TestMin2Uint(t *testing.T) {
 	for _, test := range testsMinMaxUint {

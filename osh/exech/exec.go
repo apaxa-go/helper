@@ -13,7 +13,6 @@ import (
 // Exec returns standard output as slice of bytes and error.
 func Exec(name string, stdin []byte, args ...string) (stdout []byte, err error) {
 	//Init command
-	//TODO check for error?
 	cmd := exec.Command(name, args...)
 
 	//Init std{in,out,err} pipes

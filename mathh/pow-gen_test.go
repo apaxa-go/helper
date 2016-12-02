@@ -3,7 +3,6 @@ package mathh
 
 import "testing"
 
-
 func TestPowUint(t *testing.T) {
 	type testElement struct {
 		a uint

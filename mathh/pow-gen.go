@@ -1,7 +1,6 @@
 //replacer:generated-file
 package mathh
 
-
 // PowUint returns a**b (a raised to power b).
 // Warning: where is no any check for overflow.
 func PowUint(a, b uint) uint {
