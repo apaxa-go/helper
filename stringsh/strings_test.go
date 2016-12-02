@@ -83,3 +83,78 @@ func TestExtractLine(t *testing.T) {
 		}
 	}
 }
+
+func TestIndexMulti(t *testing.T) {
+	type testElement struct {
+		s        string
+		seps     []string
+		rI, rSep int
+	}
+	tests := []testElement{
+		{"", []string{}, -1, -1},
+		{"", []string{"d"}, -1, -1},
+		{"", []string{"d", "ef"}, -1, -1},
+		{"abc", []string{}, -1, -1},
+		{"abc", []string{"d"}, -1, -1},
+		{"abc", []string{"d", "ef"}, -1, -1},
+		{"", []string{""}, 0, 0},
+		{"", []string{"d", ""}, 0, 1},
+		{"abcde", []string{"cd", "de"}, 2, 0},
+		{"abcde", []string{"de", "cd"}, 2, 1},
+		{"abcde", []string{""}, 0, 0},
+		{"abcde", []string{"b", "bc"}, 1, 0},
+		{"abcde", []string{"bc", "b"}, 1, 0},
+	}
+	for i, v := range tests {
+		if rI, rSep := IndexMulti(v.s, v.seps...); rI != v.rI || rSep != v.rSep {
+			t.Errorf("#%v expect %v %v, got %v %v", i, v.rI, v.rSep, rI, rSep)
+		}
+	}
+}
+
+func TestReplaceMulti(t *testing.T) {
+	type testElement struct {
+		s        string
+		old, new []string
+		r        string
+	}
+	tests := []testElement{
+		{"", []string{}, []string{}, ""},
+		{"", []string{"a"}, []string{"A"}, ""},
+		{"", []string{"a", "b"}, []string{"A", "B"}, ""},
+		{"abcdefghijklmnopqrstuwxyz", []string{}, []string{}, "abcdefghijklmnopqrstuwxyz"},
+		{"abcdefghijklmnopqrstuwxyz", []string{"ac"}, []string{"AC"}, "abcdefghijklmnopqrstuwxyz"},
+		{"abcdefghijklmnopqrstuwxyz", []string{"ac", "np"}, []string{"AC", "NP"}, "abcdefghijklmnopqrstuwxyz"},
+		{"abcdefghijklmnopqrstuwxyz", []string{"a"}, []string{"A"}, "Abcdefghijklmnopqrstuwxyz"},
+		{"abcdefghijklmnopqrstuwxyz", []string{"ab"}, []string{"ABC"}, "ABCcdefghijklmnopqrstuwxyz"},
+		{"abcdefghijklmnopqrstuwxyz", []string{"ab", "yz"}, []string{"AB", "YZ"}, "ABcdefghijklmnopqrstuwxYZ"},
+		{"abcdefghijklmnopqrstuwxyz", []string{"ab", "xz"}, []string{"AB", "XZ"}, "ABcdefghijklmnopqrstuwxyz"},
+		{"abcdefghijklmnopqrstuwxyz", []string{"a", "ab"}, []string{"A", "AB"}, "Abcdefghijklmnopqrstuwxyz"},
+		{"abcdefghijklmnopqrstuwxyz", []string{"ab", "a"}, []string{"AB", "A"}, "ABcdefghijklmnopqrstuwxyz"},
+	}
+	for i, v := range tests {
+		if r := ReplaceMulti(v.s, v.old, v.new); r != v.r {
+			t.Errorf("#%v expect '%v', got '%v'", i, v.r, r)
+		}
+	}
+}
+
+func TestReplaceMulti2(t *testing.T) {
+	defer func() {
+		if recover() == nil {
+			t.Error("expect panic")
+		}
+	}()
+	ReplaceMulti("", []string{}, []string{""})
+	t.Error("expect panic")
+}
+
+func TestReplaceMulti3(t *testing.T) {
+	defer func() {
+		if recover() == nil {
+			t.Error("expect panic")
+		}
+	}()
+	ReplaceMulti("", []string{""}, []string{"A"})
+	t.Error("expect panic")
+}
