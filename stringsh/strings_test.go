@@ -29,10 +29,10 @@ func TestLen(t *testing.T) {
 }
 
 type firstLineTestElement struct {
-	s string
-	l string
-	p int
-	e string
+	s   string
+	l   string
+	p   int
+	rem string
 }
 
 var firstLineTests = []firstLineTestElement{
@@ -76,10 +76,10 @@ func TestGetFirstLine(t *testing.T) {
 
 func TestExtractLine(t *testing.T) {
 	for _, v := range firstLineTests {
-		if l, e := ExtractLine(v.s); l != v.l || e != v.e {
+		if l, e := ExtractLine(v.s); l != v.l || e != v.rem {
 			s := strings.Replace(v.s, "\n", "\\n", -1)
 			s = strings.Replace(s, "\r", "\\r", -1)
-			t.Errorf("%v: expect '%v' '%v', got '%v' '%v'", s, v.l, v.e, l, e)
+			t.Errorf("%v: expect '%v' '%v', got '%v' '%v'", s, v.l, v.rem, l, e)
 		}
 	}
 }

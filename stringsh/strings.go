@@ -17,7 +17,7 @@ func Len(s string) (l int) {
 	return
 }
 
-// GetLine returns first line from s and position in s of estimated part.
+// GetLine returns first line from s and position in s of remaining part.
 // Line delimiter may be "\n" or "\r\n". In both cases delimiter does not include nor in line nor in pos (pos points to first byte of second line).
 // If s does not contain delimiter than GetLine returns s as first line.
 // If there is no second line in s (s does not contain delimiter or there is no other bytes after delimiter) than pos will be point to non existing position in s.
@@ -35,19 +35,19 @@ func GetLine(s string) (line string, pos int) {
 }
 
 // GetFirstLine is a shortcut for GetLine but returning only first line.
-// As line delimiter does not include in result it may be hard to manipulate with estimated string.
+// As line delimiter does not include in result it may be hard to manipulate with remaining string.
 func GetFirstLine(s string) string {
 	line, _ := GetLine(s)
 	return line
 }
 
-// ExtractLine returns first line from s and estimated part of s.
+// ExtractLine returns first line from s and remaining part of s.
 // Line delimiter is the same as in GetLine.
-// Also as in GetLine delimiter does not include nor in line nor in est.
-func ExtractLine(s string) (line, est string) {
+// Also as in GetLine delimiter does not include nor in line nor in rem.
+func ExtractLine(s string) (line, rem string) {
 	line, pos := GetLine(s)
 	if pos < len(s) {
-		est = s[pos:]
+		rem = s[pos:]
 	}
 	return
 }
