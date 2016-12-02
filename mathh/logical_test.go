@@ -5,6 +5,7 @@ import (
 )
 
 //replacer:ignore
+
 func init() {
 	initInt()
 	initInt8()

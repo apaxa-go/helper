@@ -4,6 +4,7 @@ import "testing"
 
 //replacer:ignore
 //go:generate go run $GOPATH/src/github.com/apaxa-go/generator/replacer/main.go -- $GOFILE
+
 import "math/big"
 
 // Hack to avoid unnecessary replace
