@@ -1,6 +1,9 @@
 # helper
 
-[![Build Status](https://travis-ci.org/apaxa-go/helper.svg?branch=master)](https://travis-ci.org/apaxa-go/helper) [![Coverage Status](https://coveralls.io/repos/github/apaxa-go/helper/badge.svg?branch=master)](https://coveralls.io/github/apaxa-go/helper?branch=master) [![GoDoc](https://godoc.org/github.com/apaxa-go/helper?status.svg)](https://godoc.org/github.com/apaxa-go/helper)
+[![Build Status](https://travis-ci.org/apaxa-go/helper.svg?branch=master)](https://travis-ci.org/apaxa-go/helper)
+[![Coverage Status](https://coveralls.io/repos/github/apaxa-go/helper/badge.svg?branch=master)](https://coveralls.io/github/apaxa-go/helper?branch=master) 
+[![Go Report Card](https://goreportcard.com/badge/github.com/apaxa-go/helper)](https://goreportcard.com/report/github.com/apaxa-go/helper)
+[![GoDoc](https://godoc.org/github.com/apaxa-go/helper?status.svg)](https://godoc.org/github.com/apaxa-go/helper)
 
  Helper is a collection of packages which helps you to work with GoLang standard packages.
  
