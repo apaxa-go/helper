@@ -148,3 +148,11 @@ func SameType(x constant.Value, t reflect.Type) (r reflect.Value, ok bool) {
 	}
 	return
 }
+
+func SameTypeInterface(x constant.Value, t reflect.Type) (r interface{}, ok bool) {
+	v, ok := SameType(x, t)
+	if !ok {
+		return nil, false
+	}
+	return v.Interface(), true
+}

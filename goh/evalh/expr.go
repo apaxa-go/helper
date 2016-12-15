@@ -2,7 +2,10 @@ package evalh
 
 import (
 	"errors"
+	"fmt"
+	"github.com/apaxa-go/helper/goh/constanth"
 	"github.com/apaxa-go/helper/goh/tokenh"
+	"github.com/apaxa-go/helper/strconvh"
 	"go/ast"
 	"go/constant"
 	"reflect"
@@ -92,9 +95,97 @@ func Paren(e ast.ParenExpr, vars []Var) (r interface{}, err error) {
 	return Expr(e.X, vars)
 }
 
-func Call(e ast.CallExpr, vars []Var)(r interface{},err error){
-	switch e.Fun. {
-	
+func Call(e ast.CallExpr, vars []Var) (r interface{}, err error) {
+	// Resolve func
+	f, err := Expr(e.Fun, vars)
+	if err != nil {
+		return nil, err
+	}
+	fV := reflect.ValueOf(f)
+	if fV.Kind() != reflect.Func {
+		return nil, errors.New("no such function " + fV.String())
+	}
+
+	// Check in/out arguments count
+	fT := fV.Type()
+	if fT.NumIn() != len(e.Args) {
+		return nil, errors.New("required "+strconvh.FormatInt(fT.NumIn())) + " but got " + strconvh.FormatInt(len(e.Args))
+	}
+	if fT.NumOut() != 1 {
+		return nil, errors.New("function must return exactly 1 parameter but returns " + strconvh.FormatInt(fT.NumOut()))
+	}
+
+	// Prepare arguments
+	args := make([]interface{}, fT.NumIn())
+	for i := range e.Args {
+		args[i], err = Expr(e.Args[i], vars)
+		if err != nil {
+			return nil, err
+		}
+		if c, ok := args[i].(constant.Value); ok {
+			args[i], ok = constanth.SameTypeInterface(c, fT.In(i))
+			if !ok {
+				return nil, errors.New("cannot convert argument " + strconvh.FormatInt(i) + " " + c.String() + " (untyped constant) to required type " + fT.In(i).String())
+			}
+		}
+	}
+
+	defer func() {
+		if rec := recover(); rec != nil {
+			if str, ok := rec.(string); ok {
+				err = errors.New(str)
+			} else {
+				err = errors.New(fmt.Sprint(rec))
+			}
+		}
+	}()
+	rs := fV.Call(args)
+	return rs[0]
+}
+
+func Star(e ast.StarExpr, vars []Var)(r interface{},err error){
+	// TODO what if * means not dereference, but part of type???
+	v,err:=Expr(e.X,vars)
+	if err!=nil{
+		return nil,err
+	}
+	vV:=reflect.ValueOf(v)
+	if kind := vV.Kind(); kind != reflect.Ptr {
+		return reflect.Value{}, errors.New("unable to dereference " + kind.String())
+	}
+	return vV.Elem().Interface(), nil
+}
+
+func Unary(e ast.UnaryExpr, vars []Var)(r interface{},err error){
+	x,err:=Expr(e.X,vars)
+	if err!=nil{
+		return nil,err
+	}
+	return unary(x,e.Op)
+}
+
+func Index(e ast.IndexExpr, vars []Var)(r interface{},err error){
+	x,err:=Expr(e.X,vars)
+	if err!=nil{
+		return nil,err
+	}
+	xV:=reflect.ValueOf(x)
+	if k:=xV.Kind(); k!=reflect.String && k!=reflect.Array && k!=reflect.Slice{
+		return nil, errors.New("unable to index "+k.String())
+	}
+
+	// calc index
+	var iInt int
+	i,err:=Expr(e.Index,vars)
+	if err!=nil{
+		return nil, err
+	}
+	iInt,ok:=i.(int)
+	if !ok{
+		iConst,ok:=i.(constant.Value)
+		if !ok{
+			return nil, errors.New("unable to use "++" as index")
+		}
 	}
 }
 
@@ -110,6 +201,14 @@ func Expr(e ast.Expr, vars []Var) (r interface{}, err error) {
 		return BasicLit(v, vars)
 	case ast.ParenExpr:
 		return Paren(v, vars)
+	case ast.CallExpr:
+		return Call(v, vars)
+	case ast.StarExpr:
+		return Star(v, vars)
+	case ast.UnaryExpr:
+		return Unary(v,vars)
+	case ast.IndexExpr:
+		return Index(v,vars)
 	default:
 		return nil, errors.New("expression evaluation does not support " + reflect.TypeOf(e).String())
 	}
