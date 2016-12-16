@@ -15,7 +15,7 @@ func binaryOtherBool(x bool, op token.Token, y bool) (r bool, err error) {
 	case token.LOR:
 		return x || y, nil
 	default:
-		return nil, errors.New("boolean operands does not support operation " + op.String())
+		return false, errors.New("boolean operands does not support operation " + op.String())
 	}
 }
 
@@ -24,7 +24,7 @@ func binaryOtherString(x string, op token.Token, y string) (r string, err error)
 	case token.ADD:
 		return x + y, nil
 	default:
-		return nil, errors.New("strings operands does not support operation " + op.String())
+		return "", errors.New("strings operands does not support operation " + op.String())
 	}
 }
 
@@ -61,7 +61,7 @@ func binaryOtherInt64(x int64, op token.Token, y int64) (r int64, err error) {
 	case token.AND_NOT:
 		return x &^ y, nil
 	default:
-		return nil, errors.New("int64 operands does not support operation " + op.String())
+		return 0, errors.New("int64 operands does not support operation " + op.String())
 	}
 }
 
@@ -82,6 +82,6 @@ func binaryOtherFloat32(x float32, op token.Token, y float32) (r float32, err er
 	case token.QUO:
 		return x / y, nil
 	default:
-		return nil, errors.New("float32 operands does not support operation " + op.String())
+		return 0, errors.New("float32 operands does not support operation " + op.String())
 	}
 }

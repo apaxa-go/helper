@@ -72,7 +72,7 @@ func unaryNot(x interface{}) (r interface{}, err error) {
 		return nil, errors.New("unable to not " + k.String())
 	}
 
-	rV.Set(!xV.Bool())
+	rV.SetBool(!xV.Bool())
 	return rV.Interface(), nil
 }
 

@@ -16,6 +16,7 @@ func BoolVal(x constant.Value) (r bool, ok bool) {
 }
 
 func Int64Val(x constant.Value) (int64, bool) {
+	x = constant.ToInt(x)
 	if x.Kind() != constant.Int {
 		return 0, false
 	}
@@ -23,6 +24,7 @@ func Int64Val(x constant.Value) (int64, bool) {
 }
 
 func Uint64Val(x constant.Value) (uint64, bool) {
+	x = constant.ToInt(x)
 	if x.Kind() != constant.Int {
 		return 0, false
 	}
@@ -30,6 +32,7 @@ func Uint64Val(x constant.Value) (uint64, bool) {
 }
 
 func Float32Val(x constant.Value) (float32, bool) {
+	x = constant.ToFloat(x)
 	if x.Kind() != constant.Float {
 		return 0, false
 	}
@@ -37,6 +40,7 @@ func Float32Val(x constant.Value) (float32, bool) {
 }
 
 func Float64Val(x constant.Value) (float64, bool) {
+	x = constant.ToFloat(x)
 	if x.Kind() != constant.Float {
 		return 0, false
 	}
@@ -44,6 +48,7 @@ func Float64Val(x constant.Value) (float64, bool) {
 }
 
 func Complex64Val(x constant.Value) (complex64, bool) {
+	x = constant.ToComplex(x)
 	if x.Kind() != constant.Complex {
 		return 0, false
 	}
@@ -61,6 +66,7 @@ func Complex64Val(x constant.Value) (complex64, bool) {
 }
 
 func Complex128Val(x constant.Value) (complex128, bool) {
+	x = constant.ToComplex(x)
 	if x.Kind() != constant.Complex {
 		return 0, false
 	}
@@ -81,7 +87,7 @@ func StringVal(x constant.Value) (string, bool) {
 	if x.Kind() != constant.String {
 		return "", false
 	}
-	return constant.StringVal(x)
+	return constant.StringVal(x), true
 }
 
 //replacer:replace

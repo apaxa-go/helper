@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/apaxa-go/helper/goh/constanth"
 	"github.com/apaxa-go/helper/reflecth"
+	"github.com/apaxa-go/helper/strconvh"
 	"go/constant"
 	"go/token"
 	"reflect"
@@ -35,11 +36,13 @@ func binaryCompare(x interface{}, op token.Token, y interface{}) (r interface{},
 		if !ok {
 			return nil, errors.New("unable to convert untyped const " + yConst.String() + " to " + xV.Type().String())
 		}
-	} else if xT, yT := xV.Type(), yV.Type(); !xT.AssignableTo(yT) && !yT.AssignableTo(xT) {
-		return nil, errors.New("unable to compare " + xT.String() + " and " + yT.String())
 	} else {
 		xV = reflect.ValueOf(x)
 		yV = reflect.ValueOf(y)
+	}
+
+	if xT, yT := xV.Type(), yV.Type(); !xT.AssignableTo(yT) && !yT.AssignableTo(xT) {
+		return nil, errors.New("unable to compare " + xT.String() + " and " + yT.String())
 	}
 
 	// Preform kind-depending compare
@@ -56,10 +59,13 @@ func binaryCompare(x interface{}, op token.Token, y interface{}) (r interface{},
 		return binaryCompareComplex(xV.Complex(), op, yV.Complex())
 	case k == reflect.String:
 		return binaryCompareString(xV.String(), op, yV.String())
-	case k == reflect.Ptr:
-		fallthrough
-	case k == reflect.Chan: // Not sure about channels comparison via pointer
-		return binaryComparePointer(xV.Pointer(), op, yV.Pointer())
+	//case k == reflect.Ptr:	// TODO what does this mean?
+	//	fallthrough
+	case k == reflect.Uintptr:
+		return binaryComparePointer(uintptr(xV.Uint()), op, uintptr(yV.Uint()))
+	// TODO compare channels
+	//case k == reflect.Chan: // Not sure about channels comparison via pointer
+	//	return binaryComparePointer(xV.Pointer(), op, yV.Pointer())
 	// TODO compare interfaces
 	// case k==reflect.Interface:
 	// TODO compare structs
@@ -73,84 +79,81 @@ func binaryCompare(x interface{}, op token.Token, y interface{}) (r interface{},
 }
 
 func binaryShift(x interface{}, op token.Token, y interface{}) (r interface{}, err error) {
-	xConst, xConstOk := x.(constant.Value)
-	yConst, yConstOk := y.(constant.Value)
-
-	// Perform calc separately if both args is untyped constants
-	if xConstOk && yConstOk {
-		return binaryShiftConstant(xConst, op, yConst)
+	// Calc right operand
+	var yUint uint
+	if yConst, ok := y.(constant.Value); ok {
+		yUint, ok = constanth.UintVal(yConst)
+		if !ok {
+			return nil, errors.New("unable to perform binary shift on smth and " + yConst.String())
+		}
+	} else {
+		yV := reflect.ValueOf(y)
+		if !reflecth.IsUint(yV.Kind()) {
+			return nil, errors.New("unable to perform shift on smth and " + yV.Kind().String())
+		}
+		yUint = uint(yV.Uint())
 	}
 
-	// Convert untyped const to appropriate variable
-	if xConstOk {
-		var ok bool
-		x, ok = constant.Int64Val(xConst) // TODO not by specs???
-		if !ok {
-			return nil, errors.New("unable to convert constant " + xConst.String() + " to int64")
-		}
-	} else if yConstOk {
-		var ok bool
-		y, ok = constant.Uint64Val(yConst)
-		if !ok {
-			return nil, errors.New("unable to convert constant " + yConst.String() + " to uint64")
-		}
+	// Perform calc separately if left operand is untyped constant
+	if xConst, ok := x.(constant.Value); ok {
+		return binaryShiftConstant(xConst, op, yUint)
 	}
 
+	// Check left operand kind and set result type
 	xV := reflect.ValueOf(x)
-	yV := reflect.ValueOf(y)
-	if !reflecth.IsAnyInt(xV.Kind()) || !reflecth.IsUint(yV.Kind()) {
-		return nil, errors.New("unable to perform shift on " + xV.Kind() + " and " + yV.Kind())
+	if !reflecth.IsAnyInt(xV.Kind()) {
+		return nil, errors.New("unable to perform shift on " + xV.Kind().String() + " and smth")
 	}
 	rV := reflect.New(xV.Type()).Elem()
 
-	switch yR := yV.Uint(); op {
+	switch op {
 	case token.SHL:
 		switch xV.Kind() {
 		case reflect.Int:
-			rV.SetInt(int64(x.(int) << yR))
+			rV.SetInt(int64(x.(int) << yUint))
 		case reflect.Int8:
-			rV.SetInt(int64(x.(int8) << yR))
+			rV.SetInt(int64(x.(int8) << yUint))
 		case reflect.Int16:
-			rV.SetInt(int64(x.(int16) << yR))
+			rV.SetInt(int64(x.(int16) << yUint))
 		case reflect.Int32:
-			rV.SetInt(int64(x.(int32) << yR))
+			rV.SetInt(int64(x.(int32) << yUint))
 		case reflect.Int64:
-			rV.SetInt(x.(int64) << yR)
+			rV.SetInt(x.(int64) << yUint)
 		case reflect.Uint:
-			rV.SetUint(uint64(x.(uint) << yR))
+			rV.SetUint(uint64(x.(uint) << yUint))
 		case reflect.Uint8:
-			rV.SetUint(uint64(x.(uint8) << yR))
+			rV.SetUint(uint64(x.(uint8) << yUint))
 		case reflect.Uint16:
-			rV.SetUint(uint64(x.(uint16) << yR))
+			rV.SetUint(uint64(x.(uint16) << yUint))
 		case reflect.Uint32:
-			rV.SetUint(uint64(x.(uint32) << yR))
+			rV.SetUint(uint64(x.(uint32) << yUint))
 		case reflect.Uint64:
-			rV.SetUint(x.(uint64) << yR)
+			rV.SetUint(x.(uint64) << yUint)
 		default:
 			return nil, errors.New("unable to perform left shift on " + xV.Kind().String())
 		}
 	case token.SHR:
 		switch xV.Kind() {
 		case reflect.Int:
-			rV.SetInt(int64(x.(int) >> yR))
+			rV.SetInt(int64(x.(int) >> yUint))
 		case reflect.Int8:
-			rV.SetInt(int64(x.(int8) >> yR))
+			rV.SetInt(int64(x.(int8) >> yUint))
 		case reflect.Int16:
-			rV.SetInt(int64(x.(int16) >> yR))
+			rV.SetInt(int64(x.(int16) >> yUint))
 		case reflect.Int32:
-			rV.SetInt(int64(x.(int32) >> yR))
+			rV.SetInt(int64(x.(int32) >> yUint))
 		case reflect.Int64:
-			rV.SetInt(x.(int64) >> yR)
+			rV.SetInt(x.(int64) >> yUint)
 		case reflect.Uint:
-			rV.SetUint(uint64(x.(uint) >> yR))
+			rV.SetUint(uint64(x.(uint) >> yUint))
 		case reflect.Uint8:
-			rV.SetUint(uint64(x.(uint8) >> yR))
+			rV.SetUint(uint64(x.(uint8) >> yUint))
 		case reflect.Uint16:
-			rV.SetUint(uint64(x.(uint16) >> yR))
+			rV.SetUint(uint64(x.(uint16) >> yUint))
 		case reflect.Uint32:
-			rV.SetUint(uint64(x.(uint32) >> yR))
+			rV.SetUint(uint64(x.(uint32) >> yUint))
 		case reflect.Uint64:
-			rV.SetUint(x.(uint64) >> yR)
+			rV.SetUint(x.(uint64) >> yUint)
 		default:
 			return nil, errors.New("unable to perform right shift on " + xV.Kind().String())
 		}
@@ -187,11 +190,13 @@ func binaryOther(x interface{}, op token.Token, y interface{}) (r interface{}, e
 		if !ok {
 			return nil, errors.New("unable to convert untyped const " + yConst.String() + " to " + xV.Type().String())
 		}
-	} else if xT, yT := xV.Type(), yV.Type(); xT != yT {
-		return nil, errors.New("unable to perform binary operation on " + xT.String() + " and " + yT.String())
 	} else {
 		xV = reflect.ValueOf(x)
 		yV = reflect.ValueOf(y)
+	}
+
+	if xT, yT := xV.Type(), yV.Type(); xT != yT {
+		return nil, errors.New("unable to perform binary operation on " + xT.String() + " and " + yT.String())
 	}
 
 	rV := reflect.New(xV.Type()).Elem()
@@ -312,15 +317,15 @@ func binaryCompareConstant(x constant.Value, op token.Token, y constant.Value) (
 	return constant.MakeBool(constant.Compare(x, op, y)), nil
 }
 
-func binaryShiftConstant(x constant.Value, op token.Token, y constant.Value) (r constant.Value, err error) {
-	if x.Kind() == constant.Unknown || y.Kind() == constant.Unknown {
+func binaryShiftConstant(x constant.Value, op token.Token, y uint) (r constant.Value, err error) {
+	if x.Kind() == constant.Unknown {
 		return nil, errors.New("unable to perform shift on unknown constant")
 	}
 	defer func() {
 		rec := recover()
 		if rec != nil {
 			r = nil
-			err = errors.New("unable to perform binary operation '" + op.String() + "' on " + x.String() + " and " + y.String())
+			err = errors.New("unable to perform binary operation '" + op.String() + "' on " + x.String() + " and " + strconvh.FormatUint(y))
 		}
 	}()
 	return constant.Shift(x, op, y), nil // should not return unknown because x already checked for unknown

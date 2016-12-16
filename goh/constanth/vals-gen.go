@@ -8,7 +8,7 @@ import (
 )
 
 func IntVal(x constant.Value) (int, bool) {
-	i64, ok := constant.Int64Val(x)
+	i64, ok := Int64Val(x)
 	if !ok {
 		return 0, false
 	}
@@ -19,7 +19,7 @@ func IntVal(x constant.Value) (int, bool) {
 }
 
 func UintVal(x constant.Value) (uint, bool) {
-	u64, ok := constant.Uint64Val(x)
+	u64, ok := Uint64Val(x)
 	if !ok {
 		return 0, false
 	}
@@ -28,8 +28,9 @@ func UintVal(x constant.Value) (uint, bool) {
 	}
 	return uint(u64), true
 }
+
 func Int8Val(x constant.Value) (int8, bool) {
-	i64, ok := constant.Int64Val(x)
+	i64, ok := Int64Val(x)
 	if !ok {
 		return 0, false
 	}
@@ -40,7 +41,7 @@ func Int8Val(x constant.Value) (int8, bool) {
 }
 
 func Uint8Val(x constant.Value) (uint8, bool) {
-	u64, ok := constant.Uint64Val(x)
+	u64, ok := Uint64Val(x)
 	if !ok {
 		return 0, false
 	}
@@ -49,8 +50,9 @@ func Uint8Val(x constant.Value) (uint8, bool) {
 	}
 	return uint8(u64), true
 }
+
 func Int16Val(x constant.Value) (int16, bool) {
-	i64, ok := constant.Int64Val(x)
+	i64, ok := Int64Val(x)
 	if !ok {
 		return 0, false
 	}
@@ -61,7 +63,7 @@ func Int16Val(x constant.Value) (int16, bool) {
 }
 
 func Uint16Val(x constant.Value) (uint16, bool) {
-	u64, ok := constant.Uint64Val(x)
+	u64, ok := Uint64Val(x)
 	if !ok {
 		return 0, false
 	}
