@@ -11,68 +11,109 @@ import (
 	"reflect"
 )
 
-type Var struct {
-	Name  string
-	Value interface{}
+type (
+	Identifiers          map[string]Value
+	IdentifiersRegular   map[string]reflect.Value
+	IdentifiersInterface map[string]interface{}
+)
+
+func (idents IdentifiersRegular) Identifiers() (r Identifiers) {
+	r = make(Identifiers)
+	for i := range idents {
+		r[i] = MakeRegular(idents[i])
+	}
+	return
+}
+func (idents IdentifiersInterface) IdentifiersRegular() (r IdentifiersRegular) {
+	r = make(IdentifiersRegular)
+	for i := range idents {
+		r[i] = reflect.ValueOf(idents[i])
+	}
+	return
+}
+func (idents IdentifiersInterface) Identifiers() (r Identifiers) {
+	r = make(Identifiers)
+	for i := range idents {
+		r[i] = MakeRegular(reflect.ValueOf(idents[i]))
+	}
+	return
 }
 
 // r is a typed variable, untyped bool constant or nil
-func Ident(e *ast.Ident, vars []Var) (r interface{}, err error) {
+func Ident(e *ast.Ident, idents Identifiers) (r Value, err error) {
 	// true and false literals does not covered by BasicLit (because it is look like normal identifier?).
 	if e.Name == "true" {
-		return constant.MakeBool(true), nil
+		return MakeUntyped(constant.MakeBool(true)), nil
 	}
 	if e.Name == "false" {
-		return constant.MakeBool(false), nil
+		return MakeUntyped(constant.MakeBool(false)), nil
 	}
 
 	// nil literal
 	if e.Name == "nil" {
-		return nil, nil
+		return MakeNil(), nil
 	}
 
 	// find required identifier in vars.
-	for i := range vars {
-		if vars[i].Name == e.Name {
-			return vars[i].Value, nil
-		}
+	r, ok := idents[e.Name]
+	if !ok {
+		err = errors.New("variable '" + e.Name + "' does not defined")
 	}
-	return nil, errors.New("variable '" + e.Name + "' does not defined")
+	return
 }
 
-// r is a typed variable
-func Selector(e *ast.SelectorExpr, vars []Var) (r interface{}, err error) {
+// Selector can:
+// 	* get field from struct or pointer to struct
+//	* get method (defined with receiver V) from variable of type V or pointer variable to type V
+//	* get method (defined with pointer receiver V) from pointer variable to type V
+func Selector(e *ast.SelectorExpr, idents Identifiers) (r Value, err error) {
+	// TODO implement "pkg.Method(...)"
 	// Calc object (left of '.')
-	x, err := ExprUntyped(e.X, vars)
+	x, err := Expr(e.X, idents)
 	if err != nil {
 		return nil, err
 	}
+	if x.Kind() != Regular {
+		return nil, errors.New("unable to select field or method on untyped constant")
+	}
 
-	// Dereference a if it is a pointer
-	xV := reflect.ValueOf(x)
+	// Extract field/method name
+	name := e.Sel.Name
+
+	////////////////
+	xV := x.Regular()
 	xK := xV.Kind()
+
+	// If kind is pointer than try to get method.
+	// If no method can be get than dereference pointer.
 	if xK == reflect.Ptr {
+		if method := xV.MethodByName(name); method.IsValid() {
+			return MakeRegular(method), nil
+		}
 		xV = xV.Elem()
 	}
 
-	// Extract field
-	fieldName := e.Sel.Name
-	if xV.Kind() != reflect.Struct {
-		return nil, errors.New("unable to get field '" + fieldName + "' from " + xK.String())
+	// If kind is struct than try to get field
+	if xV.Kind() == reflect.Struct {
+		if field := xV.FieldByName(name); field.IsValid() {
+			return MakeRegular(field), nil
+		}
 	}
-	field := xV.FieldByName(fieldName)
-	if !field.IsValid() {
-		return nil, errors.New("no such field: '" + fieldName + "' on " + xK.String())
+
+	// Last case - try to get method on dereferenced variable
+	if method := xV.MethodByName(name); method.IsValid() {
+		return MakeRegular(method), nil
 	}
-	return field.Interface(), nil
+
+	return nil, errors.New("no such field or method: '" + name + "' on " + xK.String())
 }
 
-func Binary(e *ast.BinaryExpr, vars []Var) (r interface{}, err error) {
-	x, err := ExprUntyped(e.X, vars)
+func Binary(e *ast.BinaryExpr, idents Identifiers) (r Value, err error) {
+	x, err := Expr(e.X, idents)
 	if err != nil {
 		return nil, err
 	}
-	y, err := ExprUntyped(e.Y, vars)
+	y, err := Expr(e.Y, idents)
 	if err != nil {
 		return nil, err
 	}
@@ -87,27 +128,26 @@ func Binary(e *ast.BinaryExpr, vars []Var) (r interface{}, err error) {
 	}
 }
 
-func BasicLit(e *ast.BasicLit, vars []Var) (r interface{}, err error) {
-	return constant.MakeFromLiteral(e.Value, e.Kind, 0), nil
+func BasicLit(e *ast.BasicLit, idents Identifiers) (r Value, err error) {
+	return MakeUntyped(constant.MakeFromLiteral(e.Value, e.Kind, 0)), nil
 }
 
-func Paren(e *ast.ParenExpr, vars []Var) (r interface{}, err error) {
-	return ExprUntyped(e.X, vars)
+func Paren(e *ast.ParenExpr, idents Identifiers) (r Value, err error) {
+	return Expr(e.X, idents)
 }
 
-func Call(e *ast.CallExpr, vars []Var) (r interface{}, err error) {
+func Call(e *ast.CallExpr, idents Identifiers) (r Value, err error) {
 	// Resolve func
-	f, err := ExprUntyped(e.Fun, vars)
+	f, err := Expr(e.Fun, idents)
 	if err != nil {
 		return nil, err
 	}
-	fV := reflect.ValueOf(f)
-	if fV.Kind() != reflect.Func {
-		return nil, errors.New("no such function " + fV.String())
+	if f.Kind() != Regular || f.Regular().Kind() != reflect.Func {
+		return nil, errors.New("no such function " + f.String())
 	}
 
 	// Check in/out arguments count
-	fT := fV.Type()
+	fT := f.Regular().Type()
 	if fT.NumIn() != len(e.Args) {
 		return nil, errors.New("required " + strconvh.FormatInt(fT.NumIn()) + " but got " + strconvh.FormatInt(len(e.Args)))
 	}
@@ -118,21 +158,29 @@ func Call(e *ast.CallExpr, vars []Var) (r interface{}, err error) {
 	// Prepare arguments
 	args := make([]reflect.Value, fT.NumIn())
 	for i := range e.Args {
-		var arg interface{}
-		arg, err = ExprUntyped(e.Args[i], vars)
+		var arg Value
+		arg, err = Expr(e.Args[i], idents)
 		if err != nil {
 			return nil, err
 		}
 
-		// Resolve constant
-		if c, ok := arg.(constant.Value); ok {
-			arg, ok = constanth.SameTypeInterface(c, fT.In(i))
+		switch arg.Kind() {
+		case Untyped: // TODO what if argument may be untyped because function is built-in?
+			var ok bool
+			args[i], ok = constanth.SameType(arg.Untyped(), fT.In(i))
 			if !ok {
-				return nil, errors.New("cannot convert argument " + strconvh.FormatInt(i) + " " + c.String() + " (untyped constant) to required type " + fT.In(i).String())
+				return nil, errors.New("cannot convert argument " + strconvh.FormatInt(i) + " " + arg.String() + " (untyped constant) to required type " + fT.In(i).String())
 			}
+		case Nil:
+			args[i] = reflect.ValueOf(nil) // TODO check this, may be reflect.ValueOf(nil)
+		case Regular:
+			if aT := arg.Regular().Type(); !aT.AssignableTo(fT.In(i)) {
+				return nil, errors.New("cannot convert argument " + strconvh.FormatInt(i) + " " + aT.String() + " to required type " + fT.In(i).String())
+			}
+			args[i] = arg.Regular()
+		default:
+			panic("unknown argument kind")
 		}
-
-		args[i] = reflect.ValueOf(arg)
 	}
 
 	defer func() {
@@ -144,86 +192,108 @@ func Call(e *ast.CallExpr, vars []Var) (r interface{}, err error) {
 			}
 		}
 	}()
-	rs := fV.Call(args)
-	return rs[0], nil
+	rs := f.Regular().Call(args)
+	return MakeRegular(rs[0]), nil // TODO what if result is untyped because function is built-in?
 }
 
-func Star(e *ast.StarExpr, vars []Var) (r interface{}, err error) {
+func Star(e *ast.StarExpr, idents Identifiers) (r Value, err error) {
 	// TODO what if * means not dereference, but part of type???
-	v, err := ExprUntyped(e.X, vars)
+	v, err := Expr(e.X, idents)
 	if err != nil {
 		return nil, err
 	}
-	vV := reflect.ValueOf(v)
-	if kind := vV.Kind(); kind != reflect.Ptr {
-		return reflect.Value{}, errors.New("unable to dereference " + kind.String())
+	if v.Kind() != Regular || v.Regular().Kind() != reflect.Ptr {
+		return nil, errors.New("unable to dereference " + v.String())
 	}
-	return vV.Elem().Interface(), nil
+	return MakeRegular(v.Regular().Elem()), nil
 }
 
-func Unary(e *ast.UnaryExpr, vars []Var) (r interface{}, err error) {
-	x, err := ExprUntyped(e.X, vars)
+func Unary(e *ast.UnaryExpr, idents Identifiers) (r Value, err error) {
+	x, err := Expr(e.X, idents)
 	if err != nil {
 		return nil, err
 	}
 	return unary(x, e.Op)
 }
 
-func Index(e *ast.IndexExpr, vars []Var) (r interface{}, err error) {
-	x, err := ExprUntyped(e.X, vars)
+func Index(e *ast.IndexExpr, vars Identifiers) (r Value, err error) {
+	x, err := Expr(e.X, vars)
 	if err != nil {
 		return nil, err
 	}
 
-	i, err := ExprUntyped(e.Index, vars)
+	i, err := Expr(e.Index, vars)
 	if err != nil {
 		return nil, err
 	}
 
-	if k := reflect.ValueOf(x).Kind(); k == reflect.Map {
-		return indexMap(x, i)
+	if x.Kind() != Regular {
+		return nil, errors.New("unable to index " + x.String())
 	}
-	return indexOther(x, i)
+
+	if x.Regular().Kind() == reflect.Map {
+		return indexMap(x.Regular(), i)
+	}
+	return indexOther(x.Regular(), i)
 }
 
-func ExprUntyped(e ast.Expr, vars []Var) (r interface{}, err error) {
+func Expr(e ast.Expr, idents Identifiers) (r Value, err error) {
 	switch v := e.(type) {
 	case *ast.Ident:
-		return Ident(v, vars)
+		return Ident(v, idents)
 	case *ast.SelectorExpr:
-		return Selector(v, vars)
+		return Selector(v, idents)
 	case *ast.BinaryExpr:
-		return Binary(v, vars)
+		return Binary(v, idents)
 	case *ast.BasicLit:
-		return BasicLit(v, vars)
+		return BasicLit(v, idents)
 	case *ast.ParenExpr:
-		return Paren(v, vars)
+		return Paren(v, idents)
 	case *ast.CallExpr:
-		return Call(v, vars)
+		return Call(v, idents)
 	case *ast.StarExpr:
-		return Star(v, vars)
+		return Star(v, idents)
 	case *ast.UnaryExpr:
-		return Unary(v, vars)
+		return Unary(v, idents)
 	case *ast.IndexExpr:
-		return Index(v, vars)
+		return Index(v, idents)
 	default:
 		return nil, errors.New("expression evaluation does not support " + reflect.TypeOf(e).String())
 	}
 }
 
-func Expr(e ast.Expr, vars []Var) (r interface{}, err error) {
-	r, err = ExprUntyped(e, vars)
+func ExprRegular(e ast.Expr, idents IdentifiersRegular) (r reflect.Value, err error) {
+	rV, err := Expr(e, idents.Identifiers())
 	if err != nil {
 		return
 	}
 
-	// Resolve constant
-	if c, ok := r.(constant.Value); ok {
-		r, ok = constanth.DefaultType(c)
+	switch rV.Kind() {
+	case Regular:
+		r = rV.Regular()
+	case Untyped:
+		var ok bool
+		r, ok = constanth.DefaultType(rV.Untyped())
 		if !ok {
-			return nil, errors.New("unable to use default type for untyped constant " + c.String())
+			return r, errors.New("unable to represent untyped value in default type")
 		}
+	case Nil:
+		r = reflect.ValueOf(nil) // TODO is it normal?
+	default:
+		panic("unknown kind")
+	}
+	return
+}
+
+func ExprInterface(e ast.Expr, idents IdentifiersInterface) (r interface{}, err error) {
+	rV, err := ExprRegular(e, idents.IdentifiersRegular())
+	if err != nil {
+		return
 	}
 
-	return
+	if !rV.CanInterface() {
+		return r, errors.New("result value can not be converted into interface")
+	}
+
+	return rV.Interface(), nil
 }

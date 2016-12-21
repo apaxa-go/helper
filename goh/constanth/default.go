@@ -1,8 +1,11 @@
 package constanth
 
-import "go/constant"
+import (
+	"go/constant"
+	"reflect"
+)
 
-func DefaultType(x constant.Value) (r interface{}, ok bool) {
+func DefaultTypeInterface(x constant.Value) (r interface{}, ok bool) {
 	switch k := x.Kind(); k {
 	case constant.Bool:
 		return constant.BoolVal(x), true
@@ -17,4 +20,12 @@ func DefaultType(x constant.Value) (r interface{}, ok bool) {
 	default:
 		return nil, false
 	}
+}
+
+func DefaultType(x constant.Value) (r reflect.Value, ok bool) {
+	rI, ok := DefaultTypeInterface(x)
+	if ok {
+		r = reflect.ValueOf(rI)
+	}
+	return
 }

@@ -9,106 +9,103 @@ import (
 	"reflect"
 )
 
-func unary(x interface{}, op token.Token) (r interface{}, err error) {
-	xConst, xConstOk := x.(constant.Value)
+func unary(x Value, op token.Token) (r Value, err error) {
+	// Perform calc separately if arg is untyped constant
+	if x.Kind() == Untyped {
+		return unaryConstant(x.Untyped(), op)
+	}
 
-	// Perform calc separately if both args is untyped constants
-	if xConstOk {
-		return unaryConstant(xConst, op)
+	if x.Kind() != Regular {
+		return nil, errors.New("unable to perform unary operation on " + x.String())
 	}
 
 	switch op {
 	case token.ADD:
-		xV := reflect.ValueOf(x)
-		if k := xV.Kind(); reflecth.IsAnyInt(k) || reflecth.IsFloat(k) || reflecth.IsComplex(k) {
+		if k := x.Regular().Kind(); reflecth.IsAnyInt(k) || reflecth.IsFloat(k) || reflecth.IsComplex(k) {
 			return x, nil
 		}
 	case token.SUB:
-		return unarySub(x)
+		return unarySub(x.Regular())
 	case token.XOR:
-		return unaryXor(x)
+		return unaryXor(x.Regular())
 	case token.NOT:
-		return unaryNot(x)
+		return unaryNot(x.Regular())
 	case token.AND:
-		return unaryAnd(x)
+		return unaryAnd(x.Regular())
 	}
 
-	return nil, errors.New("unable to perform unary operation " + op.String() + " on " + reflect.TypeOf(x).String())
+	return nil, errors.New("unable to perform unary operation " + op.String() + " on " + x.String())
 }
 
-func unaryAnd(x interface{}) (r interface{}, err error) {
-	xV := reflect.ValueOf(x)
-	if xV.CanAddr() {
-		return xV.Addr(), nil
+func unaryAnd(x reflect.Value) (r Value, err error) {
+	if x.CanAddr() {
+		return MakeRegular(x.Addr()), nil
 	}
 
-	rV := reflect.New(xV.Type())
-	rV.Elem().Set(xV)
-	return rV, nil
+	rV := reflect.New(x.Type())
+	rV.Elem().Set(x)
+	return MakeRegular(rV), nil
 }
 
-func unarySub(x interface{}) (r interface{}, err error) {
-	xV := reflect.ValueOf(x)
-	rV := reflect.New(xV.Type()).Elem()
+func unarySub(x reflect.Value) (r Value, err error) {
+	rV := reflect.New(x.Type()).Elem()
 
-	switch k := xV.Kind(); {
+	switch k := x.Kind(); {
 	case reflecth.IsInt(k):
-		rV.SetInt(-xV.Int())
+		rV.SetInt(-x.Int()) // TODO possible wrong overflow
 	case reflecth.IsFloat(k):
-		rV.SetFloat(-xV.Float())
+		rV.SetFloat(-x.Float())
 	case reflecth.IsComplex(k):
-		rV.SetComplex(-xV.Complex())
+		rV.SetComplex(-x.Complex())
 	default:
-		return nil, errors.New("unable to negate " + xV.Kind().String())
+		return nil, errors.New("unable to negate " + x.String())
 	}
-	return rV.Interface(), nil
+	return MakeRegular(rV), nil
 }
 
-func unaryNot(x interface{}) (r interface{}, err error) {
-	xV := reflect.ValueOf(x)
-	rV := reflect.New(xV.Type()).Elem()
+func unaryNot(x reflect.Value) (r Value, err error) {
+	rV := reflect.New(x.Type()).Elem()
 
-	if k := xV.Kind(); k != reflect.Bool {
+	if k := x.Kind(); k != reflect.Bool {
 		return nil, errors.New("unable to not " + k.String())
 	}
 
-	rV.SetBool(!xV.Bool())
-	return rV.Interface(), nil
+	rV.SetBool(!x.Bool())
+	return MakeRegular(rV), nil
 }
 
-func unaryXor(x interface{}) (r interface{}, err error) {
-	xV := reflect.ValueOf(x)
-	rV := reflect.New(xV.Type()).Elem()
+func unaryXor(x reflect.Value) (r Value, err error) {
+	rV := reflect.New(x.Type()).Elem()
 
-	switch k := xV.Kind(); k {
+	switch k := x.Kind(); k {
 	case reflect.Int:
-		rV.SetInt(int64(^int(xV.Int())))
+		rV.SetInt(int64(^int(x.Int())))
 	case reflect.Int8:
-		rV.SetInt(int64(^int8(xV.Int())))
+		rV.SetInt(int64(^int8(x.Int())))
 	case reflect.Int16:
-		rV.SetInt(int64(^int16(xV.Int())))
+		rV.SetInt(int64(^int16(x.Int())))
 	case reflect.Int32:
-		rV.SetInt(int64(^int32(xV.Int())))
+		rV.SetInt(int64(^int32(x.Int())))
 	case reflect.Int64:
-		rV.SetInt(^xV.Int())
+		rV.SetInt(^x.Int())
 	case reflect.Uint:
-		rV.SetUint(uint64(^uint(xV.Uint())))
+		rV.SetUint(uint64(^uint(x.Uint())))
 	case reflect.Uint8:
-		rV.SetUint(uint64(^uint8(xV.Uint())))
+		rV.SetUint(uint64(^uint8(x.Uint())))
 	case reflect.Uint16:
-		rV.SetUint(uint64(^uint16(xV.Uint())))
+		rV.SetUint(uint64(^uint16(x.Uint())))
 	case reflect.Uint32:
-		rV.SetUint(uint64(^uint32(xV.Uint())))
+		rV.SetUint(uint64(^uint32(x.Uint())))
 	case reflect.Uint64:
-		rV.SetUint(^xV.Uint())
+		rV.SetUint(^x.Uint())
 	default:
 		return nil, errors.New("unable to unary xor " + k.String())
 	}
 
-	return rV.Interface(), nil
+	return MakeRegular(rV), nil
 }
 
-func unaryConstant(x constant.Value, op token.Token) (r interface{}, err error) {
+func unaryConstant(x constant.Value, op token.Token) (r Value, err error) {
 	defer func() {
 		if rec := recover(); rec != nil {
 			if str, ok := rec.(string); ok {
@@ -122,5 +119,5 @@ func unaryConstant(x constant.Value, op token.Token) (r interface{}, err error) 
 	if v.Kind() == constant.Unknown {
 		return nil, errors.New("unable to perform unary operation on untyped constant: unknown result")
 	}
-	return v, nil
+	return MakeUntyped(v), nil
 }
