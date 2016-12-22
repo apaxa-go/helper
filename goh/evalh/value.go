@@ -8,12 +8,15 @@ import (
 	"reflect"
 )
 
+// TODO implement panic-safe constant API and use only it
+
 type Kind int
 
 const (
 	Nil     Kind = iota
 	Regular      = iota
 	Untyped      = iota
+	BuiltIn      = iota
 )
 
 type Value interface {
@@ -40,7 +43,9 @@ func (nilVal) String() string { return "nil" }
 func (x regVal) String() string {
 	return fmt.Sprintf("regular value %v (%v)", reflect.Value(x), reflect.Value(x).Type().String())
 }
-func (x untypedVal) String() string { return x.v.String() }
+func (x untypedVal) String() string {
+	return fmt.Sprintf("untyped value %v (%v)", x.v.ExactString(), constanth.KindString(x.v.Kind()))
+}
 
 func (nilVal) Regular() reflect.Value     { panic("") }
 func (x regVal) Regular() reflect.Value   { return reflect.Value(x) }
@@ -67,6 +72,10 @@ func (x regVal) Equal(v Value) (r bool) {
 	if xV.Kind() == reflect.Func {
 		return xV.Pointer() == vV.Pointer() // may return wrong result: http://stackoverflow.com/questions/9643205/how-do-i-compare-two-functions-for-pointer-equality-in-the-latest-go-weekly
 	}
+	// Compare slices
+	if xV.Kind() == reflect.Slice {
+		return reflect.DeepEqual(xV.Interface(), vV.Interface()) // not a good check
+	}
 
 	defer func() {
 		if rec := recover(); rec != nil {
@@ -80,7 +89,7 @@ func (x untypedVal) Equal(v Value) bool {
 	if v.Kind() != Untyped {
 		return false
 	}
-	return x.v == v.Untyped()
+	return constant.Compare(x.v, token.EQL, v.Untyped())
 }
 
 func (nilVal) Interface() interface{}       { return nil }
@@ -100,6 +109,4 @@ func MakeUntypedFloat64(x float64) Value       { return MakeUntyped(constant.Mak
 func MakeUntypedInt64(x int64) Value           { return MakeUntyped(constant.MakeInt64(x)) }
 func MakeUntypedString(x string) Value         { return MakeUntyped(constant.MakeString(x)) }
 func MakeUntypedUint64(x uint64) Value         { return MakeUntyped(constant.MakeUint64(x)) }
-func MakeUntypedComplex128(x complex128) Value {
-	return MakeUntyped(constant.BinaryOp(constant.MakeFloat64(real(x)), token.ADD, constant.MakeImag(constant.MakeFloat64(imag(x)))))
-}
+func MakeUntypedComplex128(x complex128) Value { return MakeUntyped(constanth.MakeComplex128(x)) }

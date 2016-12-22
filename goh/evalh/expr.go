@@ -136,7 +136,83 @@ func Paren(e *ast.ParenExpr, idents Identifiers) (r Value, err error) {
 	return Expr(e.X, idents)
 }
 
+// ok means that CallExpr is built-in function, not that calling done without error.
+func tryCallBuiltIn(e *ast.CallExpr, idents Identifiers) (r Value, ok bool, err error) {
+	fIdent, ok := e.Fun.(*ast.Ident)
+	if !ok {
+		return
+	}
+
+	ok = true
+	switch fIdent.Name {
+	case "len":
+		if len(e.Args) != 1 {
+			err = errors.New("tcbi0") // TODO
+			return
+		}
+		var arg0 Value
+		if arg0, err = Expr(e.Args[0], idents); err != nil {
+			return
+		}
+		r, err = BuiltInLen(arg0)
+	case "cap":
+		if len(e.Args) != 1 {
+			err = errors.New("tcbi1") // TODO
+			return
+		}
+		var arg0 Value
+		if arg0, err = Expr(e.Args[0], idents); err != nil {
+			return
+		}
+		r, err = BuiltInCap(arg0)
+	case "complex":
+		if len(e.Args) != 2 {
+			err = errors.New("tcbi2") // TODO
+			return
+		}
+		var arg0, arg1 Value
+		if arg0, err = Expr(e.Args[0], idents); err != nil {
+			return
+		}
+		if arg1, err = Expr(e.Args[1], idents); err != nil {
+			return
+		}
+		r, err = BuiltInComplex(arg0, arg1)
+	case "real":
+		if len(e.Args) != 1 {
+			err = errors.New("tcbi3") // TODO
+			return
+		}
+		var arg0 Value
+		if arg0, err = Expr(e.Args[0], idents); err != nil {
+			return
+		}
+		r, err = BuiltInReal(arg0)
+	case "imag":
+		if len(e.Args) != 1 {
+			err = errors.New("tcbi4") // TODO
+			return
+		}
+		var arg0 Value
+		if arg0, err = Expr(e.Args[0], idents); err != nil {
+			return
+		}
+		r, err = BuiltInImag(arg0)
+	default:
+		ok = false
+	}
+
+	return
+}
+
 func Call(e *ast.CallExpr, idents Identifiers) (r Value, err error) {
+	// Try built-in
+	var ok bool
+	r, ok, err = tryCallBuiltIn(e, idents)
+	if ok {
+		return
+	}
+
 	// Resolve func
 	f, err := Expr(e.Fun, idents)
 	if err != nil {
@@ -216,17 +292,20 @@ func Unary(e *ast.UnaryExpr, idents Identifiers) (r Value, err error) {
 	return unary(x, e.Op)
 }
 
-func Index(e *ast.IndexExpr, vars Identifiers) (r Value, err error) {
-	x, err := Expr(e.X, vars)
+func Index(e *ast.IndexExpr, idents Identifiers) (r Value, err error) {
+	x, err := Expr(e.X, idents)
 	if err != nil {
 		return nil, err
 	}
 
-	i, err := Expr(e.Index, vars)
+	i, err := Expr(e.Index, idents)
 	if err != nil {
 		return nil, err
 	}
 
+	if x.Kind() == Untyped {
+		return indexConstant(x.Untyped(), i)
+	}
 	if x.Kind() != Regular {
 		return nil, errors.New("unable to index " + x.String())
 	}
@@ -235,6 +314,50 @@ func Index(e *ast.IndexExpr, vars Identifiers) (r Value, err error) {
 		return indexMap(x.Regular(), i)
 	}
 	return indexOther(x.Regular(), i)
+}
+
+func Slice(e *ast.SliceExpr, idents Identifiers) (r Value, err error) {
+	x, err := Expr(e.X, idents)
+	if err != nil {
+		return nil, err
+	}
+
+	// Calc indexes
+	low, err := getSliceIndex(e.Low, idents)
+	if err != nil {
+		return nil, err
+	}
+	high, err := getSliceIndex(e.High, idents)
+	if err != nil {
+		return nil, err
+	}
+	var max int
+	if e.Slice3 {
+		max, err = getSliceIndex(e.Max, idents)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	var v reflect.Value
+	switch x.Kind() {
+	case Untyped:
+		if x.Untyped().Kind() != constant.String {
+			return nil, errors.New("unable to indexing " + x.String())
+		}
+		v = reflect.ValueOf(x.Untyped().String())
+	case Regular:
+		v = x.Regular()
+	case Nil:
+		return nil, errors.New("unable to slicing Nil")
+	default:
+		panic("unknown kind")
+	}
+
+	if e.Slice3 {
+		slice3(v, low, high, max)
+	}
+	return slice2(v, low, high)
 }
 
 func Expr(e ast.Expr, idents Identifiers) (r Value, err error) {
@@ -257,6 +380,8 @@ func Expr(e ast.Expr, idents Identifiers) (r Value, err error) {
 		return Unary(v, idents)
 	case *ast.IndexExpr:
 		return Index(v, idents)
+	case *ast.SliceExpr:
+		return Slice(v, idents)
 	default:
 		return nil, errors.New("expression evaluation does not support " + reflect.TypeOf(e).String())
 	}

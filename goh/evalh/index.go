@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/apaxa-go/helper/goh/constanth"
 	"github.com/apaxa-go/helper/strconvh"
+	"go/constant"
 	"reflect"
 )
 
@@ -48,25 +49,9 @@ func indexOther(x reflect.Value, i Value) (r Value, err error) {
 		return nil, errors.New("unable to index " + k.String())
 	}
 
-	// calc index
-	var iInt int
-
-	switch i.Kind() {
-	case Untyped:
-		var ok bool
-		iInt, ok = constanth.IntVal(i.Untyped())
-		if !ok {
-			return nil, errors.New("unable to use untyped constant " + i.String() + " as index")
-		}
-	case Regular:
-		if i.Regular().Kind() != reflect.Int {
-			return nil, errors.New("unable to use " + i.String() + " as index")
-		}
-		iInt = int(i.Regular().Int()) // TODO check that type of i is int, not just underlying type is int
-	case Nil:
-		return nil, errors.New("unable to index Nil")
-	default:
-		panic("unknown kind")
+	iInt, _, err := indexCalcIntIndex(i)
+	if err != nil {
+		return nil, err
 	}
 
 	// check out-of-range
@@ -75,4 +60,45 @@ func indexOther(x reflect.Value, i Value) (r Value, err error) {
 	}
 
 	return MakeRegular(x.Index(iInt)), nil
+}
+
+func indexCalcIntIndex(i Value) (r int, isConst bool, err error) {
+	switch i.Kind() {
+	case Untyped:
+		var ok bool
+		r, ok = constanth.IntVal(i.Untyped())
+		if !ok {
+			return 0, false, errors.New("unable to use untyped constant " + i.String() + " as int index")
+		}
+		return r, true, nil
+	case Regular:
+		if i.Regular().Kind() != reflect.Int {
+			return 0, false, errors.New("unable to use " + i.String() + " as int index")
+		}
+		return int(i.Regular().Int()), false, nil // TODO check that type of i is int, not just underlying type is int
+	default:
+		return 0, false, errors.New("unable to use " + i.String() + " as int index")
+	}
+}
+
+func indexConstant(x constant.Value, i Value) (r Value, err error) {
+	if x.Kind() != constant.String {
+		return nil, errors.New("unable to index " + x.ExactString())
+	}
+
+	iInt, isUntyped, err := indexCalcIntIndex(i)
+	if err != nil {
+		return nil, err
+	}
+
+	xStr := constant.StringVal(x)
+	// check out-of-range
+	if iInt < 0 || iInt >= len(xStr) {
+		return nil, errors.New("index " + strconvh.FormatInt(iInt) + " out of range")
+	}
+
+	if isUntyped {
+		return MakeUntypedInt64(int64(xStr[iInt])), nil
+	}
+	return MakeRegularInterface(byte(xStr[iInt])), nil
 }

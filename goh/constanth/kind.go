@@ -20,3 +20,12 @@ func KindString(k constant.Kind) (r string) {
 		return "Invalid"
 	}
 }
+
+func IsNumeric(k constant.Value) bool {
+	switch k.Kind() {
+	case constant.Int, constant.Float, constant.Complex:
+		return true
+	default:
+		return false
+	}
+}

@@ -14,7 +14,7 @@ func DefaultTypeInterface(x constant.Value) (r interface{}, ok bool) {
 	case constant.Int:
 		return IntVal(x)
 	case constant.Float:
-		return constant.Float64Val(x)
+		return Float64Val(x)
 	case constant.Complex:
 		return Complex128Val(x)
 	default:

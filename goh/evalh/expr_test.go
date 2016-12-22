@@ -9,37 +9,6 @@ import (
 	"testing"
 )
 
-/*
-func TestExpr(t *testing.T) {
-	type testElement struct {
-		expr string
-		vars []Var
-		r    interface{}
-		err  bool
-	}
-
-	tests := []testElement{
-		{"1", nil, 1, false},
-		{"1+2", nil, 3, false},
-		{"\"abc\"==\"abc\"", nil, true, false},
-	}
-
-	for _, v := range tests {
-		exprAst, err := parser.ParseExpr(v.expr)
-		if err != nil {
-			t.Errorf("%v: %v", v.expr, err)
-			continue
-		}
-
-		r, err := Expr(exprAst, v.vars)
-
-		if err != nil != v.err || (!v.err && r != v.r) {
-			t.Errorf("%v: expect %v %v, got %v %v", v.expr, v.r, v.err, r, err)
-		}
-	}
-}
-*/
-
 type testExprElement struct {
 	expr string
 	vars Identifiers
@@ -322,6 +291,26 @@ func TestCall(t *testing.T) {
 		{"a.M(b)", IdentifiersInterface{"a": &SampleStruct{6}}.Identifiers(), nil, true},
 		{`a.M("7")`, IdentifiersInterface{"a": &SampleStruct{6}}.Identifiers(), nil, true},
 		{"a.M(b)", IdentifiersInterface{"a": &SampleStruct{6}, "b": "bad"}.Identifiers(), nil, true},
+		// Built-ins
+		{"len(a)", IdentifiersInterface{"a": []int8{1, 2, 3}}.Identifiers(), MakeRegularInterface(3), false},
+		{"len(a)", IdentifiersInterface{"a": [4]int8{1, 2, 3, 4}}.Identifiers(), MakeRegularInterface(4), false},
+		{"len(a)", IdentifiersInterface{"a": &([5]int8{1, 2, 3, 4, 5})}.Identifiers(), MakeRegularInterface(5), false},
+		{"len(a)", IdentifiersInterface{"a": "abcde"}.Identifiers(), MakeRegularInterface(5), false},
+		{`len("abcdef")`, nil, MakeUntypedInt64(6), false},
+		{"len(a)", IdentifiersInterface{"a": map[string]int8{"first": 1, "second": 2}}.Identifiers(), MakeRegularInterface(2), false},
+		{"len(a)", IdentifiersInterface{"a": make(chan int16)}.Identifiers(), MakeRegularInterface(0), false},
+		{"cap(a)", IdentifiersInterface{"a": make([]int8, 3, 5)}.Identifiers(), MakeRegularInterface(5), false},
+		{"cap(a)", IdentifiersInterface{"a": [4]int8{1, 2, 3, 4}}.Identifiers(), MakeRegularInterface(4), false},
+		{"cap(a)", IdentifiersInterface{"a": &([3]int8{1, 2, 3})}.Identifiers(), MakeRegularInterface(3), false},
+		{"cap(a)", IdentifiersInterface{"a": make(chan int16, 2)}.Identifiers(), MakeRegularInterface(2), false},
+		{"complex(1,0.5)", nil, MakeUntypedComplex128(complex(1, 0.5)), false},
+		{"complex(a,0.3)", IdentifiersInterface{"a": float32(2)}.Identifiers(), MakeRegularInterface(complex(float32(2), 0.3)), false},
+		{"complex(3,a)", IdentifiersInterface{"a": float64(0.4)}.Identifiers(), MakeRegularInterface(complex(3, float64(0.4))), false},
+		{"complex(a,b)", IdentifiersInterface{"a": float32(4), "b": float32(0.5)}.Identifiers(), MakeRegularInterface(complex(float32(4), 0.5)), false},
+		{"real(0.5-0.2i)", nil, MakeUntypedFloat64(0.5), false},
+		{"real(a)", IdentifiersInterface{"a": 0.5 - 0.2i}.Identifiers(), MakeRegularInterface(0.5), false},
+		{"imag(0.2-0.5i)", nil, MakeUntypedFloat64(-0.5), false},
+		{"imag(a)", IdentifiersInterface{"a": 0.2 - 0.5i}.Identifiers(), MakeRegularInterface(-0.5), false},
 	}
 
 	for _, v := range tests {
@@ -446,6 +435,62 @@ func TestUnary2(t *testing.T) {
 		}
 
 		r, err := Unary(unaryAst, v.vars)
+		if !v.Validate(r, err) {
+			t.Errorf(v.ErrorMsg(r, err))
+		}
+	}
+}
+
+func TestSlice(t *testing.T) {
+	tests := []testExprElement{
+		{"a[1:3]", IdentifiersInterface{"a": []int8{10, 11, 12, 13}}.Identifiers(), MakeRegularInterface([]int8{11, 12}), false},
+		{"a[:3]", IdentifiersInterface{"a": []int8{10, 11, 12, 13}}.Identifiers(), MakeRegularInterface([]int8{10, 11, 12}), false},
+		{"a[1:]", IdentifiersInterface{"a": []int8{10, 11, 12, 13}}.Identifiers(), MakeRegularInterface([]int8{11, 12, 13}), false},
+		{"a[:]", IdentifiersInterface{"a": []int8{10, 11, 12, 13}}.Identifiers(), MakeRegularInterface([]int8{10, 11, 12, 13}), false},
+		{"a[1:3]", IdentifiersInterface{"a": "abcd"}.Identifiers(), MakeRegularInterface("bc"), false},
+		{"a[1:3]", IdentifiersInterface{"a": &([4]int8{10, 11, 12, 13})}.Identifiers(), MakeRegularInterface([]int8{11, 12}), false},
+	}
+	for _, v := range tests {
+		exprAst, err := parser.ParseExpr(v.expr)
+		if err != nil {
+			t.Errorf("%v: %v", v.expr, err)
+			continue
+		}
+		sliceAst, ok := exprAst.(*ast.SliceExpr)
+		if !ok {
+			t.Errorf("%v: not a SliceExpr", v.expr)
+			continue
+		}
+
+		r, err := Slice(sliceAst, v.vars)
+		if !v.Validate(r, err) {
+			t.Errorf(v.ErrorMsg(r, err))
+		}
+	}
+}
+
+func TestIndex(t *testing.T) {
+	tests := []testExprElement{
+		{"a[b]", IdentifiersInterface{"a": map[string]int8{"x": 10, "y": 20}, "b": "y"}.Identifiers(), MakeRegularInterface(int8(20)), false},
+		{`a["y"]`, IdentifiersInterface{"a": map[string]int8{"x": 10, "y": 20}}.Identifiers(), MakeRegularInterface(int8(20)), false},
+		{`"abcd"[c]`, IdentifiersInterface{"c": 1}.Identifiers(), MakeRegularInterface(byte('b')), false},
+		{`"abcd"[1]`, nil, MakeUntypedInt64('b'), false},
+		{"a[b]", IdentifiersInterface{"a": "abcd", "b": 1}.Identifiers(), MakeRegularInterface(byte('b')), false},
+		{"a[1]", IdentifiersInterface{"a": "abcd"}.Identifiers(), MakeRegularInterface(byte('b')), false},
+	}
+	for _, v := range tests {
+		exprAst, err := parser.ParseExpr(v.expr)
+		if err != nil {
+			t.Errorf("%v: %v", v.expr, err)
+			continue
+		}
+		indexAst, ok := exprAst.(*ast.IndexExpr)
+		if !ok {
+			t.Errorf("%v: not a IndexExpr", v.expr)
+			continue
+		}
+
+		r, err := Index(indexAst, v.vars)
 		if !v.Validate(r, err) {
 			t.Errorf(v.ErrorMsg(r, err))
 		}

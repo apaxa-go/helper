@@ -3,6 +3,7 @@ package constanth
 import (
 	"github.com/apaxa-go/helper/mathh"
 	"go/constant"
+	"math"
 )
 
 //replacer:ignore
@@ -36,7 +37,11 @@ func Float32Val(x constant.Value) (float32, bool) {
 	if x.Kind() != constant.Float {
 		return 0, false
 	}
-	return constant.Float32Val(x)
+	r, _ := constant.Float32Val(x)
+	if math.IsInf(float64(r), 0) {
+		return 0, false
+	}
+	return r, true
 }
 
 func Float64Val(x constant.Value) (float64, bool) {
@@ -44,7 +49,11 @@ func Float64Val(x constant.Value) (float64, bool) {
 	if x.Kind() != constant.Float {
 		return 0, false
 	}
-	return constant.Float64Val(x)
+	r, _ := constant.Float64Val(x)
+	if math.IsInf(r, 0) {
+		return 0, false
+	}
+	return r, true
 }
 
 func Complex64Val(x constant.Value) (complex64, bool) {
