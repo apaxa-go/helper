@@ -18,7 +18,7 @@ const astThreshold = 1024 // Maximum number of elements in slice for using Ast i
 // Result will be representation of array type if passed array is true. Otherwise representation will be of type slice.
 // Example: for b=[]byte{1, 2, 3} WriteBytesStr will write "[]byte{1, 2, 3}" AS STRING if array is false and "[3]byte{1, 2, 3}" if array is true.
 // This function may be useful with "//go:generate" directive to include some (binary) files into app at compile time.
-// There are 2 different implementations of this function: using "go/ast" and generating representation "by hand".
+// There are 2 different implementations of this function: using "go/asth" and generating representation "by hand".
 // WriteBytes decides at runtime which implementation to use depending on len(b).
 func WriteBytes(b []byte, w io.Writer, array bool) error {
 	if len(b) > astThreshold {
@@ -92,11 +92,11 @@ func writeBytesAst(b []byte, w io.Writer, l ast.Expr) error {
 		}
 	}
 
-	//ast.Print(token.NewFileSet(), compLit)
+	//asth.Print(token.NewFileSet(), compLit)
 	return printer.Fprint(w, token.NewFileSet(), compLit)
 }
 
-// WriteBytesAst is Ast (see go/ast) implementation of WriteBytes.
+// WriteBytesAst is Ast (see go/asth) implementation of WriteBytes.
 // It should generate proper code even if minor changes in language will happened, but its speed and resource consumption is poor.
 func WriteBytesAst(b []byte, w io.Writer, array bool) error {
 	var l ast.Expr // nil

@@ -7,6 +7,7 @@ import (
 	"go/parser"
 	"reflect"
 	"testing"
+	"unicode"
 )
 
 type testExprElement struct {
@@ -99,7 +100,7 @@ func TestSelector(t *testing.T) {
 			continue
 		}
 
-		r, err := Selector(selectorAst, v.vars)
+		r, err := SelectorExpr(selectorAst, v.vars)
 		if !v.Validate(r, err) {
 			t.Errorf(v.ErrorMsg(r, err))
 		}
@@ -135,7 +136,7 @@ func TestSelector2(t *testing.T) {
 			continue
 		}
 
-		r, err := Selector(selectorAst, v.vars)
+		r, err := SelectorExpr(selectorAst, v.vars)
 		if err != nil {
 			t.Errorf("expect not error, got %v", err.Error())
 			continue
@@ -270,7 +271,7 @@ func TestBinary(t *testing.T) {
 			continue
 		}
 
-		r, err := Binary(binaryAst, v.vars)
+		r, err := BinaryExpr(binaryAst, v.vars)
 		if !v.Validate(r, err) {
 			t.Errorf(v.ErrorMsg(r, err))
 		}
@@ -311,6 +312,12 @@ func TestCall(t *testing.T) {
 		{"real(a)", IdentifiersInterface{"a": 0.5 - 0.2i}.Identifiers(), MakeRegularInterface(0.5), false},
 		{"imag(0.2-0.5i)", nil, MakeUntypedFloat64(-0.5), false},
 		{"imag(a)", IdentifiersInterface{"a": 0.2 - 0.5i}.Identifiers(), MakeRegularInterface(-0.5), false},
+		// Types
+		{"int8(1)", nil, MakeRegularInterface(int8(1)), false},
+		{"string(65)", nil, MakeRegularInterface("A"), false},
+		{"string(12345678901234567890)", nil, MakeRegularInterface(string(unicode.ReplacementChar)), false},
+		{"int8(int64(127))", nil, MakeRegularInterface(int8(127)), false},
+		//{"int8(int64(128))", nil, MakeRegularInterface(int8(0)),false},	// TODO
 	}
 
 	for _, v := range tests {
@@ -325,7 +332,7 @@ func TestCall(t *testing.T) {
 			continue
 		}
 
-		r, err := Call(callAst, v.vars)
+		r, err := CallExpr(callAst, v.vars)
 		if !v.Validate(r, err) {
 			t.Errorf(v.ErrorMsg(r, err))
 		}
@@ -351,7 +358,7 @@ func TestStar(t *testing.T) {
 			continue
 		}
 
-		r, err := Star(starAst, v.vars)
+		r, err := StarExpr(starAst, v.vars)
 		if !v.Validate(r, err) {
 			t.Errorf(v.ErrorMsg(r, err))
 		}
@@ -376,7 +383,7 @@ func TestParen(t *testing.T) {
 			continue
 		}
 
-		r, err := Paren(parenAst, v.vars)
+		r, err := ParenExpr(parenAst, v.vars)
 		if !v.Validate(r, err) {
 			t.Errorf(v.ErrorMsg(r, err))
 		}
@@ -405,7 +412,7 @@ func TestUnary(t *testing.T) {
 			continue
 		}
 
-		r, err := Unary(unaryAst, v.vars)
+		r, err := UnaryExpr(unaryAst, v.vars)
 		if !v.Validate(r, err) {
 			t.Errorf(v.ErrorMsg(r, err))
 		}
@@ -434,7 +441,7 @@ func TestUnary2(t *testing.T) {
 			continue
 		}
 
-		r, err := Unary(unaryAst, v.vars)
+		r, err := UnaryExpr(unaryAst, v.vars)
 		if !v.Validate(r, err) {
 			t.Errorf(v.ErrorMsg(r, err))
 		}
@@ -462,7 +469,7 @@ func TestSlice(t *testing.T) {
 			continue
 		}
 
-		r, err := Slice(sliceAst, v.vars)
+		r, err := SliceExpr(sliceAst, v.vars)
 		if !v.Validate(r, err) {
 			t.Errorf(v.ErrorMsg(r, err))
 		}
@@ -490,7 +497,7 @@ func TestIndex(t *testing.T) {
 			continue
 		}
 
-		r, err := Index(indexAst, v.vars)
+		r, err := IndexExpr(indexAst, v.vars)
 		if !v.Validate(r, err) {
 			t.Errorf(v.ErrorMsg(r, err))
 		}

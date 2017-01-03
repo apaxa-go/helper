@@ -9,6 +9,53 @@ import (
 	"reflect"
 )
 
+func isBuiltInFunc(ident string) bool {
+	switch ident {
+	case "len", "cap", "complex", "real", "imag":
+		return true
+	default:
+		return false
+	}
+}
+
+// ok means that CallExpr is built-in function, not that calling done without error.
+func callBuiltInFunc(f string, args []Value) (r Value, err error) {	// TODO new, <-, ->
+	switch f {
+	case "len":
+		if len(args) != 1 {
+			err = errors.New("tcbi0") // TODO
+			return
+		}
+		return BuiltInLen(args[0])
+	case "cap":
+		if len(args) != 1 {
+			err = errors.New("tcbi1") // TODO
+			return
+		}
+		return BuiltInCap(args[0])
+	case "complex":
+		if len(args) != 2 {
+			err = errors.New("tcbi2") // TODO
+			return
+		}
+		return BuiltInComplex(args[0], args[1])
+	case "real":
+		if len(args) != 1 {
+			err = errors.New("tcbi3") // TODO
+			return
+		}
+		return BuiltInReal(args[0])
+	case "imag":
+		if len(args) != 1 {
+			err = errors.New("tcbi4") // TODO
+			return
+		}
+		return BuiltInImag(args[0])
+	default:
+		return nil, errors.New("not a built-in function: " + f)
+	}
+}
+
 func builtInLenConstant(v constant.Value) (r Value, err error) {
 	if v.Kind() != constant.String {
 		return nil, errors.New("unable to call len with " + v.String())

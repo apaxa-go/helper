@@ -14,10 +14,10 @@ func IsAnyInt(k reflect.Kind) bool {
 	return IsInt(k) || IsUint(k)
 }
 
-func IsFloat(k reflect.Kind) bool {
+func IsAnyFloat(k reflect.Kind) bool {
 	return k == reflect.Float32 || k == reflect.Float64
 }
 
-func IsComplex(k reflect.Kind) bool {
+func IsAnyComplex(k reflect.Kind) bool {
 	return k == reflect.Complex64 || k == reflect.Complex128
 }

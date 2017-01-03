@@ -21,7 +21,7 @@ func unary(x Value, op token.Token) (r Value, err error) {
 
 	switch op {
 	case token.ADD:
-		if k := x.Regular().Kind(); reflecth.IsAnyInt(k) || reflecth.IsFloat(k) || reflecth.IsComplex(k) {
+		if k := x.Regular().Kind(); reflecth.IsAnyInt(k) || reflecth.IsAnyFloat(k) || reflecth.IsAnyComplex(k) {
 			return x, nil
 		}
 	case token.SUB:
@@ -53,9 +53,9 @@ func unarySub(x reflect.Value) (r Value, err error) {
 	switch k := x.Kind(); {
 	case reflecth.IsInt(k):
 		rV.SetInt(-x.Int()) // TODO possible wrong overflow
-	case reflecth.IsFloat(k):
+	case reflecth.IsAnyFloat(k):
 		rV.SetFloat(-x.Float())
-	case reflecth.IsComplex(k):
+	case reflecth.IsAnyComplex(k):
 		rV.SetComplex(-x.Complex())
 	default:
 		return nil, errors.New("unable to negate " + x.String())

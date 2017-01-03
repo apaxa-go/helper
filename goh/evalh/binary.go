@@ -49,9 +49,9 @@ func binaryCompare(x Value, op token.Token, y Value) (r Value, err error) {
 		return binaryCompareInt(xV.Int(), op, yV.Int())
 	case reflecth.IsUint(k):
 		return binaryCompareUint(xV.Uint(), op, yV.Uint())
-	case reflecth.IsFloat(k):
+	case reflecth.IsAnyFloat(k):
 		return binaryCompareFloat(xV.Float(), op, yV.Float())
-	case reflecth.IsComplex(k):
+	case reflecth.IsAnyComplex(k):
 		return binaryCompareComplex(xV.Complex(), op, yV.Complex())
 	case k == reflect.String:
 		return binaryCompareString(xV.String(), op, yV.String())
@@ -60,7 +60,7 @@ func binaryCompare(x Value, op token.Token, y Value) (r Value, err error) {
 	case k == reflect.Uintptr:
 		return binaryComparePointer(uintptr(xV.Uint()), op, uintptr(yV.Uint()))
 	// TODO compare channels
-	//case k == reflect.Chan: // Not sure about channels comparison via pointer
+	//case k == reflect.ChanType: // Not sure about channels comparison via pointer
 	//	return binaryComparePointer(xV.Pointer(), op, yV.Pointer())
 	// TODO compare interfaces
 	// case k==reflect.Interface:

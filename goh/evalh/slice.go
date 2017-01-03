@@ -17,7 +17,7 @@ func getSliceIndex(e ast.Expr, idents Identifiers) (r int, err error) {
 		return indexSkipped, nil
 	}
 
-	v, err := Expr(e, idents)
+	v, err := expr(e, idents)
 	if err != nil {
 		return 0, err
 	}
