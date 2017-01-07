@@ -1,16 +1,39 @@
 package evalh
 
 import (
-	"errors"
-	"fmt"
 	"github.com/apaxa-go/helper/goh/constanth"
 	"github.com/apaxa-go/helper/strconvh"
 	"reflect"
 )
 
-func assign(to reflect.Value, value Value) (err error) {
+func assignTypesMismError(dst, src Value) *intError {
+	return newIntError("cannot use " + src.String() + " (type " + src.DeepType() + ") as type " + dst.DeepType() + " in assignment")
+}
+func assignDstUnsettableError(dst Value) *intError {
+	return newIntError("cannot change " + dst.String() + " (type " + dst.DeepType() + ") in assignment")
+}
+func compLitInvTypeError(t reflect.Type) *intError {
+	return newIntError("invalid type for composite literal: " + t.String())
+}
+func compLitUnknFieldError(s reflect.Value, f string) *intError {
+	return newIntError("unknown " + s.Type().String() + " field '" + f + "' in struct literal")
+}
+func compLitArgsCountMismError(req, got int) *intError { // TODO in other *ArgsCountMismError move errors into signle function?
+	if req > got {
+		return newIntError("too few values in struct initializer")
+	}
+	return newIntError("too many values in struct initializer")
+}
+func compLitNegIndexError() *intError {
+	return newIntError("index must be non-negative integer constant")
+}
+func compLitIndexOutOfBoundsError(max, i int) *intError {
+	return newIntError("array index " + strconvh.FormatInt(i) + " out of bounds [0:" + strconvh.FormatInt(max) + "]")
+}
+
+func assign(to reflect.Value, value Value) (err *intError) {
 	if !to.CanSet() {
-		return errors.New("unable to set")
+		return assignDstUnsettableError(MakeRegular(to))
 	}
 
 	var newValue reflect.Value
@@ -19,32 +42,41 @@ func assign(to reflect.Value, value Value) (err error) {
 		var ok bool
 		newValue, ok = constanth.SameType(value.Untyped(), to.Type())
 		if !ok {
-			return errors.New("unable to set " + to.String() + " to value " + value.String())
+			return assignTypesMismError(MakeRegular(to), value)
 		}
 	case Regular:
 		newValue = value.Regular()
-	// TODO case Nil:
+	case Nil:
+		var tmp reflect.Value
+		tmp, err = convertNil2(to.Type())
+		if err != nil {
+			return
+		}
+		if !tmp.Type().AssignableTo(to.Type()) {
+			return assignTypesMismError(MakeRegular(to), value)
+		}
+		to.Set(tmp)
 	default:
-		return errors.New("unable to set " + to.String() + " to value " + value.String())
+		return assignTypesMismError(MakeRegular(to), value)
 	}
 
 	if !newValue.Type().AssignableTo(to.Type()) {
-		return errors.New("unable to set " + to.String() + " to value " + value.String())
+		return assignTypesMismError(MakeRegular(to), value)
 	}
 	to.Set(newValue)
 	return nil
 }
 
-func compositeLitStructKeys(t reflect.Type, elts map[string]Value) (r Value, err error) {
+func compositeLitStructKeys(t reflect.Type, elts map[string]Value) (r Value, err *intError) {
 	if t.Kind() != reflect.Struct {
-		return nil, errors.New("struct type required") // Unreachable?
+		return nil, compLitInvTypeError(t)
 	}
 	rV := reflect.New(t).Elem()
 
 	for field, value := range elts {
 		fV := rV.FieldByName(field)
 		if !fV.IsValid() {
-			return nil, errors.New("no such field: " + field)
+			return nil, compLitUnknFieldError(rV, field)
 		}
 		err = assign(fV, value)
 		if err != nil {
@@ -55,19 +87,19 @@ func compositeLitStructKeys(t reflect.Type, elts map[string]Value) (r Value, err
 	return MakeRegular(rV), nil
 }
 
-func compositeLitStructOrdered(t reflect.Type, elts []Value) (r Value, err error) {
+func compositeLitStructOrdered(t reflect.Type, elts []Value) (r Value, err *intError) {
 	if t.Kind() != reflect.Struct {
-		return nil, errors.New("struct type required") // Unreachable?
+		return nil, compLitInvTypeError(t)
 	}
 	if t.NumField() != len(elts) {
-		return nil, errors.New(fmt.Sprintf("struct literal requires %v elements, but got %v", t.NumField(), len(elts)))
+		return nil, compLitArgsCountMismError(t.NumField(), len(elts))
 	}
 	rV := reflect.New(t).Elem()
 
 	for i := range elts {
 		fV := rV.Field(i)
 		if !fV.IsValid() {
-			return nil, errors.New("no field with index " + strconvh.FormatInt(i))
+			return nil, compLitUnknFieldError(rV, strconvh.FormatInt(i))
 		}
 		err = assign(fV, elts[i])
 		if err != nil {
@@ -78,12 +110,12 @@ func compositeLitStructOrdered(t reflect.Type, elts []Value) (r Value, err error
 	return MakeRegular(rV), nil
 }
 
-func compositeLitArrayLike(t reflect.Type, elts map[int]Value) (r Value, err error) {
+func compositeLitArrayLike(t reflect.Type, elts map[int]Value) (r Value, err *intError) {
 	// Calc max index (len of slice)
 	var maxIndex = -1
 	for i := range elts {
 		if i < 0 {
-			return nil, errors.New("index cannot be negative")
+			return nil, compLitNegIndexError()
 		}
 		if i > maxIndex {
 			maxIndex = i
@@ -95,19 +127,19 @@ func compositeLitArrayLike(t reflect.Type, elts map[int]Value) (r Value, err err
 	switch t.Kind() {
 	case reflect.Array:
 		if maxIndex > rV.Len()-1 {
-			return nil, errors.New("index out of range")
+			return nil, compLitIndexOutOfBoundsError(rV.Len()-1, maxIndex)
 		}
 	case reflect.Slice:
 		rV.SetLen(maxIndex + 1)
 	default:
-		return nil, errors.New("slice or array required") // Unreachable?
+		return nil, compLitInvTypeError(t)
 	}
 
 	// Fill result
 	for i := range elts {
 		iV := rV.Index(i)
 		if !iV.IsValid() {
-			return nil, errors.New("unreachable?") // TODO
+			return nil, compLitUnknFieldError(rV, strconvh.FormatInt(i))
 		}
 		err = assign(iV, elts[i])
 		if err != nil {
@@ -120,7 +152,7 @@ func compositeLitArrayLike(t reflect.Type, elts map[int]Value) (r Value, err err
 
 func compositeLitMap(t reflect.Type, elts map[Value]Value) (r Value, err error) {
 	if t.Kind() != reflect.Map {
-		return nil, errors.New("map required")
+		return nil, compLitInvTypeError(t)
 	}
 
 	rV := reflect.New(t).Elem()

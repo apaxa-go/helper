@@ -1,25 +1,70 @@
 package evalh
 
 import (
-	"errors"
-	"fmt"
 	"github.com/apaxa-go/helper/goh/constanth"
 	"github.com/apaxa-go/helper/strconvh"
 	"reflect"
 )
 
-func callRegular(f reflect.Value, args []Value) (r Value, err error) {
+func callArgsCountLessError() *intError {
+	return newIntError("not enough arguments in call")
+}
+func callArgsCountMoreError() *intError {
+	return newIntError("too many arguments in call")
+}
+func callArgsCountMismError(req, got int) *intError {
+	if req > got {
+		return callArgsCountLessError()
+	}
+	return callArgsCountMoreError()
+}
+func callNonFuncError(f Value) *intError {
+	return newIntError("cannot call non-function (type " + f.DeepType() + ")")
+}
+func multValueError() *intError {
+	return newIntError("multiple-value in single-value context")
+}
+func callWithNoResultError() *intError {
+	return newIntError("function call with no result used as value")
+}
+func callResultCountMismError(got int) *intError {
+	if got > 1 {
+		return multValueError()
+	}
+	return callWithNoResultError()
+}
+func callInvArgAtError(pos int, x Value, reqT reflect.Type) *intError {
+	return newIntError("cannot use " + x.String() + " (type " + x.DeepType() + ") as type " + reqT.String() + " in argument #" + strconvh.FormatInt(pos))
+}
+func callPanicError(p interface{}) *intError {
+	return newIntErrorf("runtime panic in function call (%v)", p)
+}
+func convertMultError(t reflect.Type, x []Value) *intError {
+	msg := "too many arguments to conversion to " + t.String() + ": "
+	for i := range x {
+		if i != 0 {
+			msg += ", "
+		}
+		msg += x[i].String()
+	}
+	return newIntError(msg)
+}
+func convertUnableError(t reflect.Type, x Value) *intError {
+	return newIntError("cannot convertCall " + x.String() + " (type " + x.DeepType() + ") to type " + t.String())
+}
+
+func callRegular(f reflect.Value, args []Value) (r Value, err *intError) {
 	if f.Kind() != reflect.Func {
-		return nil, errors.New("no such function " + f.String())
+		return nil, callNonFuncError(MakeRegular(f))
 	}
 
 	// Check in/out arguments count
 	fT := f.Type()
 	if fT.NumIn() != len(args) {
-		return nil, errors.New("required " + strconvh.FormatInt(fT.NumIn()) + " but got " + strconvh.FormatInt(len(args)))
+		return nil, callArgsCountMismError(fT.NumIn(), len(args))
 	}
 	if fT.NumOut() != 1 {
-		return nil, errors.New("function must return exactly 1 parameter but returns " + strconvh.FormatInt(fT.NumOut()))
+		return nil, callResultCountMismError(fT.NumOut())
 	}
 
 	// Prepare arguments
@@ -30,44 +75,26 @@ func callRegular(f reflect.Value, args []Value) (r Value, err error) {
 			var ok bool
 			typedArgs[i], ok = constanth.SameType(args[i].Untyped(), fT.In(i))
 			if !ok {
-				return nil, errors.New("cannot convert argument " + strconvh.FormatInt(i) + " " + args[i].String() + " (untyped constant) to required type " + fT.In(i).String())
+				return nil, callInvArgAtError(i, args[i], fT.In(i))
 			}
 		case Nil:
-			typedArgs[i] = reflect.ValueOf(nil) // TODO check this, may be reflect.ValueOf(nil)
+			typedArgs[i] = reflect.ValueOf(nil) // TODO check this, may be "convertNil()"
 		case Regular:
 			if aT := args[i].Regular().Type(); !aT.AssignableTo(fT.In(i)) {
-				return nil, errors.New("cannot convert argument " + strconvh.FormatInt(i) + " " + aT.String() + " to required type " + fT.In(i).String())
+				return nil, callInvArgAtError(i, args[i], fT.In(i))
 			}
 			typedArgs[i] = args[i].Regular()
 		default:
-			return nil, errors.New("cannot convert argument " + strconvh.FormatInt(i) + " " + args[i].String() + " to required type " + fT.In(i).String())
+			return nil, callInvArgAtError(i, args[i], fT.In(i))
 		}
 	}
 
 	defer func() {
 		if rec := recover(); rec != nil {
-			if str, ok := rec.(string); ok {
-				err = errors.New(str)
-			} else {
-				err = errors.New(fmt.Sprint(rec))
-			}
+			r = nil
+			err = callPanicError(rec)
 		}
 	}()
 	rs := f.Call(typedArgs)
 	return MakeRegular(rs[0]), nil
-}
-
-func callType(t reflect.Type, args []Value) (r Value, err error) {
-	if len(args) != 1 {
-		return nil, errors.New("type conversion requires exactly one argument")
-	}
-
-	switch args[0].Kind() { // TODO Nil?
-	case Untyped:
-		return convertUntyped(t, args[0].Untyped())
-	case Regular:
-		return convertRegular(t, args[0].Regular())
-	default:
-		return nil, errors.New("unable to convert " + args[0].String())
-	}
 }

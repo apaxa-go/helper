@@ -1,37 +1,35 @@
 package evalh
 
 import (
-	"errors"
-	"fmt"
-	"github.com/apaxa-go/helper/goh/constanth"
-	"go/constant"
 	"reflect"
-	"unicode"
 )
 
-func convertUntyped(t reflect.Type, x constant.Value) (r Value, err error) {
-	if v, ok := constanth.SameType(x, t); ok {
-		return MakeRegular(v), nil
-	}
-
-	if x.Kind() == constant.Int && t.Kind() == reflect.String {
-		i, ok := constanth.RuneVal(x)
-		if !ok {
-			i = unicode.ReplacementChar
-		}
-		v := reflect.New(t).Elem()
-		v.SetString(string(i))
-		return MakeRegular(v), nil
-	}
-
-	return nil, errors.New(fmt.Sprintf("unable to convert %v to %v", x.String(), t.String()))
+func convertNilUnableError(t reflect.Type) *intError {
+	return newIntError("cannot convertCall nil to type " + t.String())
 }
 
-func convertRegular(t reflect.Type, x reflect.Value) (r Value, err error) {
-	xT := x.Type()
-	if !xT.ConvertibleTo(t) {
-		return nil, errors.New(fmt.Sprintf("unable to convert %v to %v", x.String(), t.String()))
+func convertCall(t reflect.Type, args []Value) (r Value, err *intError) {
+	if len(args) != 1 {
+		return nil, convertMultError(t, args)	// TODO what if not multi, but no args
 	}
-	rV := x.Convert(t) //TODO Is it required to catch panic?
-	return MakeRegular(rV), nil
+	return convert(t,args[0])
 }
+
+func convert(t reflect.Type, x Value) (r Value, err *intError) {
+	rV,_,ok:=x.ToType(t)
+	if ok{
+		r=MakeRegular(rV)
+	}else{
+		err=convertUnableError(t, x)
+	}
+	return
+}
+//
+//func convertNil2(t reflect.Type) (r reflect.Value, err *intError) {
+//	switch t.Kind() {
+//	case reflect.Slice, reflect.Ptr, reflect.Func, reflect.Interface, reflect.Map, reflect.Chan:
+//		return reflect.New(t), nil // TODO check if result is adequate
+//	default:
+//		return r, convertNilUnableError(t)
+//	}
+//}

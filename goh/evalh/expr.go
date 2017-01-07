@@ -47,10 +47,9 @@ func (idents Identifiers) normalize() error {
 		case 1:
 			continue
 		case 2:
-			if len(parts[0]) == 0 || !asth.IsValidExportedIdent(parts[1]) {
+			if parts[0] == "_" || !asth.IsValidIdent(parts[0]) || !asth.IsValidExportedIdent(parts[1]) {
 				return errors.New("invalid identifier " + ident)
 			}
-			// TODO validate package (parts[0])
 
 			if _, ok := packages[parts[0]]; !ok {
 				packages[parts[0]] = make(Identifiers)
@@ -89,13 +88,13 @@ func funcTranslateArgs(fields *ast.FieldList, ellipsisAlowed bool, idents Identi
 		}
 		// calc type
 		var v Value
-		v, err = expr(fields.List[i].Type, idents)
+		v, err = astExpr(fields.List[i].Type, idents)
 		if err != nil {
 			return nil, false, err
 		}
 
 		if v.Kind() != Type {
-			return nil, false, errors.New("") // TODO
+			return nil, false, errors.New("") // TODO error
 		}
 		r[i] = v.Type()
 	}
@@ -107,11 +106,11 @@ func Expr(e ast.Expr, idents Identifiers) (r Value, err error) {
 	if err != nil {
 		return
 	}
-	return expr(e, idents)
+	return astExpr(e, idents)
 }
 
 func ExprRegular(e ast.Expr, idents IdentifiersRegular) (r reflect.Value, err error) {
-	rV, err := expr(e, idents.Identifiers())
+	rV, err := astExpr(e, idents.Identifiers())
 	if err != nil {
 		return
 	}
@@ -128,7 +127,7 @@ func ExprRegular(e ast.Expr, idents IdentifiersRegular) (r reflect.Value, err er
 	case Nil:
 		r = reflect.ValueOf(nil) // TODO is it normal?
 	default:
-		panic("unknown kind")
+		return r, errors.New("Regular, Untyped or Nil required")
 	}
 	return
 }

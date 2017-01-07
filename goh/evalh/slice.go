@@ -3,9 +3,20 @@ package evalh
 import (
 	"errors"
 	"github.com/apaxa-go/helper/goh/constanth"
+	"github.com/apaxa-go/helper/strconvh"
 	"go/ast"
 	"reflect"
 )
+
+func invSliceOpError(x Value) *intError {
+	return newIntError("cannot slice " + x.String() + " (type " + x.DeepType() + ")")
+}
+func invSliceIndexError(low, high int) *intError {
+	return newIntError("invalid slice index: " + strconvh.FormatInt(low) + " > " + strconvh.FormatInt(high))
+}
+func invSlice3IndexOmitted() *intError {
+	return newIntError("only first index in 3-index slice can be omitted")
+}
 
 const indexSkipped int = -1
 
@@ -17,34 +28,39 @@ func getSliceIndex(e ast.Expr, idents Identifiers) (r int, err error) {
 		return indexSkipped, nil
 	}
 
-	v, err := expr(e, idents)
+	v, err := astExpr(e, idents)
 	if err != nil {
 		return 0, err
 	}
 
-	switch v.Kind() {
-	case Regular:
-		// Check kind
-		if v.Regular().Kind() != reflect.Int {
-			return 0, errors.New("unable to slicing using " + v.String())
-		}
-		// Check exact type
-		var ok bool
-		r, ok = v.Regular().Interface().(int)
-		if !ok {
-			return 0, errors.New("unable to slicing using " + v.String())
-		}
-	case Untyped:
-		var ok bool
-		r, ok = constanth.IntVal(v.Untyped())
-		if !ok {
-			return 0, errors.New("unable to slicing using " + v.String())
-		}
-	case Nil:
-		return 0, errors.New("unable to slicing using Nil")
-	default:
-		panic("unknown kind")
+	r,_,ok:=v.Int()
+	if !ok{
+		return nil, convertUnableError(reflect.TypeOf(int(0)), v)
 	}
+
+	//switch v.Kind() {
+	//case Regular:
+	//	// Check kind
+	//	if v.Regular().Kind() != reflect.Int {
+	//		return 0, errors.New("unable to slicing using " + v.String())
+	//	}
+	//	// Check exact type
+	//	var ok bool
+	//	r, ok = v.Regular().Interface().(int)
+	//	if !ok {
+	//		return 0, errors.New("unable to slicing using " + v.String())
+	//	}
+	//case Untyped:
+	//	var ok bool
+	//	r, ok = constanth.IntVal(v.Untyped())
+	//	if !ok {
+	//		return 0, errors.New("unable to slicing using " + v.String())
+	//	}
+	//case Nil:
+	//	return 0, errors.New("unable to slicing using Nil")
+	//default:
+	//	panic("unknown kind")	// TODO
+	//}
 
 	if r < 0 {
 		return 0, errors.New("negative index value")
@@ -52,7 +68,7 @@ func getSliceIndex(e ast.Expr, idents Identifiers) (r int, err error) {
 	return
 }
 
-func slice2(x reflect.Value, low, high int) (r Value, err error) {
+func slice2(x reflect.Value, low, high int) (r Value, err *intError) {
 	// resolve pointer to array
 	if x.Kind() == reflect.Ptr && x.Elem().Kind() == reflect.Array {
 		x = x.Elem()
@@ -60,9 +76,9 @@ func slice2(x reflect.Value, low, high int) (r Value, err error) {
 
 	// check slicing possibility
 	if k := x.Kind(); k != reflect.Array && k != reflect.Slice && k != reflect.String {
-		return nil, errors.New("unable to slicing " + k.String())
+		return nil, invSliceOpError(MakeRegular(x))
 	} else if k == reflect.Array && !x.CanAddr() {
-		return nil, errors.New("unable to slicing unaddressable array")
+		return nil, invSliceOpError(MakeRegular(x))
 	}
 
 	// resolve default value
@@ -74,14 +90,19 @@ func slice2(x reflect.Value, low, high int) (r Value, err error) {
 	}
 
 	// validate indexes
-	if 0 > low || low > high || high > x.Len() {
-		return nil, errors.New("invalid index value")
+	switch {
+	case low < 0:
+		return nil, indexOutOfRange(low)
+	case high > x.Len():
+		return nil, indexOutOfRange(high)
+	case low > high:
+		return nil, invSliceIndexError(low, high)
 	}
 
 	return MakeRegular(x.Slice(low, high)), nil
 }
 
-func slice3(x reflect.Value, low, high, max int) (r Value, err error) {
+func slice3(x reflect.Value, low, high, max int) (r Value, err *intError) {
 	// resolve pointer to array
 	if x.Kind() == reflect.Ptr && x.Elem().Kind() == reflect.Array {
 		x = x.Elem()
@@ -89,9 +110,9 @@ func slice3(x reflect.Value, low, high, max int) (r Value, err error) {
 
 	// check slicing possibility
 	if k := x.Kind(); k != reflect.Array && k != reflect.Slice {
-		return nil, errors.New("unable to slicing " + k.String())
+		return nil, invSliceOpError(MakeRegular(x))
 	} else if k == reflect.Array && !x.CanAddr() {
-		return nil, errors.New("unable to slicing unaddressable array")
+		return nil, invSliceOpError(MakeRegular(x))
 	}
 
 	// resolve default value
@@ -101,10 +122,17 @@ func slice3(x reflect.Value, low, high, max int) (r Value, err error) {
 
 	// validate indexes
 	if high == indexSkipped || max == indexSkipped {
-		return nil, errors.New("only first index in 3-index slicing can be omitted")
+		return nil, invSlice3IndexOmitted()
 	}
-	if 0 > low || low > high || high > max || max > x.Cap() {
-		return nil, errors.New("invalid index value")
+	switch {
+	case low < 0:
+		return nil, indexOutOfRange(low)
+	case max > x.Cap():
+		return nil, indexOutOfRange(high)
+	case low > high:
+		return nil, invSliceIndexError(low, high)
+	case high > max:
+		return nil, invSliceIndexError(high, max)
 	}
 
 	return MakeRegular(x.Slice3(low, high, max)), nil

@@ -1,43 +1,40 @@
 package evalh
 
 import (
-	"errors"
-	"fmt"
 	"github.com/apaxa-go/helper/reflecth"
 	"go/constant"
 	"go/token"
 	"reflect"
 )
 
-func unary(x Value, op token.Token) (r Value, err error) {
-	// Perform calc separately if arg is untyped constant
-	if x.Kind() == Untyped {
-		return unaryConstant(x.Untyped(), op)
-	}
-
-	if x.Kind() != Regular {
-		return nil, errors.New("unable to perform unary operation on " + x.String())
-	}
-
-	switch op {
-	case token.ADD:
-		if k := x.Regular().Kind(); reflecth.IsAnyInt(k) || reflecth.IsAnyFloat(k) || reflecth.IsAnyComplex(k) {
-			return x, nil
-		}
-	case token.SUB:
-		return unarySub(x.Regular())
-	case token.XOR:
-		return unaryXor(x.Regular())
-	case token.NOT:
-		return unaryNot(x.Regular())
-	case token.AND:
-		return unaryAnd(x.Regular())
-	}
-
-	return nil, errors.New("unable to perform unary operation " + op.String() + " on " + x.String())
+func invUnaryOp(x Value, op token.Token) *intError {
+	return newIntError("invalid operation: " + op.String() + " " + x.DeepType())
+}
+func invUnaryOpReason(x Value, op token.Token, reason interface{}) *intError {
+	return newIntErrorf("invalid operation: %v %v: %v", op.String(), x.DeepType(), reason)
 }
 
-func unaryAnd(x reflect.Value) (r Value, err error) {
+func unary(x reflect.Value, op token.Token) (r Value, err *intError) {
+	switch op {
+	case token.SUB:
+		return unarySub(x)
+	case token.XOR:
+		return unaryXor(x)
+	case token.NOT:
+		return unaryNot(x)
+	case token.AND:
+		return unaryAnd(x)
+	case token.ADD:
+		if k := x.Kind(); reflecth.IsAnyInt(k) || reflecth.IsAnyFloat(k) || reflecth.IsAnyComplex(k) {
+			return MakeRegular(x), nil
+		}
+		fallthrough
+	default:
+		return nil, invUnaryOp(MakeRegular(x), op)
+	}
+}
+
+func unaryAnd(x reflect.Value) (r Value, err *intError) {
 	if x.CanAddr() {
 		return MakeRegular(x.Addr()), nil
 	}
@@ -47,34 +44,34 @@ func unaryAnd(x reflect.Value) (r Value, err error) {
 	return MakeRegular(rV), nil
 }
 
-func unarySub(x reflect.Value) (r Value, err error) {
+func unarySub(x reflect.Value) (r Value, err *intError) {
 	rV := reflect.New(x.Type()).Elem()
 
 	switch k := x.Kind(); {
 	case reflecth.IsInt(k):
-		rV.SetInt(-x.Int()) // TODO possible wrong overflow
+		rV.SetInt(-x.Int()) // looks like overflow correct (see tests)
 	case reflecth.IsAnyFloat(k):
 		rV.SetFloat(-x.Float())
 	case reflecth.IsAnyComplex(k):
 		rV.SetComplex(-x.Complex())
 	default:
-		return nil, errors.New("unable to negate " + x.String())
+		return nil, invUnaryOp(MakeRegular(x), token.SUB)
 	}
 	return MakeRegular(rV), nil
 }
 
-func unaryNot(x reflect.Value) (r Value, err error) {
+func unaryNot(x reflect.Value) (r Value, err *intError) {
 	rV := reflect.New(x.Type()).Elem()
 
 	if k := x.Kind(); k != reflect.Bool {
-		return nil, errors.New("unable to not " + k.String())
+		return nil, invUnaryOp(MakeRegular(x), token.NOT)
 	}
 
 	rV.SetBool(!x.Bool())
 	return MakeRegular(rV), nil
 }
 
-func unaryXor(x reflect.Value) (r Value, err error) {
+func unaryXor(x reflect.Value) (r Value, err *intError) {
 	rV := reflect.New(x.Type()).Elem()
 
 	switch k := x.Kind(); k {
@@ -99,25 +96,22 @@ func unaryXor(x reflect.Value) (r Value, err error) {
 	case reflect.Uint64:
 		rV.SetUint(^x.Uint())
 	default:
-		return nil, errors.New("unable to unary xor " + k.String())
+		return nil, invUnaryOp(MakeRegular(x), token.XOR)
 	}
 
 	return MakeRegular(rV), nil
 }
 
-func unaryConstant(x constant.Value, op token.Token) (r Value, err error) {
+func unaryConstant(x constant.Value, op token.Token) (r Value, err *intError) {
 	defer func() {
 		if rec := recover(); rec != nil {
-			if str, ok := rec.(string); ok {
-				err = errors.New(str)
-			} else {
-				err = errors.New(fmt.Sprint(rec))
-			}
+			r = nil
+			err = invUnaryOpReason(MakeUntyped(x), op, rec)
 		}
 	}()
-	v := constant.UnaryOp(op, x, 0) // TODO what 0 does mean?
+	v := constant.UnaryOp(op, x, 0) // TODO prec should be set?
 	if v.Kind() == constant.Unknown {
-		return nil, errors.New("unable to perform unary operation on untyped constant: unknown result")
+		return nil, invUnaryOp(MakeUntyped(x), op)
 	}
 	return MakeUntyped(v), nil
 }

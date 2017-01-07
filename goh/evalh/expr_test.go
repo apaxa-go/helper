@@ -69,11 +69,11 @@ func TestIdent(t *testing.T) {
 		}
 		identAst, ok := exprAst.(*ast.Ident)
 		if !ok {
-			t.Errorf("%v: not an Ident", v.expr)
+			t.Errorf("%v: not an astIdent", v.expr)
 			continue
 		}
 
-		r, err := Ident(identAst, v.vars)
+		r, err := astIdent(identAst, v.vars)
 		if !v.Validate(r, err) {
 			t.Errorf(v.ErrorMsg(r, err))
 		}
@@ -96,11 +96,11 @@ func TestSelector(t *testing.T) {
 		}
 		selectorAst, ok := exprAst.(*ast.SelectorExpr)
 		if !ok {
-			t.Errorf("%v: not a SelectorExpr", v.expr)
+			t.Errorf("%v: not a astSelectorExpr", v.expr)
 			continue
 		}
 
-		r, err := SelectorExpr(selectorAst, v.vars)
+		r, err := astSelectorExpr(selectorAst, v.vars)
 		if !v.Validate(r, err) {
 			t.Errorf(v.ErrorMsg(r, err))
 		}
@@ -132,11 +132,11 @@ func TestSelector2(t *testing.T) {
 		}
 		selectorAst, ok := exprAst.(*ast.SelectorExpr)
 		if !ok {
-			t.Errorf("%v: not a SelectorExpr", v.expr)
+			t.Errorf("%v: not a astSelectorExpr", v.expr)
 			continue
 		}
 
-		r, err := SelectorExpr(selectorAst, v.vars)
+		r, err := astSelectorExpr(selectorAst, v.vars)
 		if err != nil {
 			t.Errorf("expect not error, got %v", err.Error())
 			continue
@@ -267,11 +267,11 @@ func TestBinary(t *testing.T) {
 		}
 		binaryAst, ok := exprAst.(*ast.BinaryExpr)
 		if !ok {
-			t.Errorf("%v: not a BinaryExpr", v.expr)
+			t.Errorf("%v: not a astBinaryExpr", v.expr)
 			continue
 		}
 
-		r, err := BinaryExpr(binaryAst, v.vars)
+		r, err := astBinaryExpr(binaryAst, v.vars)
 		if !v.Validate(r, err) {
 			t.Errorf(v.ErrorMsg(r, err))
 		}
@@ -317,7 +317,7 @@ func TestCall(t *testing.T) {
 		{"string(65)", nil, MakeRegularInterface("A"), false},
 		{"string(12345678901234567890)", nil, MakeRegularInterface(string(unicode.ReplacementChar)), false},
 		{"int8(int64(127))", nil, MakeRegularInterface(int8(127)), false},
-		//{"int8(int64(128))", nil, MakeRegularInterface(int8(0)),false},	// TODO
+		//{"int8(int64(128))", nil, nil, true}, // TODO
 	}
 
 	for _, v := range tests {
@@ -328,11 +328,11 @@ func TestCall(t *testing.T) {
 		}
 		callAst, ok := exprAst.(*ast.CallExpr)
 		if !ok {
-			t.Errorf("%v: not a CallExpr", v.expr)
+			t.Errorf("%v: not a astCallExpr", v.expr)
 			continue
 		}
 
-		r, err := CallExpr(callAst, v.vars)
+		r, err := astCallExpr(callAst, v.vars)
 		if !v.Validate(r, err) {
 			t.Errorf(v.ErrorMsg(r, err))
 		}
@@ -354,11 +354,11 @@ func TestStar(t *testing.T) {
 		}
 		starAst, ok := exprAst.(*ast.StarExpr)
 		if !ok {
-			t.Errorf("%v: not a StarExpr", v.expr)
+			t.Errorf("%v: not a astStarExpr", v.expr)
 			continue
 		}
 
-		r, err := StarExpr(starAst, v.vars)
+		r, err := astStarExpr(starAst, v.vars)
 		if !v.Validate(r, err) {
 			t.Errorf(v.ErrorMsg(r, err))
 		}
@@ -379,11 +379,11 @@ func TestParen(t *testing.T) {
 		}
 		parenAst, ok := exprAst.(*ast.ParenExpr)
 		if !ok {
-			t.Errorf("%v: not a ParenExpr", v.expr)
+			t.Errorf("%v: not a astParenExpr", v.expr)
 			continue
 		}
 
-		r, err := ParenExpr(parenAst, v.vars)
+		r, err := astParenExpr(parenAst, v.vars)
 		if !v.Validate(r, err) {
 			t.Errorf(v.ErrorMsg(r, err))
 		}
@@ -395,6 +395,7 @@ func TestUnary(t *testing.T) {
 		{"-1", nil, MakeUntypedInt64(-1), false},
 		{"+2", nil, MakeUntypedInt64(+2), false},
 		{"-a", IdentifiersInterface{"a": int8(3)}.Identifiers(), MakeRegularInterface(int8(-3)), false},
+		{"-a", IdentifiersInterface{"a": int8(-128)}.Identifiers(), MakeRegularInterface(int8(-128)), false}, // check overflow behaviour
 		{"+a", IdentifiersInterface{"a": int8(4)}.Identifiers(), MakeRegularInterface(int8(4)), false},
 		{"^a", IdentifiersInterface{"a": int8(5)}.Identifiers(), MakeRegularInterface(int8(-6)), false},
 		{"!a", IdentifiersInterface{"a": true}.Identifiers(), MakeRegularInterface(false), false},
@@ -408,11 +409,11 @@ func TestUnary(t *testing.T) {
 		}
 		unaryAst, ok := exprAst.(*ast.UnaryExpr)
 		if !ok {
-			t.Errorf("%v: not a UnaryExpr", v.expr)
+			t.Errorf("%v: not a astUnaryExpr", v.expr)
 			continue
 		}
 
-		r, err := UnaryExpr(unaryAst, v.vars)
+		r, err := astUnaryExpr(unaryAst, v.vars)
 		if !v.Validate(r, err) {
 			t.Errorf(v.ErrorMsg(r, err))
 		}
@@ -437,11 +438,11 @@ func TestUnary2(t *testing.T) {
 		}
 		unaryAst, ok := exprAst.(*ast.UnaryExpr)
 		if !ok {
-			t.Errorf("%v: not a UnaryExpr", v.expr)
+			t.Errorf("%v: not a astUnaryExpr", v.expr)
 			continue
 		}
 
-		r, err := UnaryExpr(unaryAst, v.vars)
+		r, err := astUnaryExpr(unaryAst, v.vars)
 		if !v.Validate(r, err) {
 			t.Errorf(v.ErrorMsg(r, err))
 		}
@@ -465,11 +466,11 @@ func TestSlice(t *testing.T) {
 		}
 		sliceAst, ok := exprAst.(*ast.SliceExpr)
 		if !ok {
-			t.Errorf("%v: not a SliceExpr", v.expr)
+			t.Errorf("%v: not a astSliceExpr", v.expr)
 			continue
 		}
 
-		r, err := SliceExpr(sliceAst, v.vars)
+		r, err := astSliceExpr(sliceAst, v.vars)
 		if !v.Validate(r, err) {
 			t.Errorf(v.ErrorMsg(r, err))
 		}
@@ -493,11 +494,11 @@ func TestIndex(t *testing.T) {
 		}
 		indexAst, ok := exprAst.(*ast.IndexExpr)
 		if !ok {
-			t.Errorf("%v: not a IndexExpr", v.expr)
+			t.Errorf("%v: not a astIndexExpr", v.expr)
 			continue
 		}
 
-		r, err := IndexExpr(indexAst, v.vars)
+		r, err := astIndexExpr(indexAst, v.vars)
 		if !v.Validate(r, err) {
 			t.Errorf(v.ErrorMsg(r, err))
 		}

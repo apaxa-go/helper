@@ -6,9 +6,8 @@ import (
 	"go/constant"
 	"go/token"
 	"reflect"
+	"unicode"
 )
-
-// TODO implement panic-safe constant API and use only it
 
 type Kind int
 
@@ -23,6 +22,7 @@ const (
 
 type Value interface {
 	Kind() Kind
+	DeepType() string
 	String() string
 	Regular() reflect.Value
 	Untyped() constant.Value
@@ -31,6 +31,9 @@ type Value interface {
 	Package() map[string]Value
 	Equal(Value) bool // TODO move to test?
 	Interface() interface{}
+	Int() (r int, isConst, ok bool)                            // No any conversion. Return int for regular variable with exactly int type and for untyped constant which can be represent as int.
+	AsType(t reflect.Type) (r reflect.Value, isConst, ok bool) // No any conversion. Return r of type t if it is possible. Only regular, untyped and nil can return non false result.
+	ToType(t reflect.Type) (r reflect.Value, isConst, ok bool) // Convert Value to type t if it is possible. Only regular, untyped and nil can return non false result.
 	implementsValue()
 }
 
@@ -49,6 +52,15 @@ func (untypedVal) Kind() Kind     { return Untyped }
 func (typeVal) Kind() Kind        { return Type }
 func (builtInFuncVal) Kind() Kind { return BuiltInFunc }
 func (packageVal) Kind() Kind     { return Package }
+
+func (nilVal) DeepKind() string   { return "nil" }
+func (x regVal) DeepKind() string { return x.Regular().Type().String() }
+func (x untypedVal) DeepKind() string {
+	return constanth.KindString(x.Untyped().Kind()) + " (" + x.Untyped().ExactString() + ")"
+}
+func (x typeVal) DeepKind() string      { return "type" }
+func (builtInFuncVal) DeepKind() string { return "built-in function" }
+func (packageVal) DeepKind() string     { return "package" }
 
 func (nilVal) String() string { return "nil" }
 func (x regVal) String() string {
@@ -159,6 +171,75 @@ func (typeVal) Interface() interface{}        { panic("") }
 func (builtInFuncVal) Interface() interface{} { panic("") }
 func (packageVal) Interface() interface{}     { panic("") }
 
+func (nilVal) Int() (r int, isConst, ok bool) { return 0, true, false }
+func (x regVal) Int() (r int, isConst, ok bool) {
+	if !x.Regular().CanInterface() {
+		return 0, false, false
+	}
+	r, ok = x.Regular().Interface().(int)
+	return
+}
+func (x untypedVal) Int() (r int, isConst, ok bool) {
+	isConst = true
+	r, ok = constanth.IntVal(x.Untyped())
+	return
+}
+func (typeVal) Int() (r int, isConst, ok bool)        { return 0, false, false }
+func (builtInFuncVal) Int() (r int, isConst, ok bool) { return 0, false, false }
+func (packageVal) Int() (r int, isConst, ok bool)     { return 0, false, false }
+
+func (nilVal) AsType(t reflect.Type) (r reflect.Value, isConst, ok bool) {
+	isConst = true
+	switch t.Kind() {
+	case reflect.Slice, reflect.Ptr, reflect.Func, reflect.Interface, reflect.Map, reflect.Chan:
+		r = reflect.New(t) // TODO check if result is adequate
+		ok = true
+	}
+	return
+}
+func (x regVal) AsType(t reflect.Type) (r reflect.Value, isConst, ok bool) {
+	if x.Regular().Type() == t {
+		r = x.Regular()
+		ok = true
+	}
+	return
+}
+func (x untypedVal) AsType(t reflect.Type) (r reflect.Value, isConts, ok bool) {
+	isConts = true
+	if r, ok = constanth.SameType(x.Untyped(), t); ok {
+		return
+	}
+
+	if x.Untyped().Kind() == constant.Int && t.Kind() == reflect.String { // TODO may be move this case to constanth.SameType()
+		var i rune
+		i, ok = constanth.RuneVal(x.Untyped())
+		if !ok {
+			i = unicode.ReplacementChar
+			ok = true
+		}
+		r = reflect.New(t).Elem()
+		r.SetString(string(i))
+	}
+	return
+}
+func (typeVal) AsType(t reflect.Type) (r reflect.Value, isConst, ok bool) { return reflect.Value{}, false, false }
+func (builtInFuncVal) AsType(t reflect.Type) (r reflect.Value, isConst, ok bool) {return reflect.Value{}, false, false}
+func (packageVal) AsType(t reflect.Type) (r reflect.Value, isConst, ok bool) { return reflect.Value{}, false, false }
+
+func (x nilVal) ToType(t reflect.Type) (r reflect.Value, isConst, ok bool) { return x.AsType(t) }
+func (x regVal) ToType(t reflect.Type) (r reflect.Value, isConst, ok bool) {
+	xT := x.Regular().Type()
+	if xT.ConvertibleTo(t) {
+		r=x.Regular().Convert(t)
+		ok=true
+	}
+	return
+}
+func (x untypedVal)ToType(t reflect.Type)(r reflect.Value, isConst, ok bool) { return x.AsType(t) }
+func (typeVal) ToType(t reflect.Type) (r reflect.Value, isConst, ok bool) { return reflect.Value{}, false, false }
+func (builtInFuncVal) ToType(t reflect.Type) (r reflect.Value, isConst, ok bool) {return reflect.Value{}, false, false}
+func (packageVal) ToType(t reflect.Type) (r reflect.Value, isConst, ok bool) { return reflect.Value{}, false, false }
+
 func (nilVal) implementsValue()         {}
 func (regVal) implementsValue()         {}
 func (untypedVal) implementsValue()     {}
@@ -178,4 +259,4 @@ func MakeUntypedUint64(x uint64) Value         { return MakeUntyped(constant.Mak
 func MakeUntypedComplex128(x complex128) Value { return MakeUntyped(constanth.MakeComplex128(x)) }
 func MakeType(x reflect.Type) Value            { return typeVal{x} }
 func MakeBuiltInFunc(x string) Value           { return builtInFuncVal(x) }
-func MakePackage(idents Identifiers) Value     { return packageVal(idents) }	// keys in idents must not have dots in names
+func MakePackage(idents Identifiers) Value     { return packageVal(idents) } // keys in idents must not have dots in names

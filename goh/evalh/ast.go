@@ -10,48 +10,46 @@ import (
 	"reflect"
 )
 
-func Ident(e *ast.Ident, idents Identifiers) (r Value, err error) {
-	// true and false literals does not covered by BasicLit (because it is look like normal identifier?).
-	if e.Name == "true" {
+func astIdent(e *ast.Ident, idents Identifiers) (r Value, err error) {
+	switch e.Name {
+	case "true":
 		return MakeUntyped(constant.MakeBool(true)), nil
-	}
-	if e.Name == "false" {
+	case "false":
 		return MakeUntyped(constant.MakeBool(false)), nil
-	}
-
-	// nil literal
-	if e.Name == "nil" {
+	case "nil":
 		return MakeNil(), nil
 	}
 
-	if isBuiltInFunc(e.Name) {
+	switch {
+	case isBuiltInFunc(e.Name):
 		return MakeBuiltInFunc(e.Name), nil
-	}
-
-	if isBuiltInType(e.Name) {
+	case isBuiltInType(e.Name):
 		return MakeType(builtInTypes[e.Name]), nil
+	default:
+		var ok bool
+		r, ok = idents[e.Name]
+		if !ok {
+			err = errors.New("variable '" + e.Name + "' does not defined") // TODO error
+		}
+		return
 	}
-
-	// find required identifier in vars.
-	r, ok := idents[e.Name]
-	if !ok {
-		err = errors.New("variable '" + e.Name + "' does not defined")
-	}
-	return
 }
 
-// SelectorExpr can:
+// astSelectorExpr can:
 // 	* get field from struct or pointer to struct
 //	* get method (defined with receiver V) from variable of type V or pointer variable to type V
 //	* get method (defined with pointer receiver V) from pointer variable to type V
-func SelectorExpr(e *ast.SelectorExpr, idents Identifiers) (r Value, err error) {
+func astSelectorExpr(e *ast.SelectorExpr, idents Identifiers) (r Value, err error) {
 	// Calc object (left of '.')
-	x, err := expr(e.X, idents)
+	x, err := astExpr(e.X, idents)
 	if err != nil {
-		return nil, err
+		return
 	}
 
 	// Extract field/method name
+	if e.Sel == nil {
+		return nil, errors.New("try to select nil method/field/type/variable")
+	}
 	name := e.Sel.Name
 
 	switch x.Kind() {
@@ -65,11 +63,10 @@ func SelectorExpr(e *ast.SelectorExpr, idents Identifiers) (r Value, err error) 
 		return
 	case Regular:
 		xV := x.Regular()
-		xK := xV.Kind()
 
 		// If kind is pointer than try to get method.
 		// If no method can be get than dereference pointer.
-		if xK == reflect.Ptr {
+		if xV.Kind() == reflect.Ptr {
 			if method := xV.MethodByName(name); method.IsValid() {
 				return MakeRegular(method), nil
 			}
@@ -88,54 +85,56 @@ func SelectorExpr(e *ast.SelectorExpr, idents Identifiers) (r Value, err error) 
 			return MakeRegular(method), nil
 		}
 
-		return nil, errors.New("no such field or method: '" + name + "' on " + xK.String())
+		return nil, errors.New("no such field or method: '" + name + "' on " + xV.Kind().String())
 	default:
 		return nil, errors.New("required Package or Regular")
 	}
 }
 
-func BinaryExpr(e *ast.BinaryExpr, idents Identifiers) (r Value, err error) {
-	x, err := expr(e.X, idents)
+func astBinaryExpr(e *ast.BinaryExpr, idents Identifiers) (r Value, err error) {
+	x, err := astExpr(e.X, idents)
 	if err != nil {
-		return nil, err
+		return
 	}
-	y, err := expr(e.Y, idents)
+	y, err := astExpr(e.Y, idents)
 	if err != nil {
-		return nil, err
+		return
 	}
 
 	// Perform calc depending on operation type
-	if tokenh.IsComparison(e.Op) {
+	switch {
+	case tokenh.IsComparison(e.Op):
 		return binaryCompare(x, e.Op, y)
-	} else if tokenh.IsShift(e.Op) {
+	case tokenh.IsShift(e.Op):
 		return binaryShift(x, e.Op, y)
-	} else {
+	default:
 		return binaryOther(x, e.Op, y)
 	}
 }
 
-func BasicLit(e *ast.BasicLit, idents Identifiers) (r Value, err error) {
-	return MakeUntyped(constant.MakeFromLiteral(e.Value, e.Kind, 0)), nil
-}
-
-func ParenExpr(e *ast.ParenExpr, idents Identifiers) (r Value, err error) {
-	if e.X == nil { // TODO add this check to other expressions
-		return nil, errors.New("empty ParenExpr")
+func astBasicLit(e *ast.BasicLit, idents Identifiers) (r Value, err error) {
+	rC := constant.MakeFromLiteral(e.Value, e.Kind, 0)
+	if rC.Kind() == constant.Unknown {
+		return nil, errors.New("invalid basic literal syntax")
 	}
-	return expr(e.X, idents)
+	return MakeUntyped(rC), nil
 }
 
-func CallExpr(e *ast.CallExpr, idents Identifiers) (r Value, err error) {
+func astParenExpr(e *ast.ParenExpr, idents Identifiers) (r Value, err error) {
+	return astExpr(e.X, idents)
+}
+
+func astCallExpr(e *ast.CallExpr, idents Identifiers) (r Value, err error) {
 	// Resolve func
-	f, err := expr(e.Fun, idents)
+	f, err := astExpr(e.Fun, idents)
 	if err != nil {
-		return nil, err
+		return
 	}
 
 	// Resolve args
 	args := make([]Value, len(e.Args))
 	for i := range e.Args {
-		args[i], err = expr(e.Args[i], idents)
+		args[i], err = astExpr(e.Args[i], idents)
 		if err != nil {
 			return
 		}
@@ -147,17 +146,18 @@ func CallExpr(e *ast.CallExpr, idents Identifiers) (r Value, err error) {
 	case BuiltInFunc:
 		return callBuiltInFunc(f.BuiltInFunc(), args)
 	case Type:
-		return callType(f.Type(), args)
+		return convertCall(f.Type(), args)
 	default:
 		return nil, errors.New("unable to call on " + f.String())
 	}
 }
 
-func StarExpr(e *ast.StarExpr, idents Identifiers) (r Value, err error) {
-	v, err := expr(e.X, idents)
+func astStarExpr(e *ast.StarExpr, idents Identifiers) (r Value, err error) {
+	v, err := astExpr(e.X, idents)
 	if err != nil {
-		return nil, err
+		return
 	}
+
 	switch {
 	case v.Kind() == Type:
 		return MakeType(reflect.PtrTo(v.Type())), nil
@@ -168,30 +168,39 @@ func StarExpr(e *ast.StarExpr, idents Identifiers) (r Value, err error) {
 	}
 }
 
-func UnaryExpr(e *ast.UnaryExpr, idents Identifiers) (r Value, err error) {
-	x, err := expr(e.X, idents)
+func astUnaryExpr(e *ast.UnaryExpr, idents Identifiers) (r Value, err error) {
+	x, err := astExpr(e.X, idents)
 	if err != nil {
-		return nil, err
+		return
 	}
-	return unary(x, e.Op)
+
+	switch x.Kind() {
+	case Regular:
+		return unary(x.Regular(), e.Op)
+	case Untyped:
+		return unaryConstant(x.Untyped(), e.Op)
+	default:
+		return nil, errors.New("Regular or Untyped required")
+	}
 }
 
-func ChanType(e *ast.ChanType, idents Identifiers) (r Value, err error) {
-	v, err := expr(e.Value, idents)
+func astChanType(e *ast.ChanType, idents Identifiers) (r Value, err error) {
+	v, err := astExpr(e.Value, idents)
 	if err != nil {
-		return nil, err
+		return
 	}
+
 	switch v.Kind() {
 	case Type:
 		return MakeType(reflect.ChanOf(reflecth.ChanDirFromAst(e.Dir), v.Type())), nil
 	default:
-		return nil, errors.New("") // TODO
+		return nil, errors.New("") // TODO error
 	}
 }
 
 // TODO works only for list of arguments types (not value, not array size)
-func Ellipsis(e *ast.Ellipsis, idents Identifiers) (r Value, err error) {
-	v, err := expr(e.Elt, idents)
+func astEllipsis(e *ast.Ellipsis, idents Identifiers) (r Value, err error) {
+	v, err := astExpr(e.Elt, idents)
 	if err != nil {
 		return
 	}
@@ -199,10 +208,11 @@ func Ellipsis(e *ast.Ellipsis, idents Identifiers) (r Value, err error) {
 	if v.Kind() != Type {
 		return nil, errors.New("ellipsis aplies only to Type")
 	}
+
 	return MakeType(reflect.SliceOf(v.Type())), nil
 }
 
-func FuncType(e *ast.FuncType, idents Identifiers) (r Value, err error) {
+func astFuncType(e *ast.FuncType, idents Identifiers) (r Value, err error) {
 	in, variadic, err := funcTranslateArgs(e.Params, true, idents)
 	if err != nil {
 		return
@@ -214,50 +224,52 @@ func FuncType(e *ast.FuncType, idents Identifiers) (r Value, err error) {
 	return MakeType(reflect.FuncOf(in, out, variadic)), nil
 }
 
-func IndexExpr(e *ast.IndexExpr, idents Identifiers) (r Value, err error) {
-	x, err := expr(e.X, idents)
+func astIndexExpr(e *ast.IndexExpr, idents Identifiers) (r Value, err error) {
+	x, err := astExpr(e.X, idents)
+	if err != nil {
+		return
+	}
+
+	i, err := astExpr(e.Index, idents)
 	if err != nil {
 		return nil, err
 	}
 
-	i, err := expr(e.Index, idents)
-	if err != nil {
-		return nil, err
-	}
-
-	if x.Kind() == Untyped {
+	switch x.Kind() {
+	case Untyped:
 		return indexConstant(x.Untyped(), i)
-	}
-	if x.Kind() != Regular {
+	case Regular:
+		switch x.Regular().Kind() {
+		case reflect.Map:
+			return indexMap(x.Regular(), i)
+		default:
+			return indexOther(x.Regular(), i)
+		}
+	default:
 		return nil, errors.New("unable to index " + x.String())
 	}
-
-	if x.Regular().Kind() == reflect.Map {
-		return indexMap(x.Regular(), i)
-	}
-	return indexOther(x.Regular(), i)
 }
 
-func SliceExpr(e *ast.SliceExpr, idents Identifiers) (r Value, err error) {
-	x, err := expr(e.X, idents)
+func astSliceExpr(e *ast.SliceExpr, idents Identifiers) (r Value, err error) {
+	x, err := astExpr(e.X, idents)
 	if err != nil {
-		return nil, err
+		return
 	}
 
 	// Calc indexes
 	low, err := getSliceIndex(e.Low, idents)
 	if err != nil {
-		return nil, err
+		return
 	}
 	high, err := getSliceIndex(e.High, idents)
 	if err != nil {
-		return nil, err
+		return
 	}
 	var max int
 	if e.Slice3 {
 		max, err = getSliceIndex(e.Max, idents)
 		if err != nil {
-			return nil, err
+			return
 		}
 	}
 
@@ -270,10 +282,8 @@ func SliceExpr(e *ast.SliceExpr, idents Identifiers) (r Value, err error) {
 		v = reflect.ValueOf(x.Untyped().String())
 	case Regular:
 		v = x.Regular()
-	case Nil:
-		return nil, errors.New("unable to slicing Nil")
 	default:
-		panic("unknown kind")
+		return nil, errors.New("Untyped or Regular required")
 	}
 
 	if e.Slice3 {
@@ -282,8 +292,8 @@ func SliceExpr(e *ast.SliceExpr, idents Identifiers) (r Value, err error) {
 	return slice2(v, low, high)
 }
 
-func CompositeLit(e *ast.CompositeLit, idents Identifiers) (r Value, err error) {
-	v, err := expr(e.Type, idents) // TODO docs says: e.Type may be nil
+func astCompositeLit(e *ast.CompositeLit, idents Identifiers) (r Value, err error) {
+	v, err := astExpr(e.Type, idents)
 	if err != nil {
 		return
 	}
@@ -292,8 +302,7 @@ func CompositeLit(e *ast.CompositeLit, idents Identifiers) (r Value, err error) 
 		return nil, errors.New("composite literal requires type, but got " + v.String())
 	}
 
-	vT := v.Type()
-	switch vT.Kind() {
+	switch vT := v.Type(); vT.Kind() {
 	case reflect.Struct:
 		var withKeys bool
 		if len(e.Elts) == 0 {
@@ -316,7 +325,7 @@ func CompositeLit(e *ast.CompositeLit, idents Identifiers) (r Value, err error) 
 					return nil, errors.New("keys in struct composite literal must be identifier")
 				}
 
-				elts[key.Name], err = expr(kve.Value, idents)
+				elts[key.Name], err = astExpr(kve.Value, idents)
 				if err != nil {
 					return
 				}
@@ -329,7 +338,7 @@ func CompositeLit(e *ast.CompositeLit, idents Identifiers) (r Value, err error) 
 					return nil, errors.New("mixed keys & no keys initialization in composite literal")
 				}
 
-				elts[i], err = expr(e.Elts[i], idents)
+				elts[i], err = astExpr(e.Elts[i], idents)
 				if err != nil {
 					return
 				}
@@ -345,7 +354,7 @@ func CompositeLit(e *ast.CompositeLit, idents Identifiers) (r Value, err error) 
 			var valueExpr ast.Expr
 			if kve, ok := e.Elts[i].(*ast.KeyValueExpr); ok {
 				var v Value
-				v, err = expr(kve.Key, idents)
+				v, err = astExpr(kve.Key, idents)
 				if err != nil {
 					return
 				}
@@ -366,7 +375,7 @@ func CompositeLit(e *ast.CompositeLit, idents Identifiers) (r Value, err error) 
 				return nil, errors.New("duplicate key in array initialization")
 			}
 
-			elts[nextIndex], err = expr(valueExpr, idents)
+			elts[nextIndex], err = astExpr(valueExpr, idents)
 			if err != nil {
 				return
 			}
@@ -382,11 +391,11 @@ func CompositeLit(e *ast.CompositeLit, idents Identifiers) (r Value, err error) 
 			}
 
 			var key Value
-			key, err = expr(kve.Key, idents)
+			key, err = astExpr(kve.Key, idents)
 			if err != nil {
 				return
 			}
-			elts[key], err = expr(kve.Value, idents) // TODO looks like it is impossible to overwrite value here because key!=prev_key
+			elts[key], err = astExpr(kve.Value, idents) // looks like it is impossible to overwrite value here because key!=prev_key (it is interface)
 			if err != nil {
 				return
 			}
@@ -398,36 +407,40 @@ func CompositeLit(e *ast.CompositeLit, idents Identifiers) (r Value, err error) 
 	}
 }
 
-func expr(e ast.Expr, idents Identifiers) (r Value, err error) {
+func astExpr(e ast.Expr, idents Identifiers) (r Value, err error) {
+	if e == nil {
+		return nil, errors.New("try to eval nil Expr")
+	}
+
 	switch v := e.(type) {
 	case *ast.Ident:
-		return Ident(v, idents)
+		return astIdent(v, idents)
 	case *ast.SelectorExpr:
-		return SelectorExpr(v, idents)
+		return astSelectorExpr(v, idents)
 	case *ast.BinaryExpr:
-		return BinaryExpr(v, idents)
+		return astBinaryExpr(v, idents)
 	case *ast.BasicLit:
-		return BasicLit(v, idents)
+		return astBasicLit(v, idents)
 	case *ast.ParenExpr:
-		return ParenExpr(v, idents)
+		return astParenExpr(v, idents)
 	case *ast.CallExpr:
-		return CallExpr(v, idents)
+		return astCallExpr(v, idents)
 	case *ast.StarExpr:
-		return StarExpr(v, idents)
+		return astStarExpr(v, idents)
 	case *ast.UnaryExpr:
-		return UnaryExpr(v, idents)
+		return astUnaryExpr(v, idents)
 	case *ast.Ellipsis:
-		return Ellipsis(v, idents)
+		return astEllipsis(v, idents)
 	case *ast.ChanType:
-		return ChanType(v, idents)
+		return astChanType(v, idents)
 	case *ast.FuncType:
-		return FuncType(v, idents)
+		return astFuncType(v, idents)
 	case *ast.IndexExpr:
-		return IndexExpr(v, idents)
+		return astIndexExpr(v, idents)
 	case *ast.SliceExpr:
-		return SliceExpr(v, idents)
+		return astSliceExpr(v, idents)
 	case *ast.CompositeLit:
-		return CompositeLit(v, idents)
+		return astCompositeLit(v, idents)
 	default:
 		return nil, errors.New("expression evaluation does not support " + reflect.TypeOf(e).String())
 	}

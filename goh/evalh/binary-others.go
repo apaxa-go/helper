@@ -1,30 +1,29 @@
 package evalh
 
 import (
-	"errors"
 	"go/token"
 )
 
 //replacer:ignore
 //go:generate go run $GOPATH/src/github.com/apaxa-go/generator/replacer/main.go -- $GOFILE
 
-func binaryOtherBool(x bool, op token.Token, y bool) (r bool, err error) {
+func binaryOtherBool(x bool, op token.Token, y bool) (r bool, err *intError) {
 	switch op {
 	case token.LAND:
 		return x && y, nil
 	case token.LOR:
 		return x || y, nil
 	default:
-		return false, errors.New("boolean operands does not support operation " + op.String())
+		return false, invBinOpInvalError(MakeRegularInterface(x), op, MakeRegularInterface(y))
 	}
 }
 
-func binaryOtherString(x string, op token.Token, y string) (r string, err error) {
+func binaryOtherString(x string, op token.Token, y string) (r string, err *intError) {
 	switch op {
 	case token.ADD:
 		return x + y, nil
 	default:
-		return "", errors.New("strings operands does not support operation " + op.String())
+		return "", invBinOpInvalError(MakeRegularInterface(x), op, MakeRegularInterface(y))
 	}
 }
 
@@ -40,7 +39,7 @@ func binaryOtherString(x string, op token.Token, y string) (r string, err error)
 //replacer:new uint32	Uint32
 //replacer:new uint64	Uint64
 
-func binaryOtherInt64(x int64, op token.Token, y int64) (r int64, err error) {
+func binaryOtherInt64(x int64, op token.Token, y int64) (r int64, err *intError) {
 	switch op {
 	case token.ADD:
 		return x + y, nil
@@ -61,7 +60,7 @@ func binaryOtherInt64(x int64, op token.Token, y int64) (r int64, err error) {
 	case token.AND_NOT:
 		return x &^ y, nil
 	default:
-		return 0, errors.New("int64 operands does not support operation " + op.String())
+		return 0, invBinOpInvalError(MakeRegularInterface(x), op, MakeRegularInterface(y))
 	}
 }
 
@@ -71,7 +70,7 @@ func binaryOtherInt64(x int64, op token.Token, y int64) (r int64, err error) {
 //replacer:new complex64	Complex64
 //replacer:new complex128	Complex128
 
-func binaryOtherFloat32(x float32, op token.Token, y float32) (r float32, err error) {
+func binaryOtherFloat32(x float32, op token.Token, y float32) (r float32, err *intError) {
 	switch op {
 	case token.ADD:
 		return x + y, nil
@@ -82,6 +81,6 @@ func binaryOtherFloat32(x float32, op token.Token, y float32) (r float32, err er
 	case token.QUO:
 		return x / y, nil
 	default:
-		return 0, errors.New("float32 operands does not support operation " + op.String())
+		return 0, invBinOpInvalError(MakeRegularInterface(x), op, MakeRegularInterface(y))
 	}
 }
