@@ -3,8 +3,10 @@ package evalh
 import (
 	"fmt"
 	"github.com/apaxa-go/helper/mathh"
+	"github.com/apaxa-go/helper/strconvh"
 	"go/ast"
 	"go/parser"
+	"go/token"
 	"reflect"
 	"testing"
 	"unicode"
@@ -29,7 +31,7 @@ func (t testExprElement) Validate(r Value, err error) bool {
 	if t.r == nil || r == nil {
 		return false
 	}
-	return t.r.Equal(r)
+	return isValuesEqual(t.r, r)
 }
 
 func (t testExprElement) ErrorMsg(r Value, err error) string {
@@ -73,7 +75,8 @@ func TestIdent(t *testing.T) {
 			continue
 		}
 
-		r, err := astIdent(identAst, v.vars)
+		r, posErr := astIdent(identAst, v.vars)
+		err = posErr.error(token.NewFileSet())
 		if !v.Validate(r, err) {
 			t.Errorf(v.ErrorMsg(r, err))
 		}
@@ -100,7 +103,9 @@ func TestSelector(t *testing.T) {
 			continue
 		}
 
-		r, err := astSelectorExpr(selectorAst, v.vars)
+		r, posErr := astSelectorExpr(selectorAst, v.vars)
+		err = posErr.error(token.NewFileSet())
+
 		if !v.Validate(r, err) {
 			t.Errorf(v.ErrorMsg(r, err))
 		}
@@ -136,8 +141,10 @@ func TestSelector2(t *testing.T) {
 			continue
 		}
 
-		r, err := astSelectorExpr(selectorAst, v.vars)
+		r, posErr := astSelectorExpr(selectorAst, v.vars)
+		err = posErr.error(token.NewFileSet())
 		if err != nil {
+			fmt.Printf("!!!\n%#v\n!!!\n", err)
 			t.Errorf("expect not error, got %v", err.Error())
 			continue
 		}
@@ -271,7 +278,8 @@ func TestBinary(t *testing.T) {
 			continue
 		}
 
-		r, err := astBinaryExpr(binaryAst, v.vars)
+		r, posErr := astBinaryExpr(binaryAst, v.vars)
+		err = posErr.error(token.NewFileSet())
 		if !v.Validate(r, err) {
 			t.Errorf(v.ErrorMsg(r, err))
 		}
@@ -332,7 +340,8 @@ func TestCall(t *testing.T) {
 			continue
 		}
 
-		r, err := astCallExpr(callAst, v.vars)
+		r, posErr := astCallExpr(callAst, v.vars)
+		err = posErr.error(token.NewFileSet())
 		if !v.Validate(r, err) {
 			t.Errorf(v.ErrorMsg(r, err))
 		}
@@ -358,7 +367,8 @@ func TestStar(t *testing.T) {
 			continue
 		}
 
-		r, err := astStarExpr(starAst, v.vars)
+		r, posErr := astStarExpr(starAst, v.vars)
+		err = posErr.error(token.NewFileSet())
 		if !v.Validate(r, err) {
 			t.Errorf(v.ErrorMsg(r, err))
 		}
@@ -383,7 +393,8 @@ func TestParen(t *testing.T) {
 			continue
 		}
 
-		r, err := astParenExpr(parenAst, v.vars)
+		r, posErr := astParenExpr(parenAst, v.vars)
+		err = posErr.error(token.NewFileSet())
 		if !v.Validate(r, err) {
 			t.Errorf(v.ErrorMsg(r, err))
 		}
@@ -413,7 +424,8 @@ func TestUnary(t *testing.T) {
 			continue
 		}
 
-		r, err := astUnaryExpr(unaryAst, v.vars)
+		r, posErr := astUnaryExpr(unaryAst, v.vars)
+		err = posErr.error(token.NewFileSet())
 		if !v.Validate(r, err) {
 			t.Errorf(v.ErrorMsg(r, err))
 		}
@@ -442,7 +454,8 @@ func TestUnary2(t *testing.T) {
 			continue
 		}
 
-		r, err := astUnaryExpr(unaryAst, v.vars)
+		r, posErr := astUnaryExpr(unaryAst, v.vars)
+		err = posErr.error(token.NewFileSet())
 		if !v.Validate(r, err) {
 			t.Errorf(v.ErrorMsg(r, err))
 		}
@@ -470,7 +483,8 @@ func TestSlice(t *testing.T) {
 			continue
 		}
 
-		r, err := astSliceExpr(sliceAst, v.vars)
+		r, posErr := astSliceExpr(sliceAst, v.vars)
+		err = posErr.error(token.NewFileSet())
 		if !v.Validate(r, err) {
 			t.Errorf(v.ErrorMsg(r, err))
 		}
@@ -498,7 +512,72 @@ func TestIndex(t *testing.T) {
 			continue
 		}
 
-		r, err := astIndexExpr(indexAst, v.vars)
+		r, posErr := astIndexExpr(indexAst, v.vars)
+		err = posErr.error(token.NewFileSet())
+		if !v.Validate(r, err) {
+			t.Errorf(v.ErrorMsg(r, err))
+		}
+	}
+}
+
+func TestComposit(t *testing.T) {
+	tests := []testExprElement{
+		{"[]int{2}", nil, MakeRegularInterface([]int{2}), false},
+		{"[1]int{2}", nil, MakeRegularInterface([1]int{2}), false},
+		{"[...]int{2}", nil, MakeRegularInterface([...]int{2}), false},
+	}
+	for _, v := range tests {
+		exprAst, err := parser.ParseExpr(v.expr)
+		if err != nil {
+			t.Errorf("%v: %v", v.expr, err)
+			continue
+		}
+		compositeAst, ok := exprAst.(*ast.CompositeLit)
+		if !ok {
+			t.Errorf("%v: not a astCompositeLit", v.expr)
+			continue
+		}
+
+		r, posErr := astCompositeLit(compositeAst, v.vars)
+		err = posErr.error(token.NewFileSet())
+		if !v.Validate(r, err) {
+			t.Errorf(v.ErrorMsg(r, err))
+		}
+	}
+}
+
+func TestAstExpr(t *testing.T) {
+	tests := []testExprElement{
+		{"(f.(func(int)(string)))(123)", IdentifiersInterface{"f": strconvh.FormatInt}.Identifiers(), MakeRegularInterface("123"), false},
+		{"((func(int)(string))(f))(123)", IdentifiersInterface{"f": strconvh.FormatInt}.Identifiers(), MakeRegularInterface("123"), false},
+		{
+			`((func(...string)(int))(f))("1","2","3")`,
+			IdentifiersInterface{
+				"f": func(strs ...string) int { return len(strs) },
+			}.Identifiers(),
+			MakeRegularInterface(3),
+			false,
+		},
+		{
+			`((func(...string)(int))(f))(([]string{"4","5","6","7"})...)`,
+			IdentifiersInterface{
+				"f": func(strs ...string) int { return len(strs) },
+			}.Identifiers(),
+			MakeRegularInterface(4),
+			false,
+		},
+		//{"func(...string)(int)",nil,MakeRegularInterface(1),false},
+	}
+
+	for _, v := range tests {
+		exprAst, err := parser.ParseExpr(v.expr)
+		if err != nil {
+			t.Errorf("%v: %v", v.expr, err)
+			continue
+		}
+
+		r, posErr := astExpr(exprAst, v.vars)
+		err = posErr.error(token.NewFileSet())
 		if !v.Validate(r, err) {
 			t.Errorf(v.ErrorMsg(r, err))
 		}

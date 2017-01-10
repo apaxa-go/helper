@@ -5,6 +5,7 @@ import (
 	"github.com/apaxa-go/helper/goh/asth"
 	"github.com/apaxa-go/helper/goh/constanth"
 	"go/ast"
+	"go/token"
 	"reflect"
 	"strings"
 )
@@ -67,13 +68,13 @@ func (idents Identifiers) normalize() error {
 		if _, ok := idents[pk]; ok {
 			return errors.New("something with package name already exists " + pk)
 		}
-		idents[pk] = packageVal(pv)
+		idents[pk] = MakePackage(pv)
 	}
 
 	return nil
 }
 
-func funcTranslateArgs(fields *ast.FieldList, ellipsisAlowed bool, idents Identifiers) (r []reflect.Type, variadic bool, err error) {
+func funcTranslateArgs(fields *ast.FieldList, ellipsisAlowed bool, idents Identifiers) (r []reflect.Type, variadic bool, err *posError) {
 	if fields == nil || len(fields.List) == 0 {
 		return
 	}
@@ -82,7 +83,7 @@ func funcTranslateArgs(fields *ast.FieldList, ellipsisAlowed bool, idents Identi
 		// check for variadic
 		if _, ellipsis := fields.List[i].Type.(*ast.Ellipsis); ellipsis {
 			if !ellipsisAlowed || i != len(fields.List)-1 {
-				return nil, false, errors.New("only last input argument can be variadic")
+				return nil, false, funcInvEllipsisPos().pos(fields.List[i])
 			}
 			variadic = true
 		}
@@ -94,23 +95,26 @@ func funcTranslateArgs(fields *ast.FieldList, ellipsisAlowed bool, idents Identi
 		}
 
 		if v.Kind() != Type {
-			return nil, false, errors.New("") // TODO error
+			return nil, false, notTypeError(v).pos(fields.List[i])
 		}
 		r[i] = v.Type()
 	}
 	return
 }
 
-func Expr(e ast.Expr, idents Identifiers) (r Value, err error) {
+func Expr(e ast.Expr, idents Identifiers, fset *token.FileSet) (r Value, err error) {
 	err = idents.normalize()
 	if err != nil {
 		return
 	}
-	return astExpr(e, idents)
+	var posErr *posError
+	r, posErr = astExpr(e, idents)
+	err = posErr.error(fset)
+	return
 }
 
-func ExprRegular(e ast.Expr, idents IdentifiersRegular) (r reflect.Value, err error) {
-	rV, err := astExpr(e, idents.Identifiers())
+func ExprRegular(e ast.Expr, idents IdentifiersRegular, fset *token.FileSet) (r reflect.Value, err error) {
+	rV, err := Expr(e, idents.Identifiers(), fset)
 	if err != nil {
 		return
 	}
@@ -124,16 +128,14 @@ func ExprRegular(e ast.Expr, idents IdentifiersRegular) (r reflect.Value, err er
 		if !ok {
 			return r, errors.New("unable to represent untyped value in default type")
 		}
-	case Nil:
-		r = reflect.ValueOf(nil) // TODO is it normal?
 	default:
-		return r, errors.New("Regular, Untyped or Nil required")
+		return r, errors.New("Regular or Untyped required")
 	}
 	return
 }
 
-func ExprInterface(e ast.Expr, idents IdentifiersInterface) (r interface{}, err error) {
-	rV, err := ExprRegular(e, idents.IdentifiersRegular())
+func ExprInterface(e ast.Expr, idents IdentifiersInterface, fset *token.FileSet) (r interface{}, err error) {
+	rV, err := ExprRegular(e, idents.IdentifiersRegular(), fset)
 	if err != nil {
 		return
 	}

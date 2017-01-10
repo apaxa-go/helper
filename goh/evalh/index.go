@@ -1,7 +1,6 @@
 package evalh
 
 import (
-	"github.com/apaxa-go/helper/goh/constanth"
 	"github.com/apaxa-go/helper/strconvh"
 	"go/constant"
 	"reflect"
@@ -14,7 +13,7 @@ func invOpError(op, reason string) *intError {
 func invIndexOpError(x Value, i Value) *intError {
 	return invOpError(x.String()+"["+i.String()+"]", "type "+x.DeepType()+" does not support indexing")
 }
-func indexOutOfRange(i int) *intError {
+func indexOutOfRangeError(i int) *intError {
 	return newIntError("index " + strconvh.FormatInt(i) + " out of range")
 }
 
@@ -25,25 +24,29 @@ func indexMap(x reflect.Value, i Value) (r Value, err *intError) {
 
 	iReqT := x.Type().Key()
 
-	// calc index
-	var iV reflect.Value
-	switch i.Kind() { // TODO extract to convertCall function
-	case Untyped:
-		var ok bool
-		iV, ok = constanth.SameType(i.Untyped(), iReqT)
-		if !ok {
-			return nil, convertUnableError(iReqT, i)
-		}
-	case Regular:
-		iV = i.Regular()
-		if !iV.Type().AssignableTo(iReqT) {
-			return nil, convertUnableError(iReqT, i)
-		}
-	case Nil:
+	iV, _, ok := i.AsType(iReqT)
+	if !ok {
 		return nil, convertUnableError(iReqT, i)
-	default:
-		panic("unknown kind")
 	}
+	// calc index
+	//var iV reflect.Value
+	//switch i.Kind() { TO DO extract to convertCall function
+	//case Untyped:
+	//	var ok bool
+	//	iV, ok = constanth.AsType(i.Untyped(), iReqT)
+	//	if !ok {
+	//		return nil, convertUnableError(iReqT, i)
+	//	}
+	//case Regular:
+	//	iV = i.Regular()
+	//	if !iV.Type().AssignableTo(iReqT) {
+	//		return nil, convertUnableError(iReqT, i)
+	//	}
+	//case Nil:
+	//	return nil, convertUnableError(iReqT, i)
+	//default:
+	//	panic("unknown kind")
+	//}
 
 	//
 	rV := x.MapIndex(iV)
@@ -59,14 +62,14 @@ func indexOther(x reflect.Value, i Value) (r Value, err *intError) {
 		return nil, invIndexOpError(MakeRegular(x), i)
 	}
 
-	iInt,_,ok:=i.Int()
-	if !ok{
+	iInt, _, ok := i.AsInt()
+	if !ok {
 		return nil, convertUnableError(reflect.TypeOf(int(0)), i)
 	}
 
 	// check out-of-range
 	if iInt < 0 || iInt >= x.Len() {
-		return nil, indexOutOfRange(iInt)
+		return nil, indexOutOfRangeError(iInt)
 	}
 
 	return MakeRegular(x.Index(iInt)), nil
@@ -77,15 +80,15 @@ func indexConstant(x constant.Value, i Value) (r Value, err *intError) {
 		return nil, invIndexOpError(MakeUntyped(x), i)
 	}
 
-	iInt,isUntyped,ok:=i.Int()
-	if !ok{
+	iInt, isUntyped, ok := i.AsInt()
+	if !ok {
 		return nil, convertUnableError(reflect.TypeOf(int(0)), i)
 	}
 
 	xStr := constant.StringVal(x)
 	// check out-of-range
 	if iInt < 0 || iInt >= len(xStr) {
-		return nil, indexOutOfRange(iInt)
+		return nil, indexOutOfRangeError(iInt)
 	}
 
 	if isUntyped {

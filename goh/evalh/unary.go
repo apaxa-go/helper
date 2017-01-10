@@ -7,13 +7,6 @@ import (
 	"reflect"
 )
 
-func invUnaryOp(x Value, op token.Token) *intError {
-	return newIntError("invalid operation: " + op.String() + " " + x.DeepType())
-}
-func invUnaryOpReason(x Value, op token.Token, reason interface{}) *intError {
-	return newIntErrorf("invalid operation: %v %v: %v", op.String(), x.DeepType(), reason)
-}
-
 func unary(x reflect.Value, op token.Token) (r Value, err *intError) {
 	switch op {
 	case token.SUB:
@@ -24,6 +17,8 @@ func unary(x reflect.Value, op token.Token) (r Value, err *intError) {
 		return unaryNot(x)
 	case token.AND:
 		return unaryAnd(x)
+	case token.ARROW:
+		return unaryArrow(x)
 	case token.ADD:
 		if k := x.Kind(); reflecth.IsAnyInt(k) || reflecth.IsAnyFloat(k) || reflecth.IsAnyComplex(k) {
 			return MakeRegular(x), nil
@@ -102,6 +97,14 @@ func unaryXor(x reflect.Value) (r Value, err *intError) {
 	return MakeRegular(rV), nil
 }
 
+func unaryArrow(x reflect.Value) (r Value, err *intError) {
+	if x.Kind() != reflect.Chan {
+		return nil, invUnaryReceiveError(MakeRegular(x), token.ARROW)
+	}
+	rV, _ := x.Recv()
+	return MakeRegular(rV), nil
+}
+
 func unaryConstant(x constant.Value, op token.Token) (r Value, err *intError) {
 	defer func() {
 		if rec := recover(); rec != nil {
@@ -109,7 +112,7 @@ func unaryConstant(x constant.Value, op token.Token) (r Value, err *intError) {
 			err = invUnaryOpReason(MakeUntyped(x), op, rec)
 		}
 	}()
-	v := constant.UnaryOp(op, x, 0) // TODO prec should be set?
+	v := constant.UnaryOp(op, x, 0) // BUG prec should be set?
 	if v.Kind() == constant.Unknown {
 		return nil, invUnaryOp(MakeUntyped(x), op)
 	}

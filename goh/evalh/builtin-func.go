@@ -2,45 +2,14 @@ package evalh
 
 import (
 	"github.com/apaxa-go/helper/goh/constanth"
-	"github.com/apaxa-go/helper/strconvh"
 	"go/constant"
 	"go/token"
 	"reflect"
 )
 
-func callBuiltInArgsCountLessError(fn string) *intError {
-	return newIntError("not enough arguments in call to " + fn)
-}
-func callBuiltInArgsCountMoreError(fn string) *intError {
-	return newIntError("too many arguments in call to " + fn)
-}
-func callBuiltInArgsCountMismError(fn string, req, got int) *intError {
-	if req > got {
-		return callBuiltInArgsCountLessError(fn)
-	}
-	return callBuiltInArgsCountMoreError(fn)
-}
-func invBuiltInArgError(fn string, x Value) *intError {
-	return newIntError("invalid argument " + x.String() + " (type " + x.DeepType() + ") for " + fn)
-}
-func invBuiltInArgAtError(fn string, pos int, x Value) *intError {
-	return newIntError("invalid argument #" + strconvh.FormatInt(pos) + " " + x.String() + " (type " + x.DeepType() + ") for " + fn)
-}
-
-func invBuiltInArgsError(fn string, x []Value) *intError {
-	var msg string
-	for i := range x {
-		if i != 0 {
-			msg += ", "
-		}
-		msg += x[i].String() + " (type " + x[i].DeepType() + ")"
-	}
-	return newIntError("invalid arguments " + msg + " for " + fn)
-}
-
 func isBuiltInFunc(ident string) bool {
 	switch ident {
-	case "len", "cap", "complex", "real", "imag":
+	case "len", "cap", "complex", "real", "imag", "new", "make", "append":
 		return true
 	default:
 		return false
@@ -48,7 +17,10 @@ func isBuiltInFunc(ident string) bool {
 }
 
 // ok means that astCallExpr is built-in function, not that calling done without error.
-func callBuiltInFunc(f string, args []Value) (r Value, err *intError) { // TODO new, <-, ->
+func callBuiltInFunc(f string, args []Value, ellipsis bool) (r Value, err *intError) {
+	if f != "append" && ellipsis {
+		return nil, callBuiltInWithEllipsisError(f)
+	}
 	switch f {
 	case "len":
 		if len(args) != 1 {
@@ -80,6 +52,20 @@ func callBuiltInFunc(f string, args []Value) (r Value, err *intError) { // TODO 
 			return
 		}
 		return BuiltInImag(args[0])
+	case "new":
+		if len(args) != 1 {
+			err = callBuiltInArgsCountMismError(f, 1, len(args))
+			return
+		}
+		return BuiltInNew(args[0])
+	case "make":
+		return BuiltInMake(args)
+	case "append":
+		if len(args) < 1 {
+			err = callBuiltInArgsCountMismError(f, 1, len(args))
+			return
+		}
+		return BuiltInAppend(args[0], args[1:], ellipsis)
 	default:
 		return nil, undefIdentError(f)
 	}
@@ -298,5 +284,135 @@ func BuiltInImag(v Value) (r Value, err *intError) {
 		return builtInImag(v.Regular())
 	default:
 		return nil, invBuiltInArgError(fn, v)
+	}
+}
+
+func BuiltInNew(v Value) (r Value, err *intError) {
+	const fn = "new"
+	switch v.Kind() {
+	case Type:
+		return MakeRegular(reflect.New(v.Type())), nil
+	default:
+		return nil, notTypeError(v)
+	}
+}
+
+func BuiltInMake(v []Value) (r Value, err *intError) {
+	const fn = "make"
+	if len(v) < 1 {
+		return nil, callBuiltInArgsCountMismError(fn, 1, len(v))
+	}
+	if v[0].Kind() != Type {
+		return nil, notTypeError(v[0])
+	}
+	switch t := v[0].Type(); t.Kind() {
+	case reflect.Slice:
+		var n, m int
+		switch len(v) {
+		case 2:
+			var ok bool
+			n, _, ok = v[1].AsInt()
+			if !ok {
+				return nil, makeNotIntArgError(t, "len", v[1])
+			}
+			m = n
+		case 3:
+			var ok bool
+			n, _, ok = v[1].AsInt()
+			if !ok {
+				return nil, makeNotIntArgError(t, "len", v[1])
+			}
+			m, _, ok = v[2].AsInt()
+			if !ok {
+				return nil, makeNotIntArgError(t, "cap", v[2])
+			}
+		default:
+			return nil, callBuiltInArgsCountMismError(fn, 2, len(v))
+		}
+		if n < 0 {
+			return nil, makeNegArgError(t, "len")
+		}
+		if n > m {
+			return nil, makeSliceMismArgsError(t)
+		}
+		return MakeRegular(reflect.MakeSlice(t, n, m)), nil
+	case reflect.Map:
+		// BUG make(<map>,n) ignore n (but check it type).
+		switch len(v) {
+		case 1:
+			// nothing to do
+		case 2:
+			n, _, ok := v[1].AsInt()
+			if !ok {
+				return nil, makeNotIntArgError(t, "size", v[1])
+			}
+			if n < 0 {
+				return nil, makeNegArgError(t, "size")
+			}
+		default:
+			return nil, callBuiltInArgsCountMismError(fn, 1, len(v))
+		}
+		return MakeRegular(reflect.MakeMap(t)), nil
+	case reflect.Chan:
+		var n int
+		switch len(v) {
+		case 1:
+			// nothing to do
+		case 2:
+			var ok bool
+			n, _, ok = v[1].AsInt()
+			if !ok {
+				return nil, makeNotIntArgError(t, "buffer", v[1])
+			}
+			if n < 0 {
+				return nil, makeNegArgError(t, "buffer")
+			}
+		}
+		return MakeRegular(reflect.MakeChan(t, n)), nil
+	default:
+		return nil, makeInvalidTypeError(t)
+	}
+}
+
+func BuiltInAppend(v Value, a []Value, ellipsis bool) (r Value, err *intError) {
+	const fn = "append"
+	if v.Kind() != Regular {
+		return nil, appendFirstNotSliceError(v)
+	}
+	vV := v.Regular()
+	if vV.Kind() != reflect.Slice {
+		return nil, appendFirstNotSliceError(v)
+	}
+
+	elemT := v.Regular().Type().Elem()
+	//var aV []reflect.Value
+	switch ellipsis {
+	case true:
+		if len(a) != 1 {
+			return nil, callBuiltInArgsCountMismError(fn, 2, 1+len(a))
+		}
+		if a[0].Kind() != Regular {
+			return nil, appendMismTypeError(reflect.SliceOf(elemT), a[0])
+		}
+		aV := a[0].Regular()
+		if aV.Kind() != reflect.Slice {
+			return nil, appendMismTypeError(reflect.SliceOf(elemT), a[0])
+		}
+		if !aV.Type().Elem().AssignableTo(elemT) {
+			return nil, appendMismTypeError(reflect.SliceOf(elemT), a[0])
+		}
+		return MakeRegular(reflect.AppendSlice(vV, aV)), nil
+	case false:
+		aV := make([]reflect.Value, len(a))
+		for i := range a {
+			var ok bool
+			aV[i], _, ok = a[i].AsType(elemT)
+			if !ok {
+				return nil, appendMismTypeError(elemT, a[i])
+			}
+		}
+		return MakeRegular(reflect.Append(vV, aV...)), nil
+	default:
+		return nil, nil // unreachable
 	}
 }

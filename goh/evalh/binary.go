@@ -9,35 +9,6 @@ import (
 	"reflect"
 )
 
-const invBinOp = "invalid operation: %v %v %v (%v)" // Widely used error
-func invBinOpTypesMismError(x Value, op token.Token, y Value) *intError {
-	return newIntErrorf(invBinOp, x.String(), op.String(), y.String(), "mismatched types "+x.DeepType()+" and "+y.DeepType())
-}
-
-func invBinOpTypesInvalError(x Value, op token.Token, y Value) *intError {
-	return newIntErrorf(invBinOp, x.String(), op.String(), y.String(), "invalid types "+x.DeepType()+" and/or "+y.DeepType())
-}
-
-func invBinOpTypesIncompError(x Value, op token.Token, y Value) *intError {
-	return newIntErrorf(invBinOp, x.String(), op.String(), y.String(), "incomparable types "+x.DeepType()+" and "+y.DeepType())
-}
-
-func invBinOpTypesUnorderError(x Value, op token.Token, y Value) *intError {
-	return newIntErrorf(invBinOp, x.String(), op.String(), y.String(), "unordered types "+x.DeepType()+" and "+y.DeepType())
-}
-
-func invBinOpInvalError(x Value, op token.Token, y Value) *intError {
-	return newIntErrorf(invBinOp, x.String(), op.String(), y.String(), "invalid operator")
-}
-
-func invBinOpShiftCountError(x Value, op token.Token, y Value) *intError {
-	return newIntErrorf(invBinOp, x.String(), op.String(), y.String(), "shift count type "+y.DeepType()+", must be unsigned integer")
-}
-
-func invBinOpShiftArgError(x Value, op token.Token, y Value) *intError {
-	return newIntErrorf(invBinOp, x.String(), op.String(), y.String(), "shift of type "+y.DeepType())
-}
-
 func binaryCompare(x Value, op token.Token, y Value) (r Value, err *intError) {
 	var xV, yV reflect.Value
 
@@ -52,14 +23,14 @@ func binaryCompare(x Value, op token.Token, y Value) (r Value, err *intError) {
 	case xK == Untyped && yK == Regular:
 		yV = y.Regular()
 		var ok bool
-		xV, ok = constanth.SameType(x.Untyped(), yV.Type())
+		xV, ok = constanth.AsType(x.Untyped(), yV.Type())
 		if !ok {
 			return nil, invBinOpTypesMismError(x, op, y)
 		}
 	case xK == Regular && yK == Untyped:
 		xV = x.Regular()
 		var ok bool
-		yV, ok = constanth.SameType(y.Untyped(), xV.Type())
+		yV, ok = constanth.AsType(y.Untyped(), xV.Type())
 		if !ok {
 			return nil, invBinOpTypesMismError(x, op, y)
 		}
@@ -237,14 +208,14 @@ func binaryOther(x Value, op token.Token, y Value) (r Value, err *intError) {
 	case xK == Untyped && yK == Regular:
 		yV = y.Regular()
 		var ok bool
-		xV, ok = constanth.SameType(x.Untyped(), yV.Type())
+		xV, ok = constanth.AsType(x.Untyped(), yV.Type())
 		if !ok {
 			return nil, invBinOpTypesMismError(x, op, y)
 		}
 	case xK == Regular && yK == Untyped:
 		xV = x.Regular()
 		var ok bool
-		yV, ok = constanth.SameType(y.Untyped(), xV.Type())
+		yV, ok = constanth.AsType(y.Untyped(), xV.Type())
 		if !ok {
 			return nil, invBinOpTypesMismError(x, op, y)
 		}

@@ -3,7 +3,6 @@
 package evalh
 
 import (
-	"errors"
 	"go/token"
 )
 

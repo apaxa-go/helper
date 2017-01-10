@@ -99,7 +99,7 @@ func StringVal(x constant.Value) (string, bool) {
 	return constant.StringVal(x), true
 }
 
-func RuneVal(x constant.Value)(rune,bool){
+func RuneVal(x constant.Value) (rune, bool) {
 	return Int32Val(x)
 }
 

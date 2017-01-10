@@ -3,9 +3,10 @@ package constanth
 import (
 	"go/constant"
 	"reflect"
+	"unicode"
 )
 
-func SameKind(x constant.Value, kind reflect.Kind) (r interface{}, ok bool) {
+func AsKind(x constant.Value, kind reflect.Kind) (r interface{}, ok bool) {
 	switch kind {
 	case reflect.Bool:
 		return BoolVal(x)
@@ -44,7 +45,7 @@ func SameKind(x constant.Value, kind reflect.Kind) (r interface{}, ok bool) {
 	}
 }
 
-func SameType(x constant.Value, t reflect.Type) (r reflect.Value, ok bool) {
+func AsType(x constant.Value, t reflect.Type) (r reflect.Value, ok bool) {
 	r = reflect.New(t).Elem()
 	switch t.Kind() {
 	case reflect.Bool:
@@ -149,10 +150,27 @@ func SameType(x constant.Value, t reflect.Type) (r reflect.Value, ok bool) {
 	return
 }
 
-func SameTypeInterface(x constant.Value, t reflect.Type) (r interface{}, ok bool) {
-	v, ok := SameType(x, t)
+func AsTypeInterface(x constant.Value, t reflect.Type) (r interface{}, ok bool) {
+	v, ok := AsType(x, t)
 	if !ok {
 		return nil, false
 	}
 	return v.Interface(), true
+}
+
+func Convert(x constant.Value, t reflect.Type) (r reflect.Value, ok bool) {
+	switch {
+	case x.Kind() == constant.Int && t.Kind() == reflect.String:
+		var i rune
+		i, ok = RuneVal(x)
+		if !ok {
+			i = unicode.ReplacementChar
+			ok = true
+		}
+		r = reflect.New(t).Elem()
+		r.SetString(string(i))
+		return
+	default:
+		return AsType(x, t)
+	}
 }

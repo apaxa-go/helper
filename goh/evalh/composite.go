@@ -1,67 +1,46 @@
 package evalh
 
 import (
-	"github.com/apaxa-go/helper/goh/constanth"
 	"github.com/apaxa-go/helper/strconvh"
 	"reflect"
 )
-
-func assignTypesMismError(dst, src Value) *intError {
-	return newIntError("cannot use " + src.String() + " (type " + src.DeepType() + ") as type " + dst.DeepType() + " in assignment")
-}
-func assignDstUnsettableError(dst Value) *intError {
-	return newIntError("cannot change " + dst.String() + " (type " + dst.DeepType() + ") in assignment")
-}
-func compLitInvTypeError(t reflect.Type) *intError {
-	return newIntError("invalid type for composite literal: " + t.String())
-}
-func compLitUnknFieldError(s reflect.Value, f string) *intError {
-	return newIntError("unknown " + s.Type().String() + " field '" + f + "' in struct literal")
-}
-func compLitArgsCountMismError(req, got int) *intError { // TODO in other *ArgsCountMismError move errors into signle function?
-	if req > got {
-		return newIntError("too few values in struct initializer")
-	}
-	return newIntError("too many values in struct initializer")
-}
-func compLitNegIndexError() *intError {
-	return newIntError("index must be non-negative integer constant")
-}
-func compLitIndexOutOfBoundsError(max, i int) *intError {
-	return newIntError("array index " + strconvh.FormatInt(i) + " out of bounds [0:" + strconvh.FormatInt(max) + "]")
-}
 
 func assign(to reflect.Value, value Value) (err *intError) {
 	if !to.CanSet() {
 		return assignDstUnsettableError(MakeRegular(to))
 	}
 
-	var newValue reflect.Value
-	switch value.Kind() {
-	case Untyped:
-		var ok bool
-		newValue, ok = constanth.SameType(value.Untyped(), to.Type())
-		if !ok {
-			return assignTypesMismError(MakeRegular(to), value)
-		}
-	case Regular:
-		newValue = value.Regular()
-	case Nil:
-		var tmp reflect.Value
-		tmp, err = convertNil2(to.Type())
-		if err != nil {
-			return
-		}
-		if !tmp.Type().AssignableTo(to.Type()) {
-			return assignTypesMismError(MakeRegular(to), value)
-		}
-		to.Set(tmp)
-	default:
-		return assignTypesMismError(MakeRegular(to), value)
+	newValue, _, ok := value.AsType(to.Type())
+	if !ok {
+		return assignTypesMismError(to.Type(), value)
 	}
 
+	//var newValue reflect.Value
+	//switch value.Kind() {
+	//case Untyped:
+	//	var ok bool
+	//	newValue, ok = constanth.AsType(value.Untyped(), to.Type())
+	//	if !ok {
+	//		return assignTypesMismError(MakeRegular(to), value)
+	//	}
+	//case Regular:
+	//	newValue = value.Regular()
+	//case Nil:
+	//	var tmp reflect.Value
+	//	tmp, err = convertNil2(to.Type())
+	//	if err != nil {
+	//		return
+	//	}
+	//	if !tmp.Type().AssignableTo(to.Type()) {
+	//		return assignTypesMismError(MakeRegular(to), value)
+	//	}
+	//	to.Set(tmp)
+	//default:
+	//	return assignTypesMismError(MakeRegular(to), value)
+	//}
+	//
 	if !newValue.Type().AssignableTo(to.Type()) {
-		return assignTypesMismError(MakeRegular(to), value)
+		return assignTypesMismError(to.Type(), value)
 	}
 	to.Set(newValue)
 	return nil
@@ -123,14 +102,15 @@ func compositeLitArrayLike(t reflect.Type, elts map[int]Value) (r Value, err *in
 	}
 
 	// Init result
-	rV := reflect.New(t).Elem()
+	var rV reflect.Value
 	switch t.Kind() {
 	case reflect.Array:
+		rV = reflect.New(t).Elem()
 		if maxIndex > rV.Len()-1 {
 			return nil, compLitIndexOutOfBoundsError(rV.Len()-1, maxIndex)
 		}
 	case reflect.Slice:
-		rV.SetLen(maxIndex + 1)
+		rV = reflect.MakeSlice(t, maxIndex+1, maxIndex+1)
 	default:
 		return nil, compLitInvTypeError(t)
 	}
@@ -150,7 +130,7 @@ func compositeLitArrayLike(t reflect.Type, elts map[int]Value) (r Value, err *in
 	return MakeRegular(rV), nil
 }
 
-func compositeLitMap(t reflect.Type, elts map[Value]Value) (r Value, err error) {
+func compositeLitMap(t reflect.Type, elts map[Value]Value) (r Value, err *intError) {
 	if t.Kind() != reflect.Map {
 		return nil, compLitInvTypeError(t)
 	}

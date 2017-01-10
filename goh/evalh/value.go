@@ -3,10 +3,10 @@ package evalh
 import (
 	"fmt"
 	"github.com/apaxa-go/helper/goh/constanth"
+	"github.com/apaxa-go/helper/mathh"
+	"github.com/apaxa-go/helper/reflecth"
 	"go/constant"
-	"go/token"
 	"reflect"
-	"unicode"
 )
 
 type Kind int
@@ -29,11 +29,11 @@ type Value interface {
 	Type() reflect.Type
 	BuiltInFunc() string
 	Package() map[string]Value
-	Equal(Value) bool // TODO move to test?
 	Interface() interface{}
-	Int() (r int, isConst, ok bool)                            // No any conversion. Return int for regular variable with exactly int type and for untyped constant which can be represent as int.
-	AsType(t reflect.Type) (r reflect.Value, isConst, ok bool) // No any conversion. Return r of type t if it is possible. Only regular, untyped and nil can return non false result.
-	ToType(t reflect.Type) (r reflect.Value, isConst, ok bool) // Convert Value to type t if it is possible. Only regular, untyped and nil can return non false result.
+	AsInt() (r int, isConst, ok bool)                           // No any conversion. Return int for regular variable with exactly int type and for untyped constant which can be represented as int.
+	ConvertToInt() (r int, isConst, ok bool)                    // Convert Value to int if it is possible. Only regular of [u]int[*] kinds (not float*) and untyped can be converted. Convert successful only if value can be represent as int exactly.
+	AsType(t reflect.Type) (r reflect.Value, isConst, ok bool)  // No any conversion. Return r of type t if it is possible. Only regular, untyped and nil can return non false result.
+	Convert(t reflect.Type) (r reflect.Value, isConst, ok bool) // Convert Value to type t if it is possible. Only regular, untyped and nil can return non false result.
 	implementsValue()
 }
 
@@ -53,14 +53,14 @@ func (typeVal) Kind() Kind        { return Type }
 func (builtInFuncVal) Kind() Kind { return BuiltInFunc }
 func (packageVal) Kind() Kind     { return Package }
 
-func (nilVal) DeepKind() string   { return "nil" }
-func (x regVal) DeepKind() string { return x.Regular().Type().String() }
-func (x untypedVal) DeepKind() string {
+func (nilVal) DeepType() string   { return "nil" }
+func (x regVal) DeepType() string { return x.Regular().Type().String() }
+func (x untypedVal) DeepType() string {
 	return constanth.KindString(x.Untyped().Kind()) + " (" + x.Untyped().ExactString() + ")"
 }
-func (x typeVal) DeepKind() string      { return "type" }
-func (builtInFuncVal) DeepKind() string { return "built-in function" }
-func (packageVal) DeepKind() string     { return "package" }
+func (x typeVal) DeepType() string      { return "type" }
+func (builtInFuncVal) DeepType() string { return "built-in function" }
+func (packageVal) DeepType() string     { return "package" }
 
 func (nilVal) String() string { return "nil" }
 func (x regVal) String() string {
@@ -108,62 +108,6 @@ func (typeVal) Package() map[string]Value        { panic("") }
 func (builtInFuncVal) Package() map[string]Value { panic("") }
 func (x packageVal) Package() map[string]Value   { return map[string]Value(x) }
 
-func (nilVal) Equal(v Value) bool { return v.Kind() == Nil }
-func (x regVal) Equal(v Value) (r bool) {
-	if v.Kind() != Regular {
-		return false
-	}
-
-	xV := x.Regular()
-	vV := v.Regular()
-
-	if xV.Kind() != vV.Kind() {
-		return false
-	}
-
-	// Compare functions
-	if xV.Kind() == reflect.Func {
-		return xV.Pointer() == vV.Pointer() // may return wrong result: http://stackoverflow.com/questions/9643205/how-do-i-compare-two-functions-for-pointer-equality-in-the-latest-go-weekly
-	}
-	// Compare slices
-	if xV.Kind() == reflect.Slice {
-		return reflect.DeepEqual(xV.Interface(), vV.Interface()) // not a good check
-	}
-
-	defer func() {
-		if rec := recover(); rec != nil {
-			r = false
-		}
-	}()
-	r = xV.Interface() == vV.Interface()
-	return
-}
-func (x untypedVal) Equal(v Value) bool {
-	if v.Kind() != Untyped {
-		return false
-	}
-	return constant.Compare(x.v, token.EQL, v.Untyped())
-}
-func (x typeVal) Equal(v Value) bool {
-	if v.Kind() != Type {
-		return false
-	}
-	return x.v == v.Type()
-}
-func (x builtInFuncVal) Equal(v Value) bool {
-	if v.Kind() != BuiltInFunc {
-		return false
-	}
-	return x.BuiltInFunc() == v.BuiltInFunc()
-}
-
-func (x packageVal) Equal(v Value) bool {
-	if v.Kind() != Package {
-		return false
-	}
-	return reflect.DeepEqual(x.Package(), v.Package())
-}
-
 func (nilVal) Interface() interface{}         { return nil }
 func (x regVal) Interface() interface{}       { return reflect.Value(x).Interface() }
 func (x untypedVal) Interface() interface{}   { r, _ := constanth.DefaultTypeInterface(x.v); return r }
@@ -171,22 +115,50 @@ func (typeVal) Interface() interface{}        { panic("") }
 func (builtInFuncVal) Interface() interface{} { panic("") }
 func (packageVal) Interface() interface{}     { panic("") }
 
-func (nilVal) Int() (r int, isConst, ok bool) { return 0, true, false }
-func (x regVal) Int() (r int, isConst, ok bool) {
+func (nilVal) AsInt() (r int, isConst, ok bool) { return 0, true, false }
+func (x regVal) AsInt() (r int, isConst, ok bool) {
 	if !x.Regular().CanInterface() {
 		return 0, false, false
 	}
 	r, ok = x.Regular().Interface().(int)
 	return
 }
-func (x untypedVal) Int() (r int, isConst, ok bool) {
+func (x untypedVal) AsInt() (r int, isConst, ok bool) {
 	isConst = true
 	r, ok = constanth.IntVal(x.Untyped())
 	return
 }
-func (typeVal) Int() (r int, isConst, ok bool)        { return 0, false, false }
-func (builtInFuncVal) Int() (r int, isConst, ok bool) { return 0, false, false }
-func (packageVal) Int() (r int, isConst, ok bool)     { return 0, false, false }
+func (typeVal) AsInt() (r int, isConst, ok bool)        { return 0, false, false }
+func (builtInFuncVal) AsInt() (r int, isConst, ok bool) { return 0, false, false }
+func (packageVal) AsInt() (r int, isConst, ok bool)     { return 0, false, false }
+
+func (nilVal) ConvertToInt() (r int, isConst, ok bool) { return 0, true, false }
+func (x regVal) ConvertToInt() (r int, isConst, ok bool) {
+	switch xK := x.Regular().Kind(); {
+	case reflecth.IsInt(xK):
+		r64 := x.Regular().Int()
+		if r64 < mathh.MinInt || r64 > mathh.MaxInt {
+			return
+		}
+		r = int(r64)
+		ok = true
+		return
+	case reflecth.IsUint(xK):
+		ru64 := x.Regular().Uint()
+		if ru64 > mathh.MaxInt {
+			return
+		}
+		r = int(ru64)
+		ok = true
+		return
+	default:
+		return
+	}
+}
+func (x untypedVal) ConvertToInt() (r int, isConst, ok bool)   { return x.AsInt() }
+func (typeVal) ConvertToInt() (r int, isConst, ok bool)        { return 0, false, false }
+func (builtInFuncVal) ConvertToInt() (r int, isConst, ok bool) { return 0, false, false }
+func (packageVal) ConvertToInt() (r int, isConst, ok bool)     { return 0, false, false }
 
 func (nilVal) AsType(t reflect.Type) (r reflect.Value, isConst, ok bool) {
 	isConst = true
@@ -206,39 +178,42 @@ func (x regVal) AsType(t reflect.Type) (r reflect.Value, isConst, ok bool) {
 }
 func (x untypedVal) AsType(t reflect.Type) (r reflect.Value, isConts, ok bool) {
 	isConts = true
-	if r, ok = constanth.SameType(x.Untyped(), t); ok {
-		return
-	}
-
-	if x.Untyped().Kind() == constant.Int && t.Kind() == reflect.String { // TODO may be move this case to constanth.SameType()
-		var i rune
-		i, ok = constanth.RuneVal(x.Untyped())
-		if !ok {
-			i = unicode.ReplacementChar
-			ok = true
-		}
-		r = reflect.New(t).Elem()
-		r.SetString(string(i))
-	}
+	r, ok = constanth.AsType(x.Untyped(), t)
 	return
 }
-func (typeVal) AsType(t reflect.Type) (r reflect.Value, isConst, ok bool) { return reflect.Value{}, false, false }
-func (builtInFuncVal) AsType(t reflect.Type) (r reflect.Value, isConst, ok bool) {return reflect.Value{}, false, false}
-func (packageVal) AsType(t reflect.Type) (r reflect.Value, isConst, ok bool) { return reflect.Value{}, false, false }
+func (typeVal) AsType(t reflect.Type) (r reflect.Value, isConst, ok bool) {
+	return reflect.Value{}, false, false
+}
+func (builtInFuncVal) AsType(t reflect.Type) (r reflect.Value, isConst, ok bool) {
+	return reflect.Value{}, false, false
+}
+func (packageVal) AsType(t reflect.Type) (r reflect.Value, isConst, ok bool) {
+	return reflect.Value{}, false, false
+}
 
-func (x nilVal) ToType(t reflect.Type) (r reflect.Value, isConst, ok bool) { return x.AsType(t) }
-func (x regVal) ToType(t reflect.Type) (r reflect.Value, isConst, ok bool) {
+func (x nilVal) Convert(t reflect.Type) (r reflect.Value, isConst, ok bool) { return x.AsType(t) }
+func (x regVal) Convert(t reflect.Type) (r reflect.Value, isConst, ok bool) {
 	xT := x.Regular().Type()
 	if xT.ConvertibleTo(t) {
-		r=x.Regular().Convert(t)
-		ok=true
+		r = x.Regular().Convert(t)
+		ok = true
 	}
 	return
 }
-func (x untypedVal)ToType(t reflect.Type)(r reflect.Value, isConst, ok bool) { return x.AsType(t) }
-func (typeVal) ToType(t reflect.Type) (r reflect.Value, isConst, ok bool) { return reflect.Value{}, false, false }
-func (builtInFuncVal) ToType(t reflect.Type) (r reflect.Value, isConst, ok bool) {return reflect.Value{}, false, false}
-func (packageVal) ToType(t reflect.Type) (r reflect.Value, isConst, ok bool) { return reflect.Value{}, false, false }
+func (x untypedVal) Convert(t reflect.Type) (r reflect.Value, isConst, ok bool) {
+	isConst = true
+	r, ok = constanth.Convert(x.Untyped(), t)
+	return
+}
+func (typeVal) Convert(t reflect.Type) (r reflect.Value, isConst, ok bool) {
+	return reflect.Value{}, false, false
+}
+func (builtInFuncVal) Convert(t reflect.Type) (r reflect.Value, isConst, ok bool) {
+	return reflect.Value{}, false, false
+}
+func (packageVal) Convert(t reflect.Type) (r reflect.Value, isConst, ok bool) {
+	return reflect.Value{}, false, false
+}
 
 func (nilVal) implementsValue()         {}
 func (regVal) implementsValue()         {}
