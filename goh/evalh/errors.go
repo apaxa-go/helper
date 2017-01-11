@@ -300,3 +300,12 @@ func makeSliceMismArgsError(t reflect.Type) *intError {
 func appendFirstNotSliceError(x Value) *intError {
 	return newIntError("first argument to append must be slice; have " + x.DeepType())
 }
+func typeAssertLeftInvalError(x Value)*intError{
+	return newIntError("invalid type assertion: (non-interface type "+x.String()+" on left)")
+}
+func typeAssertImposError(x reflect.Value, t reflect.Type)*intError{
+	return newIntError("impossible type "+t.String()+": string does not implement "+x.Type().String())
+}
+func typeAssertFalseError(x reflect.Value, t reflect.Type)*intError{
+	return newIntError("interface conversion: "+x.Type().String()+" is not "+t.String())
+}

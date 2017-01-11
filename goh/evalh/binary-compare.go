@@ -18,7 +18,7 @@ func binaryCompareWithNil(x reflect.Value, op token.Token) (r Value, err *intErr
 
 	switch x.Kind() {
 	case reflect.Slice, reflect.Map, reflect.Func, reflect.Ptr, reflect.Chan, reflect.Interface:
-		return MakeUntypedBool(x.IsNil() == equality), nil
+		return MakeUntypedBool(x.IsNil() == equality), nil		// TODO IsNill not the same as ==nil
 	default:
 		return nil, newIntErrorf(invBinOp, x.String(), op.String(), "nil", "compare with nil is not defined on "+x.Type().String())
 	}

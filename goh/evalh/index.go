@@ -24,29 +24,10 @@ func indexMap(x reflect.Value, i Value) (r Value, err *intError) {
 
 	iReqT := x.Type().Key()
 
-	iV, _, ok := i.AsType(iReqT)
+	iV, ok := i.ToType(iReqT)
 	if !ok {
 		return nil, convertUnableError(iReqT, i)
 	}
-	// calc index
-	//var iV reflect.Value
-	//switch i.Kind() { TO DO extract to convertCall function
-	//case Untyped:
-	//	var ok bool
-	//	iV, ok = constanth.AsType(i.Untyped(), iReqT)
-	//	if !ok {
-	//		return nil, convertUnableError(iReqT, i)
-	//	}
-	//case Regular:
-	//	iV = i.Regular()
-	//	if !iV.Type().AssignableTo(iReqT) {
-	//		return nil, convertUnableError(iReqT, i)
-	//	}
-	//case Nil:
-	//	return nil, convertUnableError(iReqT, i)
-	//default:
-	//	panic("unknown kind")
-	//}
 
 	//
 	rV := x.MapIndex(iV)

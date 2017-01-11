@@ -10,6 +10,7 @@ import (
 	"reflect"
 	"testing"
 	"unicode"
+	"github.com/apaxa-go/helper/reflecth"
 )
 
 type testExprElement struct {
@@ -144,7 +145,6 @@ func TestSelector2(t *testing.T) {
 		r, posErr := astSelectorExpr(selectorAst, v.vars)
 		err = posErr.error(token.NewFileSet())
 		if err != nil {
-			fmt.Printf("!!!\n%#v\n!!!\n", err)
 			t.Errorf("expect not error, got %v", err.Error())
 			continue
 		}
@@ -326,6 +326,8 @@ func TestCall(t *testing.T) {
 		{"string(12345678901234567890)", nil, MakeRegularInterface(string(unicode.ReplacementChar)), false},
 		{"int8(int64(127))", nil, MakeRegularInterface(int8(127)), false},
 		//{"int8(int64(128))", nil, nil, true}, // TODO
+		{`append([]byte{1,3,5}, "135"...)`, nil, MakeRegularInterface([]byte{1, 3, 5, '1', '3', '5'}), false},
+		{"[]int(nil)",nil,MakeRegularInterface([]int(nil)),false},
 	}
 
 	for _, v := range tests {
@@ -547,8 +549,9 @@ func TestComposit(t *testing.T) {
 }
 
 func TestAstExpr(t *testing.T) {
+	tmp:=interface{}(strconvh.FormatInt)	// because unable get address in one line
 	tests := []testExprElement{
-		{"(f.(func(int)(string)))(123)", IdentifiersInterface{"f": strconvh.FormatInt}.Identifiers(), MakeRegularInterface("123"), false},
+		{"(f.(func(int)(string)))(123)", IdentifiersRegular{"f": reflecth.ValueOfPtr(&tmp)}.Identifiers(), MakeRegularInterface("123"), false},
 		{"((func(int)(string))(f))(123)", IdentifiersInterface{"f": strconvh.FormatInt}.Identifiers(), MakeRegularInterface("123"), false},
 		{
 			`((func(...string)(int))(f))("1","2","3")`,

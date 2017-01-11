@@ -14,6 +14,15 @@ func TypeOfPtr(i interface{}) reflect.Type {
 	return t.Elem()
 }
 
+// for interfaces
+func ValueOfPtr(i interface{}) reflect.Value{
+	r:=reflect.ValueOf(i)
+	if r.Type().Kind()!=reflect.Ptr{
+		return reflect.Value{}
+	}
+	return r.Elem()
+}
+
 func ChanDirFromAst(dir ast.ChanDir) (r reflect.ChanDir) {
 	switch dir {
 	case asth.SendDir:

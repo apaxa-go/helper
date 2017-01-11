@@ -8,7 +8,7 @@ func convertCall(t reflect.Type, args []Value) (r Value, err *intError) {
 	if len(args) != 1 {
 		return nil, convertArgsCountMismError(t, 1, args)
 	}
-	rV, _, ok := args[0].Convert(t)
+	rV, ok := args[0].Convert(t)
 	if ok {
 		r = MakeRegular(rV)
 	} else {

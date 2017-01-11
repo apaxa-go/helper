@@ -375,6 +375,16 @@ func BuiltInMake(v []Value) (r Value, err *intError) {
 }
 
 func BuiltInAppend(v Value, a []Value, ellipsis bool) (r Value, err *intError) {
+	// Check for special case ("append([]byte, string...)")
+	if ellipsis && len(a) == 1 &&
+		v.Kind() == Regular && v.Regular().Type().AssignableTo(bytesSliceT) {
+		aV, ok := a[0].ToType(stringT)
+		if ok {
+			newA0 := MakeRegularInterface([]byte(aV.String()))
+			return BuiltInAppend(v, []Value{newA0}, true)
+		}
+	}
+
 	const fn = "append"
 	if v.Kind() != Regular {
 		return nil, appendFirstNotSliceError(v)
@@ -406,7 +416,7 @@ func BuiltInAppend(v Value, a []Value, ellipsis bool) (r Value, err *intError) {
 		aV := make([]reflect.Value, len(a))
 		for i := range a {
 			var ok bool
-			aV[i], _, ok = a[i].AsType(elemT)
+			aV[i], ok = a[i].AsType(elemT)
 			if !ok {
 				return nil, appendMismTypeError(elemT, a[i])
 			}

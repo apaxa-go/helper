@@ -6,6 +6,10 @@ import (
 	"unicode"
 )
 
+// TODO check what
+// 	"x is a floating-point constant, T is a floating-point type, and x is representable by a value of type T after rounding using IEEE 754 round-to-even rules, but with an IEEE -0.0 further rounded to an unsigned 0.0. The constant T(x) is the rounded value."
+//	happens at and only at Convert (not in As/ToType).
+
 func AsKind(x constant.Value, kind reflect.Kind) (r interface{}, ok bool) {
 	switch kind {
 	case reflect.Bool:
@@ -148,6 +152,10 @@ func AsType(x constant.Value, t reflect.Type) (r reflect.Value, ok bool) {
 		ok = false
 	}
 	return
+}
+
+func ToType(x constant.Value, t reflect.Type)(r reflect.Value, ok bool){
+	return AsType(x,t)
 }
 
 func AsTypeInterface(x constant.Value, t reflect.Type) (r interface{}, ok bool) {

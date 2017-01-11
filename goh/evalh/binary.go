@@ -23,14 +23,14 @@ func binaryCompare(x Value, op token.Token, y Value) (r Value, err *intError) {
 	case xK == Untyped && yK == Regular:
 		yV = y.Regular()
 		var ok bool
-		xV, ok = constanth.AsType(x.Untyped(), yV.Type())
+		xV, ok = constanth.Convert(x.Untyped(), yV.Type())
 		if !ok {
 			return nil, invBinOpTypesMismError(x, op, y)
 		}
 	case xK == Regular && yK == Untyped:
 		xV = x.Regular()
 		var ok bool
-		yV, ok = constanth.AsType(y.Untyped(), xV.Type())
+		yV, ok = constanth.Convert(y.Untyped(), xV.Type())
 		if !ok {
 			return nil, invBinOpTypesMismError(x, op, y)
 		}
@@ -208,14 +208,14 @@ func binaryOther(x Value, op token.Token, y Value) (r Value, err *intError) {
 	case xK == Untyped && yK == Regular:
 		yV = y.Regular()
 		var ok bool
-		xV, ok = constanth.AsType(x.Untyped(), yV.Type())
+		xV, ok = constanth.Convert(x.Untyped(), yV.Type())
 		if !ok {
 			return nil, invBinOpTypesMismError(x, op, y)
 		}
 	case xK == Regular && yK == Untyped:
 		xV = x.Regular()
 		var ok bool
-		yV, ok = constanth.AsType(y.Untyped(), xV.Type())
+		yV, ok = constanth.Convert(y.Untyped(), xV.Type())
 		if !ok {
 			return nil, invBinOpTypesMismError(x, op, y)
 		}

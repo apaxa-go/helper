@@ -10,35 +10,11 @@ func assign(to reflect.Value, value Value) (err *intError) {
 		return assignDstUnsettableError(MakeRegular(to))
 	}
 
-	newValue, _, ok := value.AsType(to.Type())
+	newValue, ok := value.ToType(to.Type())
 	if !ok {
 		return assignTypesMismError(to.Type(), value)
 	}
 
-	//var newValue reflect.Value
-	//switch value.Kind() {
-	//case Untyped:
-	//	var ok bool
-	//	newValue, ok = constanth.AsType(value.Untyped(), to.Type())
-	//	if !ok {
-	//		return assignTypesMismError(MakeRegular(to), value)
-	//	}
-	//case Regular:
-	//	newValue = value.Regular()
-	//case Nil:
-	//	var tmp reflect.Value
-	//	tmp, err = convertNil2(to.Type())
-	//	if err != nil {
-	//		return
-	//	}
-	//	if !tmp.Type().AssignableTo(to.Type()) {
-	//		return assignTypesMismError(MakeRegular(to), value)
-	//	}
-	//	to.Set(tmp)
-	//default:
-	//	return assignTypesMismError(MakeRegular(to), value)
-	//}
-	//
 	if !newValue.Type().AssignableTo(to.Type()) {
 		return assignTypesMismError(to.Type(), value)
 	}

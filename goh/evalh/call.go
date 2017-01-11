@@ -45,7 +45,7 @@ func callRegularVariadicEllipsis(f reflect.Value, args []Value) (r Value, err *i
 	typedArgs := make([]reflect.Value, len(args))
 	for i := range args {
 		var ok bool
-		typedArgs[i], _, ok = args[i].AsType(fT.In(i))
+		typedArgs[i], ok = args[i].ToType(fT.In(i))
 		if !ok {
 			return nil, callInvArgAtError(i, args[i], fT.In(i))
 		}
@@ -73,7 +73,7 @@ func callRegularVariadic(f reflect.Value, args []Value) (r Value, err *intError)
 	// non-variadic arguments
 	for i := 0; i < fT.NumIn()-1; i++ {
 		var ok bool
-		typedArgs[i], _, ok = args[i].AsType(fT.In(i))
+		typedArgs[i], ok = args[i].ToType(fT.In(i))
 		if !ok {
 			return nil, callInvArgAtError(i, args[i], fT.In(i))
 		}
@@ -82,7 +82,7 @@ func callRegularVariadic(f reflect.Value, args []Value) (r Value, err *intError)
 	variadicT := fT.In(fT.NumIn() - 1).Elem()
 	for i := fT.NumIn() - 1; i < len(args); i++ {
 		var ok bool
-		typedArgs[i], _, ok = args[i].AsType(variadicT)
+		typedArgs[i], ok = args[i].ToType(variadicT)
 		if !ok {
 			return nil, callInvArgAtError(i, args[i], variadicT)
 		}
@@ -109,25 +109,8 @@ func callRegularNonVariadic(f reflect.Value, args []Value) (r Value, err *intErr
 	// Prepare arguments
 	typedArgs := make([]reflect.Value, len(args))
 	for i := range args {
-		//switch args[i].Kind() {
-		//case Untyped:
-		//	var ok bool
-		//	typedArgs[i], ok = constanth.AsType(args[i].Untyped(), fT.In(i))
-		//	if !ok {
-		//		return nil, callInvArgAtError(i, args[i], fT.In(i))
-		//	}
-		//case Nil:
-		//	typedArgs[i] = reflect.ValueOf(nil)  TO DO check this, may be "convertNil()"
-		//case Regular:
-		//	if aT := args[i].Regular().Type(); !aT.AssignableTo(fT.In(i)) {
-		//		return nil, callInvArgAtError(i, args[i], fT.In(i))
-		//	}
-		//	typedArgs[i] = args[i].Regular()
-		//default:
-		//	return nil, callInvArgAtError(i, args[i], fT.In(i))
-		//}
 		var ok bool
-		typedArgs[i], _, ok = args[i].AsType(fT.In(i))
+		typedArgs[i], ok = args[i].ToType(fT.In(i))
 		if !ok {
 			return nil, callInvArgAtError(i, args[i], fT.In(i))
 		}

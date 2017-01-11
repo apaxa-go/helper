@@ -512,6 +512,31 @@ func astCompositeLit(e *ast.CompositeLit, idents Identifiers) (r Value, err *pos
 	return
 }
 
+func astTypeAssertExpr(e *ast.TypeAssertExpr, idents Identifiers) (r Value, err *posError) {
+	x, err := astExpr(e.X, idents)
+	if err != nil {
+		return
+	}
+	if x.Kind() != Regular || x.Regular().Kind() != reflect.Interface {
+		return nil, typeAssertLeftInvalError(x).pos(e)
+	}
+	t, err := astExpr(e.Type, idents)
+	if err != nil {
+		return
+	}
+	if t.Kind() != Type {
+		return nil, notTypeError(t).pos(e.Type)
+	}
+	rV, ok, valid := reflecth.TypeAssert(x.Regular(), t.Type())
+	if !valid {
+		return nil, typeAssertImposError(x.Regular(), t.Type()).pos(e)
+	}
+	if !ok {
+		return nil, typeAssertFalseError(x.Regular(), t.Type()).pos(e)
+	}
+	return MakeRegular(rV), nil
+}
+
 func astExpr(e ast.Expr, idents Identifiers) (r Value, err *posError) {
 	if e == nil {
 		return nil, invAstNilError().noPos()
@@ -548,6 +573,8 @@ func astExpr(e ast.Expr, idents Identifiers) (r Value, err *posError) {
 		return astSliceExpr(v, idents)
 	case *ast.CompositeLit:
 		return astCompositeLit(v, idents)
+	case *ast.TypeAssertExpr:
+		return astTypeAssertExpr(v, idents)
 	default:
 		return nil, invAstUnsupportedError(e).pos(e)
 	}

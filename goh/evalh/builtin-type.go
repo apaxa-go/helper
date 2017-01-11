@@ -37,3 +37,9 @@ var builtInTypes = map[string]reflect.Type{
 
 	"string": reflect.TypeOf(""),
 }
+
+// In some places required specific types. This variables allow to avoid using types map.
+var (
+	stringT     = reflect.TypeOf(string(""))
+	bytesSliceT = reflect.SliceOf(reflect.TypeOf(byte(0)))
+)

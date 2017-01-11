@@ -30,10 +30,11 @@ type Value interface {
 	BuiltInFunc() string
 	Package() map[string]Value
 	Interface() interface{}
-	AsInt() (r int, isConst, ok bool)                           // No any conversion. Return int for regular variable with exactly int type and for untyped constant which can be represented as int.
-	ConvertToInt() (r int, isConst, ok bool)                    // Convert Value to int if it is possible. Only regular of [u]int[*] kinds (not float*) and untyped can be converted. Convert successful only if value can be represent as int exactly.
-	AsType(t reflect.Type) (r reflect.Value, isConst, ok bool)  // No any conversion. Return r of type t if it is possible. Only regular, untyped and nil can return non false result.
-	Convert(t reflect.Type) (r reflect.Value, isConst, ok bool) // Convert Value to type t if it is possible. Only regular, untyped and nil can return non false result.
+	AsInt() (r int, isConst, ok bool)                  // No any conversion. Return int for regular variable with exactly int type and for untyped constant which can be represented as int.
+	ConvertToInt() (r int, isConst, ok bool)           // Convert Value to int if it is possible. Only regular of [u]int[*] kinds (not float*) and untyped can be converted. Convert successful only if value can be represent as int exactly.
+	AsType(t reflect.Type) (r reflect.Value, ok bool)  // No any conversion. Return r of type t if it is possible. Only regular, untyped and nil can return non false result.
+	ToType(t reflect.Type) (r reflect.Value, ok bool)  // GoLang Assign. A small peace of convertation (such as variable to interface).
+	Convert(t reflect.Type) (r reflect.Value, ok bool) // GoLang Convert. Convert Value to type t if it is possible. Only regular, untyped and nil can return non false result.
 	implementsValue()
 }
 
@@ -160,39 +161,47 @@ func (typeVal) ConvertToInt() (r int, isConst, ok bool)        { return 0, false
 func (builtInFuncVal) ConvertToInt() (r int, isConst, ok bool) { return 0, false, false }
 func (packageVal) ConvertToInt() (r int, isConst, ok bool)     { return 0, false, false }
 
-func (nilVal) AsType(t reflect.Type) (r reflect.Value, isConst, ok bool) {
-	isConst = true
+func (nilVal) AsType(t reflect.Type) (r reflect.Value, ok bool) {
 	switch t.Kind() {
 	case reflect.Slice, reflect.Ptr, reflect.Func, reflect.Interface, reflect.Map, reflect.Chan:
-		r = reflect.New(t) // TODO check if result is adequate
+		r = reflect.New(t).Elem()
 		ok = true
 	}
 	return
 }
-func (x regVal) AsType(t reflect.Type) (r reflect.Value, isConst, ok bool) {
+func (x regVal) AsType(t reflect.Type) (r reflect.Value, ok bool) {
 	if x.Regular().Type() == t {
 		r = x.Regular()
 		ok = true
 	}
 	return
 }
-func (x untypedVal) AsType(t reflect.Type) (r reflect.Value, isConts, ok bool) {
-	isConts = true
-	r, ok = constanth.AsType(x.Untyped(), t)
+func (x untypedVal) AsType(t reflect.Type) (r reflect.Value, ok bool) {
+	return constanth.AsType(x.Untyped(), t)
+}
+func (typeVal) AsType(t reflect.Type) (r reflect.Value, ok bool)        { return }
+func (builtInFuncVal) AsType(t reflect.Type) (r reflect.Value, ok bool) { return }
+func (packageVal) AsType(t reflect.Type) (r reflect.Value, ok bool)     { return }
+
+func (x nilVal) ToType(t reflect.Type) (r reflect.Value, ok bool) { return x.AsType(t) }
+func (x regVal) ToType(t reflect.Type) (r reflect.Value, ok bool) {
+	if !x.Regular().Type().AssignableTo(t) {
+		return
+	}
+	r = reflect.New(t).Elem()
+	r.Set(x.Regular())
+	ok = true
 	return
 }
-func (typeVal) AsType(t reflect.Type) (r reflect.Value, isConst, ok bool) {
-	return reflect.Value{}, false, false
+func (x untypedVal) ToType(t reflect.Type) (r reflect.Value, ok bool) {
+	return constanth.ToType(x.Untyped(), t)
 }
-func (builtInFuncVal) AsType(t reflect.Type) (r reflect.Value, isConst, ok bool) {
-	return reflect.Value{}, false, false
-}
-func (packageVal) AsType(t reflect.Type) (r reflect.Value, isConst, ok bool) {
-	return reflect.Value{}, false, false
-}
+func (typeVal) ToType(t reflect.Type) (r reflect.Value, ok bool)        { return }
+func (builtInFuncVal) ToType(t reflect.Type) (r reflect.Value, ok bool) { return }
+func (packageVal) ToType(t reflect.Type) (r reflect.Value, ok bool)     { return }
 
-func (x nilVal) Convert(t reflect.Type) (r reflect.Value, isConst, ok bool) { return x.AsType(t) }
-func (x regVal) Convert(t reflect.Type) (r reflect.Value, isConst, ok bool) {
+func (x nilVal) Convert(t reflect.Type) (r reflect.Value, ok bool) { return x.AsType(t) }
+func (x regVal) Convert(t reflect.Type) (r reflect.Value, ok bool) {
 	xT := x.Regular().Type()
 	if xT.ConvertibleTo(t) {
 		r = x.Regular().Convert(t)
@@ -200,20 +209,12 @@ func (x regVal) Convert(t reflect.Type) (r reflect.Value, isConst, ok bool) {
 	}
 	return
 }
-func (x untypedVal) Convert(t reflect.Type) (r reflect.Value, isConst, ok bool) {
-	isConst = true
-	r, ok = constanth.Convert(x.Untyped(), t)
-	return
+func (x untypedVal) Convert(t reflect.Type) (r reflect.Value, ok bool) {
+	return constanth.Convert(x.Untyped(), t)
 }
-func (typeVal) Convert(t reflect.Type) (r reflect.Value, isConst, ok bool) {
-	return reflect.Value{}, false, false
-}
-func (builtInFuncVal) Convert(t reflect.Type) (r reflect.Value, isConst, ok bool) {
-	return reflect.Value{}, false, false
-}
-func (packageVal) Convert(t reflect.Type) (r reflect.Value, isConst, ok bool) {
-	return reflect.Value{}, false, false
-}
+func (typeVal) Convert(t reflect.Type) (r reflect.Value, ok bool)        { return }
+func (builtInFuncVal) Convert(t reflect.Type) (r reflect.Value, ok bool) { return }
+func (packageVal) Convert(t reflect.Type) (r reflect.Value, ok bool)     { return }
 
 func (nilVal) implementsValue()         {}
 func (regVal) implementsValue()         {}
