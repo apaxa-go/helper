@@ -149,7 +149,7 @@ func TestWriteBytesStr2(t *testing.T) {
 func benchmarkWriteBytes(b *testing.B, f func([]byte, io.Writer, bool) error) {
 	buf := bytesh.NewBufferDetail(0, 1)
 	for i := 0; i < b.N; i++ {
-		f(test[i%len(test)].b, buf, i%2 == 0)
+		_ = f(test[i%len(test)].b, buf, i%2 == 0)
 		buf.Reset()
 	}
 }

@@ -10,6 +10,9 @@ import (
 //	 0: s should be valid identifier
 // 	 1: s should be valid exported identifier
 func validateIdent(s string, req int) bool {
+	if IsBlankIdent(s) {
+		return false
+	}
 	r, i := utf8.DecodeRuneInString(s)
 	switch req {
 	case -1:
@@ -35,6 +38,17 @@ func validateIdent(s string, req int) bool {
 	return true
 }
 
-func IsValidIdent(s string) bool            { return validateIdent(s, 0) }
-func IsValidExportedIdent(s string) bool    { return validateIdent(s, 1) }
+// IsBlankIdent checks if s is Go blank identifier ("_").
+func IsBlankIdent(s string) bool { return s == "_" }
+
+// IsValidIdent checks if s is valid Go ident.
+// For blank identifier this function returns false.
+func IsValidIdent(s string) bool { return validateIdent(s, 0) }
+
+// IsValidExportedIdent checks if s is valid exported Go ident.
+// For blank identifier this function returns false.
+func IsValidExportedIdent(s string) bool { return validateIdent(s, 1) }
+
+// IsValidNotExportedIdent checks if s is valid not exported Go ident.
+// For blank identifier this function returns false.
 func IsValidNotExportedIdent(s string) bool { return validateIdent(s, -1) }

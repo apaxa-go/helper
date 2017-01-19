@@ -7,6 +7,7 @@ import (
 	"go/constant"
 )
 
+// IntVal returns the Go int value of x and whether operation successful.
 func IntVal(x constant.Value) (int, bool) {
 	i64, ok := Int64Val(x)
 	if !ok {
@@ -18,6 +19,7 @@ func IntVal(x constant.Value) (int, bool) {
 	return int(i64), true
 }
 
+// UintVal returns the Go int value of x and whether operation successful.
 func UintVal(x constant.Value) (uint, bool) {
 	u64, ok := Uint64Val(x)
 	if !ok {
@@ -29,6 +31,7 @@ func UintVal(x constant.Value) (uint, bool) {
 	return uint(u64), true
 }
 
+// Int8Val returns the Go int8 value of x and whether operation successful.
 func Int8Val(x constant.Value) (int8, bool) {
 	i64, ok := Int64Val(x)
 	if !ok {
@@ -40,6 +43,7 @@ func Int8Val(x constant.Value) (int8, bool) {
 	return int8(i64), true
 }
 
+// Uint8Val returns the Go int8 value of x and whether operation successful.
 func Uint8Val(x constant.Value) (uint8, bool) {
 	u64, ok := Uint64Val(x)
 	if !ok {
@@ -51,6 +55,7 @@ func Uint8Val(x constant.Value) (uint8, bool) {
 	return uint8(u64), true
 }
 
+// Int16Val returns the Go int16 value of x and whether operation successful.
 func Int16Val(x constant.Value) (int16, bool) {
 	i64, ok := Int64Val(x)
 	if !ok {
@@ -62,6 +67,7 @@ func Int16Val(x constant.Value) (int16, bool) {
 	return int16(i64), true
 }
 
+// Uint16Val returns the Go int16 value of x and whether operation successful.
 func Uint16Val(x constant.Value) (uint16, bool) {
 	u64, ok := Uint64Val(x)
 	if !ok {

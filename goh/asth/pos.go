@@ -14,6 +14,7 @@ type PointInSource struct {
 	Column int // column number, starting at 1 (byte count)
 }
 
+// TokenPositionToPoint convert token.Position to PointInSource.
 func TokenPositionToPoint(p token.Position) PointInSource {
 	return PointInSource{p.Offset, p.Line, p.Column}
 }
@@ -29,11 +30,18 @@ func (p PointInSource) String() string {
 	return strconvh.FormatInt(p.Line) + ":" + strconvh.FormatInt(p.Column)
 }
 
+// Position describes position of piece of code in source file.
+// It contains file name (if any), position of beginning and (optionally) position of end.
+// End is the position of last character, not first character after piece of code.
 type Position struct {
-	Filename string // filename, if any
+	Filename string
 	Pos, End PointInSource
 }
 
+// MakePosition makes Position.
+// pos is the first character of code.
+// end is the first character after code.
+// fset must be non nil (pass token.NewFileSet() instead).
 func MakePosition(pos, end token.Pos, fset *token.FileSet) (p Position) {
 	if tmp := fset.Position(pos); tmp.IsValid() {
 		// file name
@@ -55,6 +63,8 @@ func MakePosition(pos, end token.Pos, fset *token.FileSet) (p Position) {
 	return
 }
 
+// NodePosition makes Position of ast.Node.
+// It is just shortcut for MakePosition.
 func NodePosition(n ast.Node, fset *token.FileSet) (p Position) {
 	return MakePosition(n.Pos(), n.End(), fset)
 }

@@ -30,9 +30,9 @@ const (
 // MimeApplicationOctetStream is arbitrary data MIME type.
 const MimeApplicationOctetStream = "application/octet-stream" // Any binary data
 
-// Shorthands
+// Shortcuts
 
-// Common WEB MIME types shorthands.
+// Common WEB MIME types shortcuts.
 const (
 	MimeHTML = MimeTextHTMLUtf8
 	MimeCSS  = MimeTextCSSUtf8
@@ -41,19 +41,19 @@ const (
 	MimeDart = MimeApplicationVndDart
 )
 
-// Fonts MIME types shorthands.
+// Fonts MIME types shortcuts.
 const (
 	MimeFontEot  = MimeApplicationVndMsFontObject
 	MimeFontTtf  = MimeApplicationXFontTtf
 	MimeFontWoff = MimeApplicationXFontWoff
 )
 
-// Images MIME types shorthands.
+// Images MIME types shortcuts.
 const (
 	MimeImageSvg = MimeImageSvgXML
 )
 
-// Arbitrary data MIME type shorthands.
+// Arbitrary data MIME type shortcuts.
 const (
 	MimeBinary   = MimeApplicationOctetStream
 	MimeFallback = MimeApplicationOctetStream

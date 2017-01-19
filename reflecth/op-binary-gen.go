@@ -1,12 +1,13 @@
 //replacer:generated-file
 
-package evalh
+package reflecth
 
 import (
+	"github.com/apaxa-go/helper/strconvh"
 	"go/token"
 )
 
-func binaryOtherInt(x int, op token.Token, y int) (r int, err *intError) {
+func binaryOpInt(x int, op token.Token, y int) (r int, err error) {
 	switch op {
 	case token.ADD:
 		return x + y, nil
@@ -27,11 +28,11 @@ func binaryOtherInt(x int, op token.Token, y int) (r int, err *intError) {
 	case token.AND_NOT:
 		return x &^ y, nil
 	default:
-		return 0, invBinOpInvalError(MakeRegularInterface(x), op, MakeRegularInterface(y))
+		return 0, binaryOpInvalidOperatorSError(strconvh.FormatInt(x), op.String(), strconvh.FormatInt(y))
 	}
 }
 
-func binaryOtherInt8(x int8, op token.Token, y int8) (r int8, err *intError) {
+func binaryOpInt8(x int8, op token.Token, y int8) (r int8, err error) {
 	switch op {
 	case token.ADD:
 		return x + y, nil
@@ -52,11 +53,11 @@ func binaryOtherInt8(x int8, op token.Token, y int8) (r int8, err *intError) {
 	case token.AND_NOT:
 		return x &^ y, nil
 	default:
-		return 0, invBinOpInvalError(MakeRegularInterface(x), op, MakeRegularInterface(y))
+		return 0, binaryOpInvalidOperatorSError(strconvh.FormatInt8(x), op.String(), strconvh.FormatInt8(y))
 	}
 }
 
-func binaryOtherInt16(x int16, op token.Token, y int16) (r int16, err *intError) {
+func binaryOpInt16(x int16, op token.Token, y int16) (r int16, err error) {
 	switch op {
 	case token.ADD:
 		return x + y, nil
@@ -77,11 +78,11 @@ func binaryOtherInt16(x int16, op token.Token, y int16) (r int16, err *intError)
 	case token.AND_NOT:
 		return x &^ y, nil
 	default:
-		return 0, invBinOpInvalError(MakeRegularInterface(x), op, MakeRegularInterface(y))
+		return 0, binaryOpInvalidOperatorSError(strconvh.FormatInt16(x), op.String(), strconvh.FormatInt16(y))
 	}
 }
 
-func binaryOtherInt32(x int32, op token.Token, y int32) (r int32, err *intError) {
+func binaryOpInt32(x int32, op token.Token, y int32) (r int32, err error) {
 	switch op {
 	case token.ADD:
 		return x + y, nil
@@ -102,11 +103,11 @@ func binaryOtherInt32(x int32, op token.Token, y int32) (r int32, err *intError)
 	case token.AND_NOT:
 		return x &^ y, nil
 	default:
-		return 0, invBinOpInvalError(MakeRegularInterface(x), op, MakeRegularInterface(y))
+		return 0, binaryOpInvalidOperatorSError(strconvh.FormatInt32(x), op.String(), strconvh.FormatInt32(y))
 	}
 }
 
-func binaryOtherUint(x uint, op token.Token, y uint) (r uint, err *intError) {
+func binaryOpUint(x uint, op token.Token, y uint) (r uint, err error) {
 	switch op {
 	case token.ADD:
 		return x + y, nil
@@ -127,11 +128,11 @@ func binaryOtherUint(x uint, op token.Token, y uint) (r uint, err *intError) {
 	case token.AND_NOT:
 		return x &^ y, nil
 	default:
-		return 0, invBinOpInvalError(MakeRegularInterface(x), op, MakeRegularInterface(y))
+		return 0, binaryOpInvalidOperatorSError(strconvh.FormatUint(x), op.String(), strconvh.FormatUint(y))
 	}
 }
 
-func binaryOtherUint8(x uint8, op token.Token, y uint8) (r uint8, err *intError) {
+func binaryOpUint8(x uint8, op token.Token, y uint8) (r uint8, err error) {
 	switch op {
 	case token.ADD:
 		return x + y, nil
@@ -152,11 +153,11 @@ func binaryOtherUint8(x uint8, op token.Token, y uint8) (r uint8, err *intError)
 	case token.AND_NOT:
 		return x &^ y, nil
 	default:
-		return 0, invBinOpInvalError(MakeRegularInterface(x), op, MakeRegularInterface(y))
+		return 0, binaryOpInvalidOperatorSError(strconvh.FormatUint8(x), op.String(), strconvh.FormatUint8(y))
 	}
 }
 
-func binaryOtherUint16(x uint16, op token.Token, y uint16) (r uint16, err *intError) {
+func binaryOpUint16(x uint16, op token.Token, y uint16) (r uint16, err error) {
 	switch op {
 	case token.ADD:
 		return x + y, nil
@@ -177,11 +178,11 @@ func binaryOtherUint16(x uint16, op token.Token, y uint16) (r uint16, err *intEr
 	case token.AND_NOT:
 		return x &^ y, nil
 	default:
-		return 0, invBinOpInvalError(MakeRegularInterface(x), op, MakeRegularInterface(y))
+		return 0, binaryOpInvalidOperatorSError(strconvh.FormatUint16(x), op.String(), strconvh.FormatUint16(y))
 	}
 }
 
-func binaryOtherUint32(x uint32, op token.Token, y uint32) (r uint32, err *intError) {
+func binaryOpUint32(x uint32, op token.Token, y uint32) (r uint32, err error) {
 	switch op {
 	case token.ADD:
 		return x + y, nil
@@ -202,11 +203,11 @@ func binaryOtherUint32(x uint32, op token.Token, y uint32) (r uint32, err *intEr
 	case token.AND_NOT:
 		return x &^ y, nil
 	default:
-		return 0, invBinOpInvalError(MakeRegularInterface(x), op, MakeRegularInterface(y))
+		return 0, binaryOpInvalidOperatorSError(strconvh.FormatUint32(x), op.String(), strconvh.FormatUint32(y))
 	}
 }
 
-func binaryOtherUint64(x uint64, op token.Token, y uint64) (r uint64, err *intError) {
+func binaryOpUint64(x uint64, op token.Token, y uint64) (r uint64, err error) {
 	switch op {
 	case token.ADD:
 		return x + y, nil
@@ -227,11 +228,11 @@ func binaryOtherUint64(x uint64, op token.Token, y uint64) (r uint64, err *intEr
 	case token.AND_NOT:
 		return x &^ y, nil
 	default:
-		return 0, invBinOpInvalError(MakeRegularInterface(x), op, MakeRegularInterface(y))
+		return 0, binaryOpInvalidOperatorSError(strconvh.FormatUint64(x), op.String(), strconvh.FormatUint64(y))
 	}
 }
 
-func binaryOtherFloat64(x float64, op token.Token, y float64) (r float64, err *intError) {
+func binaryOpFloat64(x float64, op token.Token, y float64) (r float64, err error) {
 	switch op {
 	case token.ADD:
 		return x + y, nil
@@ -242,11 +243,11 @@ func binaryOtherFloat64(x float64, op token.Token, y float64) (r float64, err *i
 	case token.QUO:
 		return x / y, nil
 	default:
-		return 0, invBinOpInvalError(MakeRegularInterface(x), op, MakeRegularInterface(y))
+		return 0, binaryOpInvalidOperatorSError(strconvh.FormatFloat64(x), op.String(), strconvh.FormatFloat64(y))
 	}
 }
 
-func binaryOtherComplex64(x complex64, op token.Token, y complex64) (r complex64, err *intError) {
+func binaryOpComplex64(x complex64, op token.Token, y complex64) (r complex64, err error) {
 	switch op {
 	case token.ADD:
 		return x + y, nil
@@ -257,11 +258,11 @@ func binaryOtherComplex64(x complex64, op token.Token, y complex64) (r complex64
 	case token.QUO:
 		return x / y, nil
 	default:
-		return 0, invBinOpInvalError(MakeRegularInterface(x), op, MakeRegularInterface(y))
+		return 0, binaryOpInvalidOperatorSError(strconvh.FormatComplex64(x), op.String(), strconvh.FormatComplex64(y))
 	}
 }
 
-func binaryOtherComplex128(x complex128, op token.Token, y complex128) (r complex128, err *intError) {
+func binaryOpComplex128(x complex128, op token.Token, y complex128) (r complex128, err error) {
 	switch op {
 	case token.ADD:
 		return x + y, nil
@@ -272,6 +273,6 @@ func binaryOtherComplex128(x complex128, op token.Token, y complex128) (r comple
 	case token.QUO:
 		return x / y, nil
 	default:
-		return 0, invBinOpInvalError(MakeRegularInterface(x), op, MakeRegularInterface(y))
+		return 0, binaryOpInvalidOperatorSError(strconvh.FormatComplex128(x), op.String(), strconvh.FormatComplex128(y))
 	}
 }

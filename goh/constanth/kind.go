@@ -2,6 +2,7 @@ package constanth
 
 import "go/constant"
 
+// KindString returns string representation of passed constant's kind.
 func KindString(k constant.Kind) (r string) {
 	switch k {
 	case constant.Unknown:
@@ -21,8 +22,9 @@ func KindString(k constant.Kind) (r string) {
 	}
 }
 
-func IsNumeric(k constant.Value) bool {
-	switch k.Kind() {
+// IsNumeric returns true if passed constant's kind is number (int, float or complex).
+func IsNumeric(k constant.Kind) bool {
+	switch k {
 	case constant.Int, constant.Float, constant.Complex:
 		return true
 	default:

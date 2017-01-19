@@ -43,7 +43,7 @@ func TestStmtScanAll(t *testing.T) {
 		t.Fatal(err)
 	}
 	var labels Labels
-	if err := StmtScanAll(stmt, &labels); err != nil {
+	if err = StmtScanAll(stmt, &labels); err != nil {
 		t.Error(err)
 	}
 	if err = mock.ExpectationsWereMet(); err != nil {

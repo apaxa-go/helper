@@ -39,7 +39,7 @@ func TestNewRange(t *testing.T) {
 }
 
 func TestNewRange2(t *testing.T) {
-	defer func() { recover() }()
+	defer func() { _ = recover() }()
 	NewRange(1, 10, -1)
 	t.Error("panic expected, but no panic")
 }

@@ -134,7 +134,7 @@ func TestWalk5(t *testing.T) {
 		t.Error(err)
 	}
 	defer func() {
-		err := os.RemoveAll(tmpDir)
+		err = os.RemoveAll(tmpDir)
 		if err != nil {
 			t.Error(err)
 		}
@@ -159,7 +159,7 @@ func TestWalk6(t *testing.T) {
 		t.Error(err)
 	}
 	defer func() {
-		err := os.RemoveAll(tmpDir)
+		err = os.RemoveAll(tmpDir)
 		if err != nil {
 			t.Error(err)
 		}

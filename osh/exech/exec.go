@@ -40,7 +40,7 @@ func Exec(name string, stdin []byte, args ...string) (stdout []byte, err error) 
 	if err != nil {
 		return // It is hard to check this by tests
 	}
-	stdinPipe.Close()
+	_ = stdinPipe.Close()
 
 	//Read compiled data
 	stdout, err = ioutil.ReadAll(stdoutPipe)
