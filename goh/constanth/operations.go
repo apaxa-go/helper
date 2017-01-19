@@ -64,7 +64,7 @@ func BinaryOpTyped(x TypedValue, op token.Token, y TypedValue) (r TypedValue, er
 	if err != nil {
 		return TypedValue{}, err
 	}
-	if !IsAssignable(r.v, r.t) {
+	if !AssignableTo(r.v, r.t) {
 		return TypedValue{}, errors.New("unable to perform binary operation " + x.t.String() + " " + op.String() + " " + y.t.String() + ": missmatched result value " + r.v.String() + " and result type " + r.t.String())
 	}
 	return
@@ -96,7 +96,7 @@ func UnaryOpTyped(op token.Token, y TypedValue, prec uint) (r TypedValue, err er
 	if err != nil {
 		return TypedValue{}, err
 	}
-	if !IsAssignable(r.v, r.t) {
+	if !AssignableTo(r.v, r.t) {
 		return TypedValue{}, errors.New("unable to perform unary operation " + op.String() + " " + y.t.String() + ": missmatched result value " + r.v.String() + " and result type " + r.t.String())
 	}
 	return
@@ -128,7 +128,7 @@ func ShiftOpTyped(x TypedValue, op token.Token, s uint) (r TypedValue, err error
 	if err != nil {
 		return TypedValue{}, err
 	}
-	if !IsAssignable(r.v, r.t) {
+	if !AssignableTo(r.v, r.t) {
 		return TypedValue{}, errors.New("unable to perform shift operation " + x.t.String() + " " + op.String() + " " + strconvh.FormatUint(s) + ": missmatched result value " + r.v.String() + " and result type " + r.t.String())
 	}
 	return

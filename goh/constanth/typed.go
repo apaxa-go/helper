@@ -15,7 +15,7 @@ type TypedValue struct {
 // MakeTypedValue tries to create typed constant from given untyped constant x with specified type t.
 // If x can not be represented as type t then ok will be false.
 func MakeTypedValue(x constant.Value, t reflect.Type) (r TypedValue, ok bool) {
-	ok = IsAssignable(x, t)
+	ok = AssignableTo(x, t)
 	if ok {
 		r = TypedValue{x, t}
 	}
@@ -80,7 +80,7 @@ func (x TypedValue) Assign(t reflect.Type) (r reflect.Value, ok bool) {
 //
 
 // ConvertibleTo checks possibility of conversion typed constant x to type t using Go conversion rules described in specification.
-func (x TypedValue) ConvertibleTo(t reflect.Type) bool { return IsConvertible(x.v, t) }
+func (x TypedValue) ConvertibleTo(t reflect.Type) bool { return ConvertibleTo(x.v, t) }
 
 // MustConvert does the same thing as Convert but if conversion is impossible it panics.
 func (x TypedValue) MustConvert(t reflect.Type) TypedValue { return MustConvert(x.v, t) }

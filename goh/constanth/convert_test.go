@@ -140,7 +140,7 @@ func TestConvert(t *testing.T) {
 		if ok != test.ok || (ok && !r.Equal(testR)) {
 			t.Errorf("%v %v: expect %v %v, got %v %v", test.c, test.t, testR, test.ok, r, ok)
 		}
-		if r := IsConvertible(test.c, test.t); r != test.ok {
+		if r := ConvertibleTo(test.c, test.t); r != test.ok {
 			t.Errorf("%v %v: expect %v, got %v", test.c, test.t, test.ok, r)
 		}
 		if !test.ok {
@@ -256,7 +256,7 @@ func TestAssign(t *testing.T) {
 		if ok != test.ok || (ok && r.Interface() != test.r) {
 			t.Errorf("%v %v: expect %v (type %v) %v, got %v (type %v) %v", test.c, test.t, test.r, reflect.TypeOf(test.r).String(), test.ok, r, r.Type().String(), ok)
 		}
-		if r := IsAssignable(test.c, test.t); r != test.ok {
+		if r := AssignableTo(test.c, test.t); r != test.ok {
 			t.Errorf("%v %v: expect %v, got %v", test.c, test.t, test.ok, r)
 		}
 		if !test.ok {

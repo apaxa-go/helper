@@ -8,8 +8,8 @@ import (
 
 // TODO "x is a floating-point constant, T is a floating-point type, and x is representable by a value of type T after rounding using IEEE 754 round-to-even rules, but with an IEEE -0.0 further rounded to an unsigned 0.0. The constant T(x) is the rounded value." must be applied only to Convert (not to Assign).
 
-// IsConvertible checks possibility of conversion constant x to type t using Go conversion rules described in specification.
-func IsConvertible(x constant.Value, t reflect.Type) bool {
+// ConvertibleTo checks possibility of conversion constant x to type t using Go conversion rules described in specification.
+func ConvertibleTo(x constant.Value, t reflect.Type) bool {
 	_, ok := Convert(x, t)
 	return ok
 }
@@ -140,8 +140,8 @@ func Convert(x constant.Value, t reflect.Type) (r TypedValue, ok bool) {
 	return
 }
 
-// IsAssignable checks possibility of assignation constant x to variable of type t using Go assignation rules described in specification.
-func IsAssignable(x constant.Value, t reflect.Type) bool {
+// AssignableTo checks possibility of assignation constant x to variable of type t using Go assignation rules described in specification.
+func AssignableTo(x constant.Value, t reflect.Type) bool {
 	_, ok := Assign(x, t)
 	return ok
 }

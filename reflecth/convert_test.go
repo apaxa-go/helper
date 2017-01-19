@@ -19,7 +19,7 @@ func TestConvert(t *testing.T) {
 	}
 
 	for i, test := range tests {
-		if ok := IsConvertible(reflect.ValueOf(test.x), test.t); ok != test.ok {
+		if ok := ConvertibleTo(reflect.ValueOf(test.x), test.t); ok != test.ok {
 			t.Errorf("#%v expect %v, got %v", i, test.ok, ok)
 			continue
 		}
@@ -63,7 +63,7 @@ func TestAssign(t *testing.T) {
 	}
 
 	for i, test := range tests {
-		if ok := IsAssignable(reflect.ValueOf(test.x), test.t); ok != test.ok {
+		if ok := AssignableTo(reflect.ValueOf(test.x), test.t); ok != test.ok {
 			t.Errorf("#%v expect %v, got %v", i, test.ok, ok)
 			continue
 		}
