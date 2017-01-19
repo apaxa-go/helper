@@ -55,7 +55,7 @@ func (e ScanError) Error() string {
 		}
 		return prefix + "unable to parse string to required type"
 	case ScanErrorTypeIncompatibleType:
-		return prefix + "type of this field is imcompatible with this function type"
+		return prefix + "type of this field is incompatible with this function type"
 	}
 	return prefix + "unknown error"
 }

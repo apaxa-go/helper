@@ -18,7 +18,7 @@ func TestScanError_Error(t *testing.T) {
 		{ScanError{FieldNum: 1, FieldName: "f2", Type: ScanErrorTypeMultipleValues, SubError: nil}, "scan error in #1 field with name 'f2': there is more than 1 field with such name"},
 		{ScanError{FieldNum: 2, FieldName: "f3", Type: ScanErrorTypeIncompatibleValue, SubError: nil}, "scan error in #2 field with name 'f3': unable to parse string to required type"},
 		{ScanError{FieldNum: 3, FieldName: "f4", Type: ScanErrorTypeIncompatibleValue, SubError: errors.New("sub error")}, "scan error in #3 field with name 'f4': sub error"},
-		{ScanError{FieldNum: 4, FieldName: "f5", Type: ScanErrorTypeIncompatibleType, SubError: nil}, "scan error in #4 field with name 'f5': type of this field is imcompatible with this function type"},
+		{ScanError{FieldNum: 4, FieldName: "f5", Type: ScanErrorTypeIncompatibleType, SubError: nil}, "scan error in #4 field with name 'f5': type of this field is incompatible with this function type"},
 		{ScanError{FieldNum: 5, FieldName: "f6", Type: ScanErrorType(mathh.MaxUint8), SubError: nil}, "scan error in #5 field with name 'f6': unknown error"},
 	}
 
