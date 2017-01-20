@@ -1,7 +1,20 @@
 language: go
+os:
+  - linux
+  - osx
 sudo: false
 go:
-  - tip
+  - 1.x
+  - 1.6.x
+  - 1.7.x
+  - master
+env:
+  - GOARCH=amd64
+  - GOARCH=386
+matrix:
+  exclude:
+    - os: osx
+      env: GOARCH=386
 before_install:
   - go get github.com/mattn/goveralls
 script:
