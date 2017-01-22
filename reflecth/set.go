@@ -5,6 +5,15 @@ import (
 	"unsafe"
 )
 
+// MakeSettable make x settable.
+// It panics if CanAddr returns false for x.
+//
+// Deprecated: In any case it is bad practice.
+func MakeSettable(x reflect.Value) reflect.Value {
+	addr := x.UnsafeAddr()
+	return reflect.NewAt(x.Type(), unsafe.Pointer(addr)).Elem()
+}
+
 // Set assigns src to the value dst.
 // It is similar to dst.Set(src) but this function also allow to set private fields.
 // Primary reason for this is to avoid restriction with your own struct variable.
@@ -13,13 +22,9 @@ import (
 //
 // Deprecated: In any case it is bad practice to change private fields in 3rd party variables/classes.
 func Set(dst, src reflect.Value) {
-	switch dst.CanSet() {
-	case false:
-		addr := dst.UnsafeAddr()
-		dst = reflect.NewAt(dst.Type(), unsafe.Pointer(addr)).Elem()
-		fallthrough
-	case true:
-		dst.Set(src)
+	if !dst.CanSet() {
+		dst = MakeSettable(dst)
 	}
+	dst.Set(src)
 	return
 }
