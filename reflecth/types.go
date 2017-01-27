@@ -11,6 +11,9 @@ func TypeBool() reflect.Type { return reflect.TypeOf(false) }
 // TypeString returns type of string.
 func TypeString() reflect.Type { return reflect.TypeOf("") }
 
+// TypeEmptyInterface returns type of empty interface.
+func TypeEmptyInterface() reflect.Type { return reflect.TypeOf(interface{}(nil)) }
+
 //replacer:replace
 //replacer:old Uint		uint
 //replacer:new Uint8		uint8
