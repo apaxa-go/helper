@@ -1,8 +1,8 @@
 package reflecth
 
 import (
-	"testing"
 	"reflect"
+	"testing"
 )
 
 func TestSet(t *testing.T) {
@@ -12,12 +12,12 @@ func TestSet(t *testing.T) {
 	}
 
 	my0 := myStruct0{}
-	myV:=ValueOfPtr(&my0)
+	myV := ValueOfPtr(&my0)
 
-	myIV:=myV.FieldByName("i")
-	Set(myIV,reflect.ValueOf(2))
-	if testR:=(myStruct0{2, ""}); myV.Interface()!=testR{
-		t.Errorf("expect %#v, got %#v", testR,myV.Interface())
+	myIV := myV.FieldByName("i")
+	Set(myIV, reflect.ValueOf(2))
+	if testR := (myStruct0{2, ""}); myV.Interface() != testR {
+		t.Errorf("expect %#v, got %#v", testR, myV.Interface())
 	}
 
 	//
@@ -30,12 +30,12 @@ func TestSet(t *testing.T) {
 	}
 
 	my1 := myStruct1{}
-	myV=ValueOfPtr(&my1)
+	myV = ValueOfPtr(&my1)
 
-	myIV=myV.FieldByName("I")
-	Set(myIV,reflect.ValueOf(3))
-	if testR:=(myStruct1{3, ""}); myV.Interface()!=testR{
-		t.Errorf("expect %#v, got %#v", testR,myV.Interface())
+	myIV = myV.FieldByName("I")
+	Set(myIV, reflect.ValueOf(3))
+	if testR := (myStruct1{3, ""}); myV.Interface() != testR {
+		t.Errorf("expect %#v, got %#v", testR, myV.Interface())
 	}
 }
 
@@ -47,11 +47,11 @@ func BenchmarkSet(b *testing.B) {
 		}
 
 		my0 := myStruct0{}
-		myV:=ValueOfPtr(&my0)
+		myV := ValueOfPtr(&my0)
 
-		myIV:=myV.FieldByName("i")
-		Set(myIV,reflect.ValueOf(2))
-		if myV.Interface()!=(myStruct0{2, ""}){
+		myIV := myV.FieldByName("i")
+		Set(myIV, reflect.ValueOf(2))
+		if myV.Interface() != (myStruct0{2, ""}) {
 			b.Errorf("%#v", myV.Interface())
 		}
 	}
