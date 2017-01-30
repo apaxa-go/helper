@@ -12,7 +12,10 @@ func TypeBool() reflect.Type { return reflect.TypeOf(false) }
 func TypeString() reflect.Type { return reflect.TypeOf("") }
 
 // TypeEmptyInterface returns type of empty interface.
-func TypeEmptyInterface() reflect.Type { return reflect.TypeOf(interface{}(nil)) }
+func TypeEmptyInterface() reflect.Type {
+	i := interface{}(nil)
+	return TypeOfPtr(&i)
+}
 
 //replacer:replace
 //replacer:old Uint		uint

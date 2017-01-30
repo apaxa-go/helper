@@ -1,6 +1,7 @@
 package constanth
 
 import (
+	"github.com/apaxa-go/helper/reflecth"
 	"go/constant"
 	"go/token"
 	"reflect"
@@ -44,7 +45,7 @@ func (x TypedValue) Type() reflect.Type { return x.t }
 
 // AssignableTo checks possibility of assignation typed constant x to variable of type t using Go assignation rules described in specification.
 func (x TypedValue) AssignableTo(t reflect.Type) bool {
-	return (x.t == t) || (t.Kind() == reflect.Interface && t.NumMethod() == 0)
+	return x.t == t || (t.Kind() == reflect.Interface && x.t.Implements(t))
 }
 
 // MustAssign does the same thing as Assign but if assignation is impossible it panics.
@@ -60,19 +61,15 @@ func (x TypedValue) MustAssign(t reflect.Type) reflect.Value {
 // It returns reflect.Value and boolean flag ok.
 // ok will be true if assignation done successfully.
 func (x TypedValue) Assign(t reflect.Type) (r reflect.Value, ok bool) {
-	if !x.AssignableTo(t) {
-		return
+	switch t.Kind() {
+	case reflect.Interface:
+		return reflecth.Assign(x.Value(), t)
+	default:
+		if !x.AssignableTo(t) {
+			return
+		}
+		return Assign(x.v, t)
 	}
-
-	// Use this code because Assign uses constant default type for interface underlying value's type, but for typed constant type t must be used.
-	if t.Kind() == reflect.Interface {
-		r = reflect.New(t).Elem()
-		r.Set(x.Value())
-		ok = true
-		return
-	}
-
-	return Assign(x.v, t)
 }
 
 //
