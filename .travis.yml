@@ -8,15 +8,16 @@ go:
   - 1.7.x
   - master
 env:
-  - GOARCH=amd64
-  - GOARCH=386
+  - GO_ARCH=amd64
+  - GO_ARCH=386
 matrix:
   exclude:
     - os: osx
-      env: GOARCH=386
+      env: GO_ARCH=386
   allow_failures:
     - go: master
 before_install:
+  - export GOARCH=$GO_ARCH
   - go get github.com/mattn/goveralls
 script:
   - $HOME/gopath/bin/goveralls -service travis-ci
