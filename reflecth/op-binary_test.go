@@ -62,7 +62,7 @@ var testsBinaryOpFloat32 = []testBinaryOpElement{
 var testsBinaryOpComplex64 = []testBinaryOpElement{
 	{complex64(3.4 + 2i), token.ADD, complex64(1.3 - 1i), complex64(4.7 + 1i), false},
 	{complex64(3.4 + 2i), token.SUB, complex64(1.2 + 1i), complex64(2.2 + 1i), false},
-	{complex64(1.2 + 3.4i), token.MUL, complex64(0.5 + 0.6i), complex64(-1.44 + 2.42i), false},
+	{complex64(1 + 3i), token.MUL, complex64(5 + 6i), complex64(-13 + 21i), false},
 	{complex64(3i), token.QUO, complex64(1.5), complex64(2i), false},
 	{complex64(3.4 + 2.1i), token.EQL, complex64(17 - 0.1i), nil, true},
 }
