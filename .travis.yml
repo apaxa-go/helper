@@ -18,6 +18,7 @@ matrix:
     - go: master
 before_install:
   - export GOARCH=$GO_ARCH
+  - go env
   - go get github.com/mattn/goveralls
 script:
   - $HOME/gopath/bin/goveralls -service travis-ci
