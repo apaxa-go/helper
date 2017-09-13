@@ -31,7 +31,7 @@ func TestFirstBoundaryInRunes(t *testing.T) {
 		r:=[]int{}
 
 		runes:=strToRunes(data.str)
-		for l:=FirstBoundaryInRunes(runes);l>0;l=FirstBoundaryInRunes(runes){
+		for l:= FirstBoundaryRunes(runes);l>0;l= FirstBoundaryRunes(runes){
 			r=append(r,l)
 			runes=runes[l:]
 		}
@@ -51,7 +51,7 @@ func BenchmarkFirstBoundaryInRunes(b *testing.B) {
 	b.StartTimer()
 	for i:=0; i<b.N; i++{
 		//b.StartTimer()
-		l:=FirstBoundaryInRunes(runes)
+		l:= FirstBoundaryRunes(runes)
 		//b.StopTimer()
 		if l==0{
 			runes=textRunes

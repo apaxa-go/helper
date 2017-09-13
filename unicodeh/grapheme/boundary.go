@@ -13,8 +13,8 @@ const (
 )
 
 // 0 - if r is empty
-func FirstBoundaryInRunes(str []rune) int {
-	l := len(str)
+func FirstBoundaryRunes(ruens []rune) int {
+	l := len(ruens)
 
 	// Check for empty slice
 	if l == 0 {
@@ -24,14 +24,14 @@ func FirstBoundaryInRunes(str []rune) int {
 	const fallbackLen = 1
 
 	// Short path for CRLF
-	if l >= 2 && str[0] == crRune && str[1] == lfRune {
+	if l >= 2 && ruens[0] == crRune && ruens[1] == lfRune {
 		return 2
 	}
 
 	pos := 0
 
 	//	Prepend
-	for ; pos < l && unicode.Is(prependTable, str[pos]); pos++ {
+	for ; pos < l && unicode.Is(prependTable, ruens[pos]); pos++ {
 	}
 
 	// Base (RI-sequence | Hangul-Syllable | !Control)
@@ -40,13 +40,13 @@ func FirstBoundaryInRunes(str []rune) int {
 	}
 
 	{
-		r := str[pos]
+		r := ruens[pos]
 		if unicodeh.IsRegionalIndicatorYes(r) { // RI-sequence
 			pos++
-			for ; pos < l && unicodeh.IsRegionalIndicatorYes(str[pos]); pos++ {
+			for ; pos < l && unicodeh.IsRegionalIndicatorYes(ruens[pos]); pos++ {
 			}
 		} else if !unicodeh.IsHangulSyllableTypeNotApplicable(r) { // Hangul-Syllable
-			pos+=solveHangulSyllable(str[pos:])
+			pos+=solveHangulSyllable(ruens[pos:])
 		} else if !unicode.Is(controlTable, r) { // !Control
 			pos++
 		} else {
@@ -55,8 +55,18 @@ func FirstBoundaryInRunes(str []rune) int {
 	}
 
 	// Suffix (Grapheme_Extend | SpacingMark)
-	for ; pos < l && unicode.Is(suffixTable, str[pos]); pos++ {
+	for ; pos < l && unicode.Is(suffixTable, ruens[pos]); pos++ {
 	}
 
 	return pos
+}
+
+func BoundariesRunes(runes []rune)(boundaries []ClusterBoundary){
+	boundaries=make([]ClusterBoundary,0,len(runes)) // TODO memory efficient
+	for i:=0; i<len(runes); i++{
+		length:=FirstBoundaryRunes(runes[i:])
+		boundaries=append(boundaries,ClusterBoundary{i,i+length})
+		i+=length
+	}
+	return
 }
