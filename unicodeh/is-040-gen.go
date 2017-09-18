@@ -2,7 +2,7 @@ package unicodeh
 
 import "unicode"
 
-// IsDeprecatedNo reports whether the rune has unicode property "Deprecated"="No".
+// IsDeprecatedNo reports whether the rune has property "Deprecated"="No".
 // Property "Deprecated" known as "Dep", "Deprecated".
 // Value "No" known as "N", "No", "F", "False".
 func IsDeprecatedNo(r rune) bool {
@@ -16,7 +16,7 @@ func IsDeprecatedNo(r rune) bool {
 	return dataArrayIsDeprecatedNo[i]&(1<<uint(shift)) != 0
 }
 
-// IsDeprecatedYes reports whether the rune has unicode property "Deprecated"="Yes".
+// IsDeprecatedYes reports whether the rune has property "Deprecated"="Yes".
 // Property "Deprecated" known as "Dep", "Deprecated".
 // Value "Yes" known as "Y", "Yes", "T", "True".
 func IsDeprecatedYes(r rune) bool { return unicode.Is(DeprecatedYes, r) }

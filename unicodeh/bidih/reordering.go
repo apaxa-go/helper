@@ -141,9 +141,10 @@ func sliceOrder(order []int, from,to int)[]int{
 }
 
 func l2(runes []rune, levels []EmbeddingLevel, lineLengths []int, order []int) {
-	if order!=nil{
-		order=initOrder(len(runes))
-	}
+	// TODO init order in func does not work!!!
+	//if order!=nil{
+	//	order=initOrder(len(runes))
+	//}
 	if lineLengths == nil {
 		l2Line(runes, levels, order)
 	} else {

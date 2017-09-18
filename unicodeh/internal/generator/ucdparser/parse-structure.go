@@ -8,11 +8,10 @@ import (
 	"bufio"
 )
 
-func (parser *Parser)parsePropertyValueAliases(){
+func parsePropertyValueUCDAliases(srcDir string, props Properties){
 	const aliasesFile = "PropertyValueAliases.txt"
 	const specialCaseCCC = "ccc"
-	specialCaseCCCExists:=false	// check if case actual and work
-	src, err := os.Open(parser.dir + string(os.PathSeparator) + aliasesFile)
+	src, err := os.Open(srcDir + string(os.PathSeparator) + aliasesFile)
 	defer src.Close()
 	if err != nil {
 		panic(err)
@@ -25,7 +24,6 @@ func (parser *Parser)parsePropertyValueAliases(){
 		v:=Value{}
 		i :=1
 		if prop==specialCaseCCC{
-			specialCaseCCCExists=true
 			v.Num =p.Uint(1)
 			i++
 			v.KnownAs=append(v.KnownAs,p.String(1))
@@ -51,23 +49,18 @@ func (parser *Parser)parsePropertyValueAliases(){
 			}
 		}
 		// save value
-		i=parser.Properties.MustPropIndexByName(prop)
-		parser.Properties[i].Values =append(parser.Properties[i].Values,v)
-	}
-
-	// additional check
-	if !specialCaseCCCExists {
-		panic("special case is not used")
+		i=props.MustPropIndexByName(prop)
+		props[i].Values =append(props[i].Values,v)
 	}
 }
 
-func (parser *Parser)parsePropertyAliases(){
+func parsePropertyUCDAliases(srcDir string)(props Properties){
 	const aliasesFile = "PropertyAliases.txt"
 	const kindREStr = `^#[[:space:]]*([[:alnum:]]+)[[:space:]]+Properties[[:space:]]*$`	// for catching row like this "# Catalog Properties"
 
 	kindRE:=regexp.MustCompile(kindREStr)
 
-	file, err := os.Open(parser.dir + string(os.PathSeparator) + aliasesFile)
+	file, err := os.Open(srcDir + string(os.PathSeparator) + aliasesFile)
 	if err!=nil{
 		panic(err)
 	}
@@ -106,11 +99,17 @@ func (parser *Parser)parsePropertyAliases(){
 			}
 		}
 		// Construct result
-		parser.Properties =append(parser.Properties,Property{Kind:kind,ShortName:strs[0],LongName:strs[1],KnownAs:strs})
+		props =append(props,Property{Kind:kind,ShortName:strs[0],LongName:strs[1],KnownAs:strs})
 	}
 
 	if err = scanner.Err(); err != nil {
 		panic(err)
 	}
+	return
 }
 
+func ParseStructureUCD(srcDir string)Properties{
+	props:= parsePropertyUCDAliases(srcDir)
+	parsePropertyValueUCDAliases(srcDir,props)
+	return props
+}

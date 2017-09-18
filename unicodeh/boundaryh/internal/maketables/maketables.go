@@ -20,6 +20,12 @@ const (
 	zwj  rune = '\u200d'
 )
 
+func genSpacingMark() *unicode.RangeTable{
+	r:=genSuffix()
+	r=rangetableh.DeleteRunes(r,rangetableh.Runes(unicodeh.GraphemeExtendYes)...)
+	return r
+}
+
 func genSuffix() *unicode.RangeTable {
 	/*
 		Grapheme_Extend | SpacingMark:
@@ -55,9 +61,9 @@ func genSuffix() *unicode.RangeTable {
 			U+11721 ( 𑜡 ) AHOM VOWEL SIGN AA
 
 	*/
-	includeRunes := []rune{'\u0e33', '\u0eb3'}
+	includeRunes := []rune{'\u0e33', '\u0eb3','\u200d'} // 'u200d' is ZWJ and looked missing in regexp.
 	excludeRunes := []rune{'\u102b', '\u102c', '\u1038', '\u1062', '\u1064', '\u1067', '\u106d', '\u1083', '\u1087', '\u108c', '\u108f', '\u109a', '\u109c', '\u1a61', '\u1a63', '\u1a64', '\uaa7b', '\uaa7d', '\U00011720', '\U00011721'}
-	return rangetable.Merge(unicodeh.GraphemeExtendYes, rangetableh.DeleteRunes(unicodeh.GeneralCategorySpacingMark, excludeRunes...), rangetable.New(includeRunes...))
+	return rangetable.Merge(unicodeh.GraphemeClusterBreakExtend/*ExtendYes*/, rangetableh.DeleteRunes(unicodeh.GeneralCategorySpacingMark, excludeRunes...), rangetable.New(includeRunes...))
 }
 
 func genPrepend() *unicode.RangeTable {
@@ -82,7 +88,7 @@ func genControl() *unicode.RangeTable {
 		and not U+200C ZERO WIDTH NON-JOINER (ZWNJ)
 		and not U+200D ZERO WIDTH JOINER (ZWJ)
 	*/
-	excludeRunes := []rune{cr, lf, zwnj, zwj}
+	excludeRunes := []rune{/*cr, lf,*/ zwnj, zwj} // Ignore cr & ld !!!
 	return rangetable.Merge(
 		rangetableh.DeleteRunes(
 			rangetable.Merge(
@@ -133,6 +139,7 @@ func main() {
 	tables["suffixTable"] = genSuffix()
 	tables["prependTable"] = genPrepend()
 	tables["controlTable"] = genControl()
+	tables["spacingMarkTable"] = genSpacingMark()
 
 	if !isOverwriteSafe(targetFn) {
 		panic("Target file " + targetFn + " : it is not safe to overwrite it")
@@ -142,7 +149,7 @@ func main() {
 	data+="package "+packageName+"\n\n"
 	data+="import \"unicode\"\n\n"
 	for n,t:=range tables{
-		data+=fmt.Sprintf("var %s = %#v\n",n,t)
+		data+=fmt.Sprintf("var %s = %#v\n\n",n,t)
 	}
 
 	// Format output

@@ -2,7 +2,7 @@ package unicodeh
 
 import "unicode"
 
-// IsLogicalOrderExceptionNo reports whether the rune has unicode property "Logical_Order_Exception"="No".
+// IsLogicalOrderExceptionNo reports whether the rune has property "Logical_Order_Exception"="No".
 // Property "Logical_Order_Exception" known as "LOE", "Logical_Order_Exception".
 // Value "No" known as "N", "No", "F", "False".
 func IsLogicalOrderExceptionNo(r rune) bool {
@@ -16,7 +16,7 @@ func IsLogicalOrderExceptionNo(r rune) bool {
 	return dataArrayIsLogicalOrderExceptionNo[i]&(1<<uint(shift)) != 0
 }
 
-// IsLogicalOrderExceptionYes reports whether the rune has unicode property "Logical_Order_Exception"="Yes".
+// IsLogicalOrderExceptionYes reports whether the rune has property "Logical_Order_Exception"="Yes".
 // Property "Logical_Order_Exception" known as "LOE", "Logical_Order_Exception".
 // Value "Yes" known as "Y", "Yes", "T", "True".
 func IsLogicalOrderExceptionYes(r rune) bool { return unicode.Is(LogicalOrderExceptionYes, r) }

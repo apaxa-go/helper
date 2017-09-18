@@ -117,7 +117,7 @@ func generateArray(name,comment string, rt *unicode.RangeTable, data, suffixData
 			suffixData.WriteString(",")
 		}
 	}
-	suffixData.WriteString("}\n")
+	suffixData.WriteString("}\n\n")
 
 	// Primary data (func)
 	data.WriteString(comment+"func "+name+"(r rune)bool{\n")

@@ -2,7 +2,7 @@ package ctl
 
 import (
 	"github.com/apaxa-go/helper/unicodeh/bidih"
-	"github.com/apaxa-go/helper/unicodeh/grapheme"
+	"github.com/apaxa-go/helper/unicodeh/boundaryh"
 )
 
 type smth struct {}
@@ -10,7 +10,7 @@ type smth struct {}
 func initGraphemeClusters(runes []rune)(clusters GraphemeClusters){
 	clusters.Clusters=make([]GraphemeCluster,0,len(runes))	// TODO not memory effective
 	for from:=0; from<len(runes);{
-		length :=grapheme.FirstBoundaryRunes(runes[from:])
+		length := boundaryh.FirstBoundaryRunes(runes[from:])
 		clusters.Clusters=append(clusters.Clusters,GraphemeCluster{FromI:from, ToI:from+ length})
 		from+= length
 	}

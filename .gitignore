@@ -7,6 +7,10 @@
 _obj
 _test
 .idea
+/unicodeh/internal/ucd-data
+!/unicodeh/internal/ucd-data/_README
+/unicodeh/emojih/internal/emoji-data
+!/unicodeh/emojih/internal/emoji-data/_README
 
 # Architecture specific extensions/prefixes
 *.[568vq]

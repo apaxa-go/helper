@@ -6,6 +6,7 @@ import (
 	"github.com/apaxa-go/helper/unicodeh/rangetableh"
 	"golang.org/x/text/unicode/rangetable"
 	"unicode"
+	"fmt"
 )
 
 type ParseDetails struct {
@@ -93,6 +94,9 @@ func (parser *Parser)parseFile(srcFile string, propertyColumn int, propertyName 
 	if propertyName==""{
 		for prop:=range res {
 			propI := parser.Properties.PropIndexByName(prop)
+			if propI==-1{
+				panic("Property \""+prop+"\" is not defined. Defined properties: "+fmt.Sprintf("%v",parser.Properties))
+			}
 			parser.Properties[propI].File = srcFile
 		}
 	}

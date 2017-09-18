@@ -26,17 +26,17 @@ const (
 	decideArray        =iota
 )
 
-func decide(v ucdparser.Value)int{
-	if rangetableh.RawRangesCount(v.Ranges)==0{
+func decide(rt *unicode.RangeTable)int{
+	if rangetableh.RawRangesCount(rt)==0{
 		return decideTrivialFalse
 	}
-	if rangetableh.RuneCount(v.Ranges)==unicode.MaxRune+1{
+	if rangetableh.RuneCount(rt)==unicode.MaxRune+1{
 		return decideTrivialTrue
 	}
-	if rangetableh.RangesCount(v.Ranges)<=Step0Factor{
+	if rangetableh.RangesCount(rt)<=Step0Factor{
 		return decideUnwrap
 	}
-	if rangetableh.RawRangesCount(v.Ranges)<=Step1Factor{
+	if rangetableh.RawRangesCount(rt)<=Step1Factor{
 		return decideKeepRanges
 	}
 	return decideArray
@@ -49,7 +49,7 @@ func makeName(prop ucdparser.Property, valI int)string{
 func makeComment(prop ucdparser.Property, valI int)string{
 	pName:=`"`+prop.LongName+`"`
 	vName:=`"`+prop.Values[valI].LongName+`"`
-	res:="// "+makeName(prop,valI) +" reports whether the rune has unicode property "+pName+"="+vName+".\n"
+	res:="// "+makeName(prop,valI) +" reports whether the rune has property "+pName+"="+vName+".\n"
 	if len(prop.KnownAs)>1{
 		res+="// Property "+pName+" known as "+strings.Join(stringsh.Surround(prop.KnownAs,`"`,`"`),", ")+".\n"
 	}
@@ -68,7 +68,7 @@ func Generate(p *ucdparser.Properties)(r [][]byte, importUnicode []bool){
 			funcName:=makeName((*p)[propI],valI)
 			funcComment:=makeComment((*p)[propI],valI)
 
-			switch decide((*p)[propI].Values[valI]) {
+			switch decide((*p)[propI].Values[valI].Ranges) {
 			case decideTrivialFalse:
 				generateTrivial(funcName,funcComment,false,data)
 			case decideTrivialTrue:

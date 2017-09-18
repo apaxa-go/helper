@@ -2,7 +2,7 @@ package unicodeh
 
 import "unicode"
 
-// IsOtherUppercaseNo reports whether the rune has unicode property "Other_Uppercase"="No".
+// IsOtherUppercaseNo reports whether the rune has property "Other_Uppercase"="No".
 // Property "Other_Uppercase" known as "OUpper", "Other_Uppercase".
 // Value "No" known as "N", "No", "F", "False".
 func IsOtherUppercaseNo(r rune) bool {
@@ -16,7 +16,7 @@ func IsOtherUppercaseNo(r rune) bool {
 	return dataArrayIsOtherUppercaseNo[i]&(1<<uint(shift)) != 0
 }
 
-// IsOtherUppercaseYes reports whether the rune has unicode property "Other_Uppercase"="Yes".
+// IsOtherUppercaseYes reports whether the rune has property "Other_Uppercase"="Yes".
 // Property "Other_Uppercase" known as "OUpper", "Other_Uppercase".
 // Value "Yes" known as "Y", "Yes", "T", "True".
 func IsOtherUppercaseYes(r rune) bool { return unicode.Is(OtherUppercaseYes, r) }

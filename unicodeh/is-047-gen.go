@@ -2,7 +2,7 @@ package unicodeh
 
 import "unicode"
 
-// IsHexDigitNo reports whether the rune has unicode property "Hex_Digit"="No".
+// IsHexDigitNo reports whether the rune has property "Hex_Digit"="No".
 // Property "Hex_Digit" known as "Hex", "Hex_Digit".
 // Value "No" known as "N", "No", "F", "False".
 func IsHexDigitNo(r rune) bool {
@@ -16,7 +16,7 @@ func IsHexDigitNo(r rune) bool {
 	return dataArrayIsHexDigitNo[i]&(1<<uint(shift)) != 0
 }
 
-// IsHexDigitYes reports whether the rune has unicode property "Hex_Digit"="Yes".
+// IsHexDigitYes reports whether the rune has property "Hex_Digit"="Yes".
 // Property "Hex_Digit" known as "Hex", "Hex_Digit".
 // Value "Yes" known as "Y", "Yes", "T", "True".
 func IsHexDigitYes(r rune) bool { return unicode.Is(HexDigitYes, r) }

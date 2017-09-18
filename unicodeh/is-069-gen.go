@@ -1,6 +1,6 @@
 package unicodeh
 
-// IsPrependedConcatenationMarkNo reports whether the rune has unicode property "Prepended_Concatenation_Mark"="No".
+// IsPrependedConcatenationMarkNo reports whether the rune has property "Prepended_Concatenation_Mark"="No".
 // Property "Prepended_Concatenation_Mark" known as "PCM", "Prepended_Concatenation_Mark".
 // Value "No" known as "N", "No", "F", "False".
 func IsPrependedConcatenationMarkNo(r rune) bool {
@@ -14,7 +14,7 @@ func IsPrependedConcatenationMarkNo(r rune) bool {
 	return dataArrayIsPrependedConcatenationMarkNo[i]&(1<<uint(shift)) != 0
 }
 
-// IsPrependedConcatenationMarkYes reports whether the rune has unicode property "Prepended_Concatenation_Mark"="Yes".
+// IsPrependedConcatenationMarkYes reports whether the rune has property "Prepended_Concatenation_Mark"="Yes".
 // Property "Prepended_Concatenation_Mark" known as "PCM", "Prepended_Concatenation_Mark".
 // Value "Yes" known as "Y", "Yes", "T", "True".
 func IsPrependedConcatenationMarkYes(r rune) bool {

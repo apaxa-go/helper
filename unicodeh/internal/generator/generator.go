@@ -60,7 +60,7 @@ func prepareTables(p *ucdparser.Parser)(r [][]byte){
 }
 
 func prepareMeta(p *ucdparser.Parser)[]byte{
-	return []byte("const Version=\""+p.UnicodeVersion+"\"\n")
+	return []byte("// Version is the Unicode edition from which the tables are derived.\nconst Version=\""+p.Version +"\"\n")
 }
 
 func saveFile(fileName string, packageName string, imports []string, data []byte){
@@ -83,15 +83,15 @@ func saveFile(fileName string, packageName string, imports []string, data []byte
 }
 
 func main() {
-	const usage="Bad usage. Usage: \"generator unicode-version path-to-ucd-directory\""
-	if len(os.Args)!=3{
+	const usage="Bad usage. Usage: \"generator path-to-ucd-directory\""
+	if len(os.Args)!=2{
 		panic(usage)
 	}
 
-	unicodeVer:=os.Args[1]
-	srcDir := os.Args[2]
+	srcDir := os.Args[1]
 
-	parser:=ucdparser.NewParser(srcDir,unicodeVer)
+	parser:=ucdparser.NewParser(srcDir)
+	parser.Properties=ucdparser.ParseStructureUCD(srcDir)
 	parser.Parse()
 
 	// TODO delete old files

@@ -2,7 +2,7 @@ package unicodeh
 
 import "unicode"
 
-// IsHyphenNo reports whether the rune has unicode property "Hyphen"="No".
+// IsHyphenNo reports whether the rune has property "Hyphen"="No".
 // Property "Hyphen" known as "Hyphen", "Hyphen".
 // Value "No" known as "N", "No", "F", "False".
 func IsHyphenNo(r rune) bool {
@@ -16,7 +16,7 @@ func IsHyphenNo(r rune) bool {
 	return dataArrayIsHyphenNo[i]&(1<<uint(shift)) != 0
 }
 
-// IsHyphenYes reports whether the rune has unicode property "Hyphen"="Yes".
+// IsHyphenYes reports whether the rune has property "Hyphen"="Yes".
 // Property "Hyphen" known as "Hyphen", "Hyphen".
 // Value "Yes" known as "Y", "Yes", "T", "True".
 func IsHyphenYes(r rune) bool { return unicode.Is(HyphenYes, r) }

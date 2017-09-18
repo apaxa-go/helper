@@ -6,34 +6,32 @@ import (
 
 type Parser struct {
 	dir                  string
-	UnicodeVersion       string
+	VersionFunc          func(fileName string)string
+	Version              string
 	Properties           Properties
 	AdditionalValues     map[string][][]string
 	PseudoValues         map[string]map[string][]string
 	DeprecatedProperties []string
 	ReallyEmptyValues    map[string][]string
 	ParseDetails         []ParseDetails
-	SkipFiles            []string
 
 	resultChan chan parseResult
 }
 
-func NewParser(srcDir string, version string) *Parser{
+func NewParser(srcDir string) *Parser{
 	var p Parser
 	p.dir=srcDir
-	p.UnicodeVersion =version
+	p.VersionFunc = UCDVer
 	p.AdditionalValues=DefaultAdditionalValues
 	p.DeprecatedProperties=DefaultDeprecatedProperies
 	p.ParseDetails=DefaultParseDetails
 	p.PseudoValues=DefaultPseudoValues
-	p.SkipFiles=DefaultSkipFiles
 	p.ReallyEmptyValues=DefaultReallyEmptyValues
 	return &p
 }
 
 func (parser *Parser)Parse(){
-	parser.parsePropertyAliases()
-	parser.parsePropertyValueAliases()
+	parser.getVersion()
 	parser.addAdditionalValues()
 	parser.cleanDeprecated()
 	parser.Properties.CleanEmpty()

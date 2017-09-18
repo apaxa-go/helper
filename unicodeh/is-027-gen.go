@@ -2,12 +2,12 @@ package unicodeh
 
 import "unicode"
 
-// IsBidiControlNo reports whether the rune has unicode property "Bidi_Control"="No".
+// IsBidiControlNo reports whether the rune has property "Bidi_Control"="No".
 // Property "Bidi_Control" known as "Bidi_C", "Bidi_Control".
 // Value "No" known as "N", "No", "F", "False".
 func IsBidiControlNo(r rune) bool { return unicode.Is(BidiControlNo, r) }
 
-// IsBidiControlYes reports whether the rune has unicode property "Bidi_Control"="Yes".
+// IsBidiControlYes reports whether the rune has property "Bidi_Control"="Yes".
 // Property "Bidi_Control" known as "Bidi_C", "Bidi_Control".
 // Value "Yes" known as "Y", "Yes", "T", "True".
 func IsBidiControlYes(r rune) bool {

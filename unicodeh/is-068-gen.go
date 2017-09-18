@@ -1,6 +1,6 @@
 package unicodeh
 
-// IsPatternWhiteSpaceNo reports whether the rune has unicode property "Pattern_White_Space"="No".
+// IsPatternWhiteSpaceNo reports whether the rune has property "Pattern_White_Space"="No".
 // Property "Pattern_White_Space" known as "Pat_WS", "Pattern_White_Space".
 // Value "No" known as "N", "No", "F", "False".
 func IsPatternWhiteSpaceNo(r rune) bool {
@@ -14,7 +14,7 @@ func IsPatternWhiteSpaceNo(r rune) bool {
 	return dataArrayIsPatternWhiteSpaceNo[i]&(1<<uint(shift)) != 0
 }
 
-// IsPatternWhiteSpaceYes reports whether the rune has unicode property "Pattern_White_Space"="Yes".
+// IsPatternWhiteSpaceYes reports whether the rune has property "Pattern_White_Space"="Yes".
 // Property "Pattern_White_Space" known as "Pat_WS", "Pattern_White_Space".
 // Value "Yes" known as "Y", "Yes", "T", "True".
 func IsPatternWhiteSpaceYes(r rune) bool {
