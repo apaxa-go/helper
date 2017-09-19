@@ -107,7 +107,7 @@ func parseTests(srcDir,testFilename,codeSuffix string)[]byte{
 	}
 
 	data:=bytes.NewBuffer(nil)
-	data.WriteString("var ucdTests"+codeSuffix+" = []ucdTest"+codeSuffix+"{\n")
+	data.WriteString("var ucd"+codeSuffix+"Tests = []ucd"+codeSuffix+"Test{\n")
 
 	p := ucd.New(src)
 	for p.Next() {
@@ -139,6 +139,7 @@ func main(){
 	tests:=map[string]test{
 		"GraphemeBreakTest.txt":{"grapheme-cluster-ucd-data-gen_test.go","GraphemeCluster"},
 		"WordBreakTest.txt":{"word-ucd-data-gen_test.go","Word"},
+		"SentenceBreakTest.txt":{"sentence-ucd-data-gen_test.go","Sentence"},
 	}
 
 	//

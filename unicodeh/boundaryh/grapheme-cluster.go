@@ -104,7 +104,7 @@ func FirstGraphemeCluster(runes []rune) int {
 			prevPrevDifferentClass = prevPrevClass
 		}
 	}
-	return len(runes)
+	return l
 }
 
 func GraphemeClusters(runes []rune) (boundaries []Boundary) {
