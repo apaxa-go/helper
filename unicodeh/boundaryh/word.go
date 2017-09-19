@@ -75,14 +75,14 @@ func getWClass(r rune) wClass {
 
 func (c wClass) isAHLetter() bool   { return c == wClassALetter || c == wClassHebrewLetter }
 func (c wClass) isMidNumLetQ() bool { return c == wClassMidNumLet || c == wClassSingleQuote }
-func (c wClass) isWB4()bool{return c == wClassFormat || c == wClassExtend || c == wClassZWJ}
+func (c wClass) isWB4() bool        { return c == wClassFormat || c == wClassExtend || c == wClassZWJ }
 
 // Returns first not WB4 class and number of skipped WB4 runes.
-func firstNotWB4(runes []rune)(c wClass, skip int){
-	c=wClassOther
-	for skip=0; skip<len(runes); skip++{
-		c=getWClass(runes[skip])
-		if !c.isWB4(){
+func firstNotWB4(runes []rune) (c wClass, skip int) {
+	c = wClassOther
+	for skip = 0; skip < len(runes); skip++ {
+		c = getWClass(runes[skip])
+		if !c.isWB4() {
 			break
 		}
 	}
@@ -92,10 +92,10 @@ func firstNotWB4(runes []rune)(c wClass, skip int){
 // Skip WB4 and init classes.
 // Skipping here because at the beginning of word WB4 must be saved in classes, but not in main loop (in the middle of word).
 // len(runes) must be >=2
-func firstWordInit(runes []rune)(prevPrevClass, prevClass, curClass wClass, pos int){
-	prevPrevClass=wClassOther
+func firstWordInit(runes []rune) (prevPrevClass, prevClass, curClass wClass, pos int) {
+	prevPrevClass = wClassOther
 	prevClass = getWClass(runes[0])
-	curClass=getWClass(runes[1])
+	curClass = getWClass(runes[1])
 	pos = 1
 	if prevClass.isWB4() {
 		for pos < len(runes)-1 && curClass.isWB4() {
@@ -118,14 +118,14 @@ func FirstWord(runes []rune) int {
 		return 2
 	}
 
-	prevPrevClass,prevClass,curClass,i:=firstWordInit(runes)
+	prevPrevClass, prevClass, curClass, i := firstWordInit(runes)
 
 	if prevClass == wClassNewline { // WB3a
 		return 1
 	}
 
 	for ; i < l; i++ {
-		nextClass,skip:= firstNotWB4(runes[i+1:])
+		nextClass, skip := firstNotWB4(runes[i+1:])
 		ignore := false
 		switch {
 		case curClass == wClassNewline: // WB3b
@@ -157,7 +157,7 @@ func FirstWord(runes []rune) int {
 			prevClass = curClass
 		}
 		curClass = nextClass
-		i+=skip
+		i += skip
 	}
 	return l
 }

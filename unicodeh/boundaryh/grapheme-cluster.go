@@ -32,7 +32,7 @@ func getGCClass(r rune) gCClass {
 	switch {
 	default:
 		return gCClassOther
-	case unicodeh.IsGraphemeClusterBreakControl(r) || r==crRune || r==lfRune:
+	case unicodeh.IsGraphemeClusterBreakControl(r) || r == crRune || r == lfRune:
 		return gCClassControl
 	case unicodeh.IsGraphemeClusterBreakL(r):
 		return gCClassHangulL
@@ -71,7 +71,7 @@ func FirstGraphemeCluster(runes []rune) int {
 		return 0
 	}
 
-	if l >= 2 && runes[0] == crRune && runes[1] == lfRune {	// GB3
+	if l >= 2 && runes[0] == crRune && runes[1] == lfRune { // GB3
 		return 2
 	}
 

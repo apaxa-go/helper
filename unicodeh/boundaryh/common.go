@@ -6,7 +6,7 @@ const (
 )
 
 type Boundary struct {
-	From,To int
+	From, To int
 }
 
-func (b Boundary)Len()int {return b.To-b.From}
+func (b Boundary) Len() int { return b.To - b.From }

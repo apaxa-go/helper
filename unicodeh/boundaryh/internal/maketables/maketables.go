@@ -1,28 +1,28 @@
 package main
 
 import (
-	"unicode"
 	"fmt"
-	"github.com/apaxa-go/helper/unicodeh/rangetableh"
-	"golang.org/x/text/unicode/rangetable"
-	"os"
-	"io/ioutil"
-	"strings"
-	"go/format"
-	"log"
 	"github.com/apaxa-go/helper/unicodeh"
+	"github.com/apaxa-go/helper/unicodeh/rangetableh"
+	"go/format"
+	"golang.org/x/text/unicode/rangetable"
+	"io/ioutil"
+	"log"
+	"os"
+	"strings"
+	"unicode"
 )
 
 const (
-	cr rune = '\u000D'
-	lf rune = '\u000A'
+	cr   rune = '\u000D'
+	lf   rune = '\u000A'
 	zwnj rune = '\u200c'
 	zwj  rune = '\u200d'
 )
 
-func genSpacingMark() *unicode.RangeTable{
-	r:=genSuffix()
-	r=rangetableh.DeleteRunes(r,rangetableh.Runes(unicodeh.GraphemeExtendYes)...)
+func genSpacingMark() *unicode.RangeTable {
+	r := genSuffix()
+	r = rangetableh.DeleteRunes(r, rangetableh.Runes(unicodeh.GraphemeExtendYes)...)
 	return r
 }
 
@@ -61,9 +61,9 @@ func genSuffix() *unicode.RangeTable {
 			U+11721 ( 𑜡 ) AHOM VOWEL SIGN AA
 
 	*/
-	includeRunes := []rune{'\u0e33', '\u0eb3','\u200d'} // 'u200d' is ZWJ and looked missing in regexp.
+	includeRunes := []rune{'\u0e33', '\u0eb3', '\u200d'} // 'u200d' is ZWJ and looked missing in regexp.
 	excludeRunes := []rune{'\u102b', '\u102c', '\u1038', '\u1062', '\u1064', '\u1067', '\u106d', '\u1083', '\u1087', '\u108c', '\u108f', '\u109a', '\u109c', '\u1a61', '\u1a63', '\u1a64', '\uaa7b', '\uaa7d', '\U00011720', '\U00011721'}
-	return rangetable.Merge(unicodeh.GraphemeClusterBreakExtend/*ExtendYes*/, rangetableh.DeleteRunes(unicodeh.GeneralCategorySpacingMark, excludeRunes...), rangetable.New(includeRunes...))
+	return rangetable.Merge(unicodeh.GraphemeClusterBreakExtend /*ExtendYes*/, rangetableh.DeleteRunes(unicodeh.GeneralCategorySpacingMark, excludeRunes...), rangetable.New(includeRunes...))
 }
 
 func genPrepend() *unicode.RangeTable {
@@ -88,7 +88,7 @@ func genControl() *unicode.RangeTable {
 		and not U+200C ZERO WIDTH NON-JOINER (ZWNJ)
 		and not U+200D ZERO WIDTH JOINER (ZWJ)
 	*/
-	excludeRunes := []rune{/*cr, lf,*/ zwnj, zwj} // Ignore cr & ld !!!
+	excludeRunes := []rune{ /*cr, lf,*/ zwnj, zwj} // Ignore cr & ld !!!
 	return rangetable.Merge(
 		rangetableh.DeleteRunes(
 			rangetable.Merge(
@@ -99,18 +99,18 @@ func genControl() *unicode.RangeTable {
 				unicodeh.GeneralCategorySurrogate,
 				unicodeh.GeneralCategoryFormat,
 			),
-			excludeRunes...	))
+			excludeRunes...))
 }
 
 const (
-	comment = "//"
-	prefix = "maketables"
-	delim=":"
+	comment   = "//"
+	prefix    = "maketables"
+	delim     = ":"
 	generated = "generated-file"
 
-	maxFileSizeForOverwrite = 1024*1024 // 1 MB
-	targetFn="tables-gen.go"
-	packageName="grapheme"
+	maxFileSizeForOverwrite = 1024 * 1024 // 1 MB
+	targetFn                = "tables-gen.go"
+	packageName             = "grapheme"
 )
 
 // TODO this function is similar to some in generator, so move them to some lib
@@ -131,7 +131,7 @@ func isOverwriteSafe(fn string) bool {
 	}
 
 	const lookFor = comment + prefix + delim + generated
-	return strings.Index(string(tmp), lookFor)!=-1
+	return strings.Index(string(tmp), lookFor) != -1
 }
 
 func main() {
@@ -145,11 +145,11 @@ func main() {
 		panic("Target file " + targetFn + " : it is not safe to overwrite it")
 	}
 
-	data:=comment + prefix + delim + generated + "\n\n"
-	data+="package "+packageName+"\n\n"
-	data+="import \"unicode\"\n\n"
-	for n,t:=range tables{
-		data+=fmt.Sprintf("var %s = %#v\n\n",n,t)
+	data := comment + prefix + delim + generated + "\n\n"
+	data += "package " + packageName + "\n\n"
+	data += "import \"unicode\"\n\n"
+	for n, t := range tables {
+		data += fmt.Sprintf("var %s = %#v\n\n", n, t)
 	}
 
 	// Format output

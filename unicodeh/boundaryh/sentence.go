@@ -54,7 +54,7 @@ func getSClass(r rune) sClass {
 	}
 }
 
-func (c sClass) isSkip() bool    { return c == sClassExtend || c == sClassFormat } // SB5
+func (c sClass) isSkip() bool { return c == sClassExtend || c == sClassFormat } // SB5
 func (c sClass) isSB8() bool { // SB8
 	return c != sClassOLetter && c != sClassUpper && c != sClassLower && c != sClassSep && c != sClassATerm && c != sClassSTerm
 }
