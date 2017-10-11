@@ -112,3 +112,4 @@ func (l *Line)StringAt(pos1, pos2 int)boundaryh.Boundary{
 	}
 	return boundaryh.Invalid()
 }
+*/

@@ -41,3 +41,4 @@ func (b GlyphBoundaries)At(pos int)boundaryh.Boundary {
 func computeVisualisation(runes []rune, order []int)(drawData interface{}, positions GlyphBoundaries){
 
 }
+*/
