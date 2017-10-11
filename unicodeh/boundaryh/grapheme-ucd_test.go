@@ -5,41 +5,14 @@ import (
 	"testing"
 )
 
-type ucdSentenceTest ucdTest
+type ucdGraphemeClusterTest ucdTest
 
-func TestSentences(t *testing.T) {
+func TestGraphemeClusters(t *testing.T) {
 	var stat Stat
 
-	for testI, test := range ucdSentenceTests {
+	for testI, test := range ucdGraphemeClusterTests {
 		stat.Add()
-		boundaries := Sentences(test.runes)
-		expBoundaries := breaksToBoundaries(test.breaks)
-		if !reflect.DeepEqual(expBoundaries, boundaries) {
-			stat.Fail()
-			t.Errorf("%v \"%v\": expect %v, got %v", testI, (test.runes), expBoundaries, boundaries)
-		}
-	}
-
-	stat.Log(t)
-}
-
-func TestLastSentence(t *testing.T) {
-	var stat Stat
-
-	// Same as function "Sentences", but going from end to begin.
-	revSs := func(runes []rune) (boundaries []Boundary) {
-		boundaries = make([]Boundary, 0, len(runes))
-		for len(runes) > 0 {
-			pos := LastSentence(runes)
-			boundaries = append([]Boundary{{pos, len(runes)}}, boundaries...)
-			runes = runes[:pos]
-		}
-		return
-	}
-
-	for testI, test := range ucdSentenceTests {
-		stat.Add()
-		boundaries := revSs(test.runes)
+		boundaries := GraphemeClusters(test.runes)
 		expBoundaries := breaksToBoundaries(test.breaks)
 		if !reflect.DeepEqual(expBoundaries, boundaries) {
 			stat.Fail()
@@ -50,7 +23,33 @@ func TestLastSentence(t *testing.T) {
 	stat.Log(t)
 }
 
-func TestSentenceAt(t *testing.T) {
+func TestLastGraphemeCluster(t *testing.T) {
+	var stat Stat
+
+	// Same as function "GraphemeClusters", but going from end to begin.
+	revGCs := func(runes []rune) (boundaries []Boundary) {
+		for len(runes) > 0 {
+			pos := LastGraphemeCluster(runes)
+			boundaries = append([]Boundary{{pos, len(runes)}}, boundaries...)
+			runes = runes[:pos]
+		}
+		return
+	}
+
+	for testI, test := range ucdGraphemeClusterTests {
+		stat.Add()
+		expBoundaries := breaksToBoundaries(test.breaks)
+		boundaries := revGCs(test.runes)
+		if !reflect.DeepEqual(expBoundaries, boundaries) {
+			stat.Fail()
+			t.Errorf("%v \"%v\": expect %v, got %v", testI, test.runes, expBoundaries, boundaries)
+		}
+	}
+
+	stat.Log(t)
+}
+
+func TestGraphemeClusterAt(t *testing.T) {
 	var stat Stat
 
 	in := func(b Boundary, bs []Boundary) bool {
@@ -62,11 +61,11 @@ func TestSentenceAt(t *testing.T) {
 		return false
 	}
 
-	for testI, test := range ucdSentenceTests {
+	for testI, test := range ucdGraphemeClusterTests {
 		expBoundaries := breaksToBoundaries(test.breaks)
 		for runeI := range test.runes {
 			stat.Add()
-			b := SentenceAt(test.runes, runeI)
+			b := GraphemeClusterAt(test.runes, runeI)
 			if b.From > runeI || b.To <= runeI {
 				stat.Fail()
 				t.Errorf("%v \"%v\" [%v]: invalid boundary %v", testI, test.runes, runeI, b)
@@ -74,7 +73,7 @@ func TestSentenceAt(t *testing.T) {
 			}
 			if !in(b, expBoundaries) {
 				stat.Fail()
-				t.Errorf("%v \"%v\" [%v]: wrong boundary %v, possible are %v", testI, test.runes, runeI, b, expBoundaries)
+				t.Errorf("%v \"%v\" [%v]: wrong boundary %v, possible %v", testI, test.runes, runeI, b, expBoundaries)
 			}
 		}
 	}
@@ -82,12 +81,12 @@ func TestSentenceAt(t *testing.T) {
 	stat.Log(t)
 }
 
-func TestSentenceBreaks(t *testing.T) {
+func TestGraphemeClusterBreaks(t *testing.T) {
 	var stat Stat
 
-	for testI, test := range ucdSentenceTests {
+	for testI, test := range ucdGraphemeClusterTests {
 		stat.Add()
-		breaks := SentenceBreaks(test.runes)
+		breaks := GraphemeClusterBreaks(test.runes)
 		if !reflect.DeepEqual(breaks, test.breaks) {
 			stat.Fail()
 			t.Errorf("%v \"%v\": expect %v, got %v", testI, test.runes, test.breaks, breaks)

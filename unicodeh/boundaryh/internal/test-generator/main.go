@@ -3,13 +3,11 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"github.com/apaxa-go/helper/strconvh"
 	"github.com/apaxa-go/helper/unicodeh/internal/ucd"
 	"go/format"
 	"io/ioutil"
 	"os"
 	"strconv"
-	"strings"
 )
 
 const (
@@ -17,21 +15,21 @@ const (
 	noBreakStr = "×"
 )
 
-type ClusterBoundary struct {
+/*type ClusterBoundary struct {
 	From, To int
-}
+}*/
 
-func (b ClusterBoundary) ToSource() string {
+/*func (b ClusterBoundary) ToSource() string {
 	return "{" + strconvh.FormatInt(b.From) + "," + strconvh.FormatInt(b.To) + "}"
-}
+}*/
 
-func GraphemesToSource(gs []ClusterBoundary) string {
+/*func GraphemesToSource(gs []ClusterBoundary) string {
 	r := "[]Boundary{"
 	for _, g := range gs {
 		r += g.ToSource() + ","
 	}
 	return r[:len(r)-1] + "}"
-}
+}*/
 
 func RunesToSource(runes []rune) string {
 	r := "[]rune{"
@@ -41,13 +39,28 @@ func RunesToSource(runes []rune) string {
 	return r[:len(r)-1] + "}"
 }
 
-func parseLine(strs []string) (runes []rune, clusters []ClusterBoundary) {
-	//
-	//	Compute string
-	//
-	runeLength := (len(strs) - 1) / 2
-	runes = make([]rune, runeLength)
-	for runeI := 0; runeI < runeLength; runeI++ {
+func isBreak(str string)bool{
+	switch str {
+	case breakStr:
+		return true
+	case noBreakStr:
+		return false
+	default:
+		panic("Invalid runes separator "+str)
+	}
+}
+
+func parseLine(strs []string) (runes []rune, breaks []int) {
+	if isBreak(strs[0]){
+		breaks=[]int{0}
+	}
+
+	runeCount := (len(strs) - 1) / 2
+	runes = make([]rune, runeCount)
+	for runeI := 0; runeI < runeCount; runeI++ {
+		//
+		// Rune
+		//
 		runeStr := strs[1+runeI*2]
 		var err error
 		tmp, err := strconv.ParseInt(runeStr, 16, 32)
@@ -55,24 +68,15 @@ func parseLine(strs []string) (runes []rune, clusters []ClusterBoundary) {
 			panic(err.Error())
 		}
 		runes[runeI] = rune(tmp)
-	}
 
-	//
-	// Compute grapheme clusters
-	//
-	from := 0
-	for runeI := 0; runeI < runeLength; runeI++ { // Check if runeI is the last rune in cluster
-		i := 1 + runeI*2
-		switch strs[1+i] {
-		case breakStr:
-			clusters = append(clusters, ClusterBoundary{from, runeI + 1})
-			from = runeI + 1
-		case noBreakStr:
-		default:
-			panic("Invalid test line: " + strings.Join(strs, " "))
+		//
+		// Break
+		//
+		breakStr:=strs[2+runeI*2]
+		if isBreak(breakStr){
+			breaks=append(breaks,runeI+1)
 		}
 	}
-
 	return
 }
 
@@ -108,8 +112,8 @@ func parseTests(srcDir, testFilename, codeSuffix string) []byte {
 
 	p := ucd.New(src)
 	for p.Next() {
-		runes, clusters := parseLine(p.Strings(0))
-		data.WriteString(fmt.Sprintf("{%v, %v},\n", RunesToSource(runes), GraphemesToSource(clusters)))
+		runes, breaks := parseLine(p.Strings(0))
+		data.WriteString(fmt.Sprintf("{%v, %#v},\n", RunesToSource(runes), breaks))
 	}
 
 	data.WriteString("}\n")

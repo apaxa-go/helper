@@ -1,5 +1,6 @@
-package ctl
+package ctlh
 
+/*
 type GraphemeCluster struct {
 	FromI, ToI int // indexes in rune slice; [FromI; ToI)
 	FromP, ToP int // in pixels; [FromP; ToP)

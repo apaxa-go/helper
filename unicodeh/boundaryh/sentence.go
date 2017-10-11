@@ -1,69 +1,16 @@
 package boundaryh
 
-import (
-	"github.com/apaxa-go/helper/unicodeh"
-)
+// sSequence rules:
+// 	        CR LF        => Sep
+// 	      (CR | LF)      => Sep
+//	         Sep         => Sep
+// 	X (Extend | Format)* => X (where X is not Sep)
 
-type sClass uint8
-
-const (
-	sClassOther     sClass = iota
-	sClassSep       sClass = iota
-	sClassATerm     sClass = iota
-	sClassUpper     sClass = iota
-	sClassLower     sClass = iota
-	sClassExtend    sClass = iota // TODO merge with Format?
-	sClassFormat    sClass = iota // TODO merge with Extend?
-	sClassClose     sClass = iota
-	sClassSp        sClass = iota
-	sClassOLetter   sClass = iota // TODO may be add to it other isSB8? It does not used standalone.
-	sClassSTerm     sClass = iota
-	sClassSContinue sClass = iota // TODO may be add to it ATerm & STerm? It does not used standalone.
-	sClassNumeric   sClass = iota
-)
-
-// TODO
-func getSClass(r rune) sClass {
-	switch {
-	default:
-		return sClassOther
-	case unicodeh.IsSentenceBreakSep(r):
-		return sClassSep
-	case unicodeh.IsSentenceBreakATerm(r):
-		return sClassATerm
-	case unicodeh.IsSentenceBreakUpper(r):
-		return sClassUpper
-	case unicodeh.IsSentenceBreakLower(r):
-		return sClassLower
-	case unicodeh.IsSentenceBreakExtend(r):
-		return sClassExtend
-	case unicodeh.IsSentenceBreakFormat(r):
-		return sClassFormat
-	case unicodeh.IsSentenceBreakClose(r):
-		return sClassClose
-	case unicodeh.IsSentenceBreakSp(r):
-		return sClassSp
-	case unicodeh.IsSentenceBreakOLetter(r):
-		return sClassOLetter
-	case unicodeh.IsSentenceBreakSTerm(r):
-		return sClassSTerm
-	case unicodeh.IsSentenceBreakSContinue(r):
-		return sClassSContinue
-	case unicodeh.IsSentenceBreakNumeric(r):
-		return sClassNumeric
-	}
-}
-
-func (c sClass) isSkip() bool { return c == sClassExtend || c == sClassFormat } // SB5
-func (c sClass) isSB8() bool { // SB8
-	return c != sClassOLetter && c != sClassUpper && c != sClassLower && c != sClassSep && c != sClassATerm && c != sClassSTerm
-}
-
-// Returns sClass for first rune and pos where to continue.
-// It skips runes as described in SB5.
-// It is also map <CR>, <LF> and <CRLF> to Sep class.
-// <CRLF> parsed at once, so no special cases required in other places - just check for Sep class instead of ParaSep macro.
-func getSClassSkip(runes []rune) (c sClass, i int) {
+// Computes first sSequence.
+// Returns:
+// 	"c"   - sSequence class (see "sSequence rules").
+// 	"pos" - point to first rune of next sequence (in other words "pos" is length of current sSequence).
+func sFirstSequence(runes []rune) (c sClass, pos int) {
 	l := len(runes)
 	if l == 0 {
 		c = sClassOther
@@ -81,14 +28,14 @@ func getSClassSkip(runes []rune) (c sClass, i int) {
 		return sClassSep, 1
 	}
 
-	c = getSClass(runes[0])
+	c = sGetClass(runes[0])
 
 	if c == sClassSep { // SB4
 		return sClassSep, 1
 	}
 
-	for i = 1; i < len(runes); i++ { // SB5
-		if !getSClass(runes[i]).isSkip() {
+	for pos = 1; pos < len(runes); pos++ { // SB5
+		if !sGetClass(runes[pos]).isSkip() {
 			break
 		}
 	}
@@ -96,73 +43,159 @@ func getSClassSkip(runes []rune) (c sClass, i int) {
 	return
 }
 
-func parseAfterSATerm(runes []rune) (closeSp bool, nextClass sClass, i1, i2 int) {
+// Computes last sSequence.
+// Analogue to sFirstSequence.
+// "pos" points to first rune in sequence.
+func sLastSequence(runes []rune) (c sClass, pos int) {
 	l := len(runes)
-	for i1 < l {
-		if c, deltaI := getSClassSkip(runes[i1:]); c == sClassClose {
+	if l == 0 {
+		c = sClassOther
+		return
+	}
+
+	pos = l - 1
+	if runes[pos] == lfRune { // SB4
+		c = sClassSep
+		if pos > 0 && runes[pos-1] == crRune { // SB3
+			pos--
+		}
+		return
+	}
+
+	if runes[pos] == crRune { // SB4
+		c = sClassSep
+		return
+	}
+
+	c = sGetClass(runes[pos])
+	if !c.isSkip() {
+		return
+	}
+	pos--
+
+	for ; pos >= 0; pos-- { // SB5
+		newC := sGetClass(runes[pos])
+		if newC == sClassSep || runes[pos] == crRune || runes[pos] == lfRune { // SB4
+			pos++
+			return
+		}
+		c = newC
+		if !newC.isSkip() {
+			return
+		}
+	}
+	return c, 0
+}
+
+// Computes required classes and possible positions for continue after founded ATerm or STerm.
+func sParseAfterSATerm(runes []rune) (closeSp bool, nextClass sClass, pos1, pos2 int) {
+	l := len(runes)
+	for pos1 < l {
+		if c, deltaI := sFirstSequence(runes[pos1:]); c == sClassClose {
 			closeSp = true
-			i1 += deltaI
+			pos1 += deltaI
 		} else {
 			break
 		}
 	}
-	for i1 < l {
-		if c, deltaI := getSClassSkip(runes[i1:]); c == sClassSp {
+	for pos1 < l {
+		if c, deltaI := sFirstSequence(runes[pos1:]); c == sClassSp {
 			closeSp = true
-			i1 += deltaI
+			pos1 += deltaI
 		} else {
 			break
 		}
 	}
-	nextClass, deltaI := getSClassSkip(runes[i1:])
-	i2 = i1 + deltaI
+	nextClass, deltaI := sFirstSequence(runes[pos1:])
+	pos2 = pos1 + deltaI
 	return
 }
 
-// lastClass used as prevClass by parent function. It used only if stop==false and is undefined if stop==true.
+// Then looking end of sentence at custom point it may be required to parse some runes before.
+// First of all going back to beginning of SB5 group is required.
+// Moreover, custom point may be in the middle (Close or Sp) of (possible) SB11.
+// Or if custom point is ATerm then class of previous SB5 group required for SB7 checking.
+// Returns position at which it is safe to begin analysis.
+func sSequenceBegin(runes []rune, pos int) (r int) {
+	if pos == 0 {
+		return 0
+	}
+
+	c, pos := sLastSequence(runes[:pos+1])
+	if pos == 0 {
+		return 0
+	}
+	r = pos
+
+	switch c {
+	case sClassSp, sClassClose: // in the middle of possible SB11
+	case sClassATerm: // possible SB7 - require <prevClass>
+		if pos > 0 {
+			_, pos = sLastSequence(runes[:pos])
+		}
+		return pos
+	default:
+		return
+	}
+
+	for c == sClassSp && pos > 0 {
+		c, pos = sLastSequence(runes[:pos])
+	}
+	for c == sClassClose && pos > 0 {
+		c, pos = sLastSequence(runes[:pos])
+	}
+	switch c {
+	case sClassATerm, sClassSTerm:
+		return pos
+	default:
+		return // Not SB11 sequence
+	}
+}
+
+// newL0 used as l0 by parent function. It used only if stop==false and is undefined if stop==true.
 //
-//  Break?  | <prevClass> ATerm Close* Sp* <lastClass>        | Ruler
-//   yes    |             ATerm Close* Sp* ParaSep            | SB11
-//   no     |             ATerm -      -   Numeric            | SB6
-//   no     | Upper       ATerm -      -   Upper              | SB7
-//   no     | Lower       ATerm -      -   Upper              | SB7
-//   no     |             ATerm Close* Sp* Lower              | SB8
-//   no     |             ATerm Close* Sp* isSB8+       Lower | SB8
-//   no     |             ATerm Close* Sp* SContinue          | SB8a
-//   no     |             ATerm Close* Sp* ATerm              | SB8a
-//   no     |             ATerm Close* Sp* STerm              | SB8a
-//   yes    |             ATerm Close* Sp*                    | SB11
-func decideAtATerm(prevClass sClass, runes []rune) (stop bool, i int, lastClass sClass) {
-	closeSp, lastClass, i1, i := parseAfterSATerm(runes)
+//  Break?  |  <l0>   ATerm Close* Sp* <lastClass>        | Ruler
+//   yes    |         ATerm Close* Sp* ParaSep            | SB11
+//   no     |         ATerm -      -   Numeric            | SB6
+//   no     | Upper   ATerm -      -   Upper              | SB7
+//   no     | Lower   ATerm -      -   Upper              | SB7
+//   no     |         ATerm Close* Sp* Lower              | SB8
+//   no     |         ATerm Close* Sp* isSB8+       Lower | SB8
+//   no     |         ATerm Close* Sp* SContinue          | SB8a
+//   no     |         ATerm Close* Sp* ATerm              | SB8a
+//   no     |         ATerm Close* Sp* STerm              | SB8a
+//   yes    |         ATerm Close* Sp*                    | SB11
+func sDecideAtATerm(l0 sClass, runes []rune) (stop bool, pos int, newL0 sClass) {
+	closeSp, newL0, pos1, pos := sParseAfterSATerm(runes)
 	switch {
-	case lastClass == sClassSep: // SB11
+	case newL0 == sClassSep: // SB11
 		stop = true
-	case !closeSp && lastClass == sClassNumeric: // SB6
-	case (prevClass == sClassUpper || prevClass == sClassLower) && !closeSp && lastClass == sClassUpper: // SB7
-	case lastClass == sClassSContinue || lastClass == sClassATerm || lastClass == sClassSTerm: // SB8a
-	case lastClass == sClassLower: // SB8 (part 1)
-	case lastClass.isSB8(): // SB8 (part 2)
-		for i < len(runes) {
+	case !closeSp && newL0 == sClassNumeric: // SB6
+	case (l0 == sClassUpper || l0 == sClassLower) && !closeSp && newL0 == sClassUpper: // SB7
+	case newL0 == sClassSContinue || newL0 == sClassATerm || newL0 == sClassSTerm: // SB8a
+	case newL0 == sClassLower: // SB8 (part 1)
+	case newL0.isSB8(): // SB8 (part 2)
+		for pos < len(runes) {
 			var deltaI int
-			lastClass, deltaI = getSClassSkip(runes[i:])
-			i += deltaI
-			if lastClass == sClassLower {
+			newL0, deltaI = sFirstSequence(runes[pos:])
+			pos += deltaI
+			if newL0 == sClassLower {
 				return
 			}
-			if !lastClass.isSB8() {
+			if !newL0.isSB8() {
 				break
 			}
 		}
 		stop = true
-		i = i1
+		pos = pos1
 	default: // SB11
 		stop = true
-		i = i1
+		pos = pos1
 	}
 	return
 }
 
-// lastClass used as prevClass by parent function. It used only if stop==false and is undefined if stop==true.
+// newL0 used as l0 by parent function. It used only if stop==false and is undefined if stop==true.
 //
 //  Break?  | STerm Close* Sp* some-type? | Ruler
 //   yes    | STerm Close* Sp* ParaSep    | SB11
@@ -170,65 +203,146 @@ func decideAtATerm(prevClass sClass, runes []rune) (stop bool, i int, lastClass 
 //   no     | STerm Close* Sp* ATerm      | SB8a
 //   no     | STerm Close* Sp* STerm      | SB8a
 //   yes    | STerm Close* Sp*            | SB11
-func decideAtSTerm(runes []rune) (stop bool, i int, lastClass sClass) {
-	_, lastClass, i1, i := parseAfterSATerm(runes)
-	switch lastClass {
+func sDecideAtSTerm(runes []rune) (stop bool, pos int, newL0 sClass) {
+	_, newL0, i1, pos := sParseAfterSATerm(runes)
+	switch newL0 {
 	case sClassSep: // SB11
 		stop = true
 	case sClassSContinue, sClassATerm, sClassSTerm: // SB8a
 	default:
 		stop = true // SB11
-		i = i1
+		pos = i1
 	}
 	return
 }
 
-func FirstSentence(runes []rune) int {
+// SentenceEnd computes sentence which contains pos-th rune.
+// Returns (index of sentence's last rune)+1.
+// In other words, returns first sentence's boundary on the right of pos-th rune.
+func SentenceEnd(runes []rune, pos int) int {
 	l := len(runes)
-	if l <= 1 {
+	if pos < 0 || pos >= l {
+		return InvalidPos
+	}
+	if pos == l-1 {
 		return l
 	}
 
-	prevClass := sClassOther
-	// Decide should we break sentence after i-th rune
-	for i := 0; i < l; {
-		curClass, deltaI := getSClassSkip(runes[i:])
-		i += deltaI
+	pos = sSequenceBegin(runes, pos) // go backward to analysis-safe position
 
-		if i >= l { // end of runes
+	l1 := sClassOther
+	for pos < l {
+		l0, deltaPos := sFirstSequence(runes[pos:])
+		pos += deltaPos
+
+		if pos >= l { // end of runes
 			return l
 		}
 
-		switch curClass {
+		switch l0 {
 		case sClassSep: // SB4
-			return i
+			return pos
 		case sClassATerm:
-			stop, deltaI, newPrevClass := decideAtATerm(prevClass, runes[i:])
-			i += deltaI
+			stop, deltaPos, newL0 := sDecideAtATerm(l1, runes[pos:])
+			pos += deltaPos
 			if stop {
-				return i
+				return pos
 			}
-			prevClass = newPrevClass
+			l1 = newL0
 		case sClassSTerm:
-			stop, deltaI, newPrevClass := decideAtSTerm(runes[i:])
-			i += deltaI
+			stop, deltaPos, newL0 := sDecideAtSTerm(runes[pos:])
+			pos += deltaPos
 			if stop {
-				return i
+				return pos
 			}
-			prevClass = newPrevClass
+			l1 = newL0
 		default:
-			prevClass = curClass
+			l1 = l0
 		}
 	}
 	return l
 }
 
+// SentenceBegin computes sentence which contains pos-th rune.
+// Returns sentence's first rune index.
+// In other words, returns first sentence's boundary on the left of pos-th rune.
+func SentenceBegin(runes []rune, pos int) int {
+	l := len(runes)
+	if pos < 0 || pos >= l {
+		return InvalidPos
+	}
+	if pos == 0 {
+		return 0
+	}
+
+	origPos := pos
+	_, pos = sLastSequence(runes[:pos+1])
+	for pos > 0 {
+		c, newPos := sLastSequence(runes[:pos])
+		switch c {
+		case sClassSep:
+			return pos
+		case sClassATerm:
+			l0, _ := sLastSequence(runes[:newPos])
+			stop, deltaI, _ := sDecideAtATerm(l0, runes[pos:])
+			if stop && pos+deltaI <= origPos { // avoid cases with passed "pos" in the middle of SB11 (in such cases boundary may be founded on the right side instead of left).
+				return pos + deltaI
+			}
+		case sClassSTerm:
+			stop, deltaI, _ := sDecideAtSTerm(runes[pos:])
+			if stop && pos+deltaI <= origPos { // avoid cases with passed "pos" in the middle of SB11 (in such cases boundary may be founded on the right side instead of left).
+				return pos + deltaI
+			}
+		}
+		pos = newPos
+	}
+	return 0
+}
+
+// SentenceAt computes sentence which contains pos-th rune and return their boundary.
+// Sentence may retrieved by "runes[r.From:r.To]".
+func SentenceAt(runes []rune, pos int) Boundary {
+	return Boundary{SentenceBegin(runes, pos), SentenceEnd(runes, pos)}
+}
+
+// LastSentence computes last sentence.
+// Returns index of sentence's first rune.
+// Last sentence may retrieved by "runes[r:]".
+func LastSentence(runes []rune) int {
+	return SentenceBegin(runes, len(runes)-1)
+}
+
+// FirstSentence computes first sentence.
+// Returns (index of sentence's last rune)+1.
+// Result also may be treated as length of the first sentence.
+// First sentence may retrieved by "runes[:r]".
+func FirstSentence(runes []rune) int {
+	return SentenceEnd(runes, 0)
+}
+
+// Sentences computes all sentences and returns theirs boundaries.
 func Sentences(runes []rune) (boundaries []Boundary) {
 	boundaries = make([]Boundary, 0, len(runes)) // TODO memory efficient
 	for i := 0; i < len(runes); {
 		length := FirstSentence(runes[i:])
 		boundaries = append(boundaries, Boundary{i, i + length})
 		i += length
+	}
+	return
+}
+
+// SentenceBreaks computes all sentences and returns all breaks.
+func SentenceBreaks(runes []rune) (breaks []int) {
+	l := len(runes)
+	if l == 0 {
+		return
+	}
+	breaks = make([]int, 1, len(runes)) // TODO memory efficient
+	breaks[0] = 0
+	for pos := 0; pos < l; {
+		length := FirstSentence(runes[pos:])
+		pos += length
+		breaks = append(breaks, pos)
 	}
 	return
 }

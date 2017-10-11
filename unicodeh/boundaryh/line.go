@@ -1,165 +1,24 @@
 package boundaryh
 
-import "github.com/apaxa-go/helper/unicodeh"
+// lSequence rules:
+// 	     CR lF     => BK
+// 	   (CR | lF)   => BK
+// 	IS (CM | ZWJ)* => SY (custom rule; it simplify decision)
+// 	 X (CM | ZWJ)* => X (where X is defined by LB9)
+// 	   (CM | ZWJ)  => AL
+// 	       X       => X
 
-type lClass uint8
+// NoLineBreak indicates that where is no possible line break.
+// TR14 says, that there is no break at start of string (this is required to avoid breaking line after zero runes).
+const NoLineBreak int = 0
 
-const (
-	lClassAI  lClass = iota
-	lClassAL  lClass = iota
-	lClassB2  lClass = iota
-	lClassBA  lClass = iota
-	lClassBB  lClass = iota
-	lClassBK  lClass = iota
-	lClassCB  lClass = iota
-	lClassCJ  lClass = iota
-	lClassCL  lClass = iota
-	lClassCM  lClass = iota
-	lClassCP  lClass = iota
-	lClassEB  lClass = iota
-	lClassEM  lClass = iota
-	lClassEX  lClass = iota
-	lClassGL  lClass = iota
-	lClassH2  lClass = iota
-	lClassH3  lClass = iota
-	lClassHL  lClass = iota
-	lClassHY  lClass = iota
-	lClassID  lClass = iota
-	lClassIN  lClass = iota
-	lClassIS  lClass = iota
-	lClassJL  lClass = iota
-	lClassJT  lClass = iota
-	lClassJV  lClass = iota
-	lClassNL  lClass = iota
-	lClassNS  lClass = iota
-	lClassNU  lClass = iota
-	lClassOP  lClass = iota
-	lClassPO  lClass = iota
-	lClassPR  lClass = iota
-	lClassQU  lClass = iota
-	lClassRI  lClass = iota
-	lClassSA  lClass = iota
-	lClassSG  lClass = iota
-	lClassSP  lClass = iota
-	lClassSY  lClass = iota
-	lClassWJ  lClass = iota
-	lClassXX  lClass = iota
-	lClassZW  lClass = iota
-	lClassZWJ lClass = iota
-)
-
-func getLClassRaw(r rune) lClass {
-	switch {
-	default:
-		return lClassXX
-	case unicodeh.IsLineBreakAmbiguous(r):
-		return lClassAI
-	case unicodeh.IsLineBreakAlphabetic(r):
-		return lClassAL
-	case unicodeh.IsLineBreakBreakBoth(r):
-		return lClassB2
-	case unicodeh.IsLineBreakBreakAfter(r):
-		return lClassBA
-	case unicodeh.IsLineBreakBreakBefore(r):
-		return lClassBB
-	case unicodeh.IsLineBreakMandatoryBreak(r):
-		return lClassBK
-	case unicodeh.IsLineBreakContingentBreak(r):
-		return lClassCB
-	case unicodeh.IsLineBreakConditionalJapaneseStarter(r):
-		return lClassCJ
-	case unicodeh.IsLineBreakClosePunctuation(r):
-		return lClassCL
-	case unicodeh.IsLineBreakCombiningMark(r):
-		return lClassCM
-	case unicodeh.IsLineBreakCloseParenthesis(r):
-		return lClassCP
-	case unicodeh.IsLineBreakEBase(r):
-		return lClassEB
-	case unicodeh.IsLineBreakEModifier(r):
-		return lClassEM
-	case unicodeh.IsLineBreakExclamation(r):
-		return lClassEX
-	case unicodeh.IsLineBreakGlue(r):
-		return lClassGL
-	case unicodeh.IsLineBreakH2(r):
-		return lClassH2
-	case unicodeh.IsLineBreakH3(r):
-		return lClassH3
-	case unicodeh.IsLineBreakHebrewLetter(r):
-		return lClassHL
-	case unicodeh.IsLineBreakHyphen(r):
-		return lClassHY
-	case unicodeh.IsLineBreakIdeographic(r):
-		return lClassID
-	case unicodeh.IsLineBreakInseparable(r):
-		return lClassIN
-	case unicodeh.IsLineBreakInfixNumeric(r):
-		return lClassIS
-	case unicodeh.IsLineBreakJL(r):
-		return lClassJL
-	case unicodeh.IsLineBreakJT(r):
-		return lClassJT
-	case unicodeh.IsLineBreakJV(r):
-		return lClassJV
-	case unicodeh.IsLineBreakNextLine(r):
-		return lClassNL
-	case unicodeh.IsLineBreakNonstarter(r):
-		return lClassNS
-	case unicodeh.IsLineBreakNumeric(r):
-		return lClassNU
-	case unicodeh.IsLineBreakOpenPunctuation(r):
-		return lClassOP
-	case unicodeh.IsLineBreakPostfixNumeric(r):
-		return lClassPO
-	case unicodeh.IsLineBreakPrefixNumeric(r):
-		return lClassPR
-	case unicodeh.IsLineBreakQuotation(r):
-		return lClassQU
-	case unicodeh.IsLineBreakRegionalIndicator(r):
-		return lClassRI
-	case unicodeh.IsLineBreakComplexContext(r):
-		return lClassSA
-	case unicodeh.IsLineBreakSurrogate(r):
-		return lClassSG
-	case unicodeh.IsLineBreakSpace(r):
-		return lClassSP
-	case unicodeh.IsLineBreakBreakSymbols(r):
-		return lClassSY
-	case unicodeh.IsLineBreakWordJoiner(r):
-		return lClassWJ
-	case unicodeh.IsLineBreakZWSpace(r):
-		return lClassZW
-	case unicodeh.IsLineBreakZWJ(r):
-		return lClassZWJ
-	}
-}
-
-func getLClass(r rune) lClass { // LB1
-	switch res := getLClassRaw(r); res {
-	case lClassAI, lClassSG, lClassXX:
-		return lClassAL
-	case lClassSA:
-		if unicodeh.IsGeneralCategoryNonspacingMark(r) || unicodeh.IsGeneralCategorySpacingMark(r) {
-			return lClassCM
-		}
-		return lClassAL
-	case lClassCJ:
-		return lClassNS
-	default:
-		return res
-	}
-
-}
-
-func (c lClass) isNotSkipBase() bool {
-	return c == lClassBK || c == lClassNL || c == lClassSP || c == lClassZW
-}                             // LB9
-func (c lClass) isSkip() bool { return c == lClassCM || c == lClassZWJ } // LB9
-
-// "c" contains resolved class after applying LB9 & LB10.
-// rawZWJ required for LB8a. For simplify LB10 applied out-of-order and "c" unable say is class ZWJ before applying LB10.
-func getLClassSkip(runes []rune) (c lClass, rawZWJ bool, i int) {
+// Computes first lSequence.
+// Returns:
+// 	"c"      - lSequence class (see "lSequence rules").
+// 	"rawIS"  - is sequence primary class is IS. This information required by some rules which require exactly IS or SY, but IS will be replaced with SY.
+// 	"rawZWJ" - is sequence just single ZWJ. This information required bee LB8a, but "c" in such cases will be AL.
+// 	"pos"    - point to first rune of next sequence (in other words "pos" is length of current lSequence).
+func lFirstSequence(runes []rune) (c lClass, rawIS, rawZWJ bool, pos int) {
 	l := len(runes)
 	if l == 0 {
 		c = lClassXX
@@ -168,25 +27,30 @@ func getLClassSkip(runes []rune) (c lClass, rawZWJ bool, i int) {
 
 	if runes[0] == crRune { // LB4
 		if l > 1 && runes[1] == lfRune { // LB5
-			return lClassBK, false, 2
+			return lClassBK, false, false, 2
 		}
-		return lClassBK, false, 1
+		return lClassBK, false, false, 1
 	}
 
 	if runes[0] == lfRune { // LB4
-		return lClassBK, false, 1
+		return lClassBK, false, false, 1
 	}
 
-	c = getLClass(runes[0])
+	c = lGetClass(runes[0])
 
 	if c.isSkip() { // LB10
-		return lClassAL, c == lClassZWJ, 1
-	} else if c.isNotSkipBase() { // LB9
-		return c, false, 1
+		return lClassAL, false, c == lClassZWJ, 1
+	} else if !c.isSkipBase() { // LB9
+		return c, false, false, 1
 	}
 
-	for i = 1; i < len(runes); i++ { // LB9
-		if !getLClass(runes[i]).isSkip() {
+	if c == lClassIS {
+		c = lClassSY
+		rawIS = true
+	}
+
+	for pos = 1; pos < len(runes); pos++ { // LB9
+		if !lGetClass(runes[pos]).isSkip() {
 			break
 		}
 	}
@@ -194,130 +58,396 @@ func getLClassSkip(runes []rune) (c lClass, rawZWJ bool, i int) {
 	return
 }
 
-func FirstLine(runes []rune) int {
+// Computes last lSequence.
+// Analogue to lFirstSequence.
+// "pos" points to first rune in sequence.
+func lLastSequence(runes []rune) (c lClass, rawIS, rawZWJ bool, pos int) {
 	l := len(runes)
-	if l <= 1 {
-		return l
+	if l == 0 {
+		c = lClassXX
+		return
 	}
 
-	prevPrevPrevDifferentL25NU := false // Catch "_NU_ (NU | SY | IS)+ (CL | CP) × ..."
-	prevPrevDifferentL25NU := false     // Catch "_NU_ (NU | SY | IS)+ × ..."
-	prevPrevDifferentClass := lClassXX
-	prevPrevClass := lClassXX
-	prevClass, prevZWJ, i := getLClassSkip(runes)
-	curClass, curZWJ, deltaI := getLClassSkip(runes[i:])
+	if runes[l-1] == lfRune { // LB4
+		if l > 1 && runes[l-2] == crRune { // LB5
+			return lClassBK, false, false, l - 2
+		}
+		return lClassBK, false, false, l - 1
+	}
 
-	for i < l {
-		nextClass, nextZWJ, nextDeltaI := getLClassSkip(runes[i+deltaI:])
+	if runes[l-1] == crRune { // LB4
+		return lClassBK, false, false, l - 1
+	}
+
+	pos = l - 1
+	c = lGetClass(runes[pos])
+
+	if !c.isSkip() { // not LB9
+		if c == lClassIS {
+			c = lClassSY
+			rawIS = true
+		}
+		return
+	}
+
+	rawZWJ = c == lClassZWJ
+
+	for pos--; pos >= 0; pos-- {
+		c0 := lGetClass(runes[pos])
 		switch {
-		case prevClass == lClassNL || prevClass == lClassBK: // LB4 & LB5
-			return i
-		case curClass == lClassNL || curClass == lClassBK: // LB6
-		case curClass == lClassSP || curClass == lClassZW: // LB7
-		case prevClass == lClassZW: // LB8 (part 1)
-			return i
-		case prevPrevDifferentClass == lClassZW && prevClass == lClassSP: // LB8 (part 2)
-			return i
-		case prevZWJ && (curClass == lClassID || curClass == lClassEB || curClass == lClassEM): // LB8a
-		case prevClass == lClassWJ || curClass == lClassWJ: // LB 11
-		case prevClass == lClassGL: // LB12
-		case (prevClass != lClassSP && prevClass != lClassBA && prevClass != lClassHY) && curClass == lClassGL: // LB12a
-		case curClass == lClassCL || curClass == lClassCP || curClass == lClassEX || curClass == lClassIS || curClass == lClassSY: // LB13
-		case prevClass == lClassOP: // LB14 (part 1)
-		case prevPrevDifferentClass == lClassOP && prevClass == lClassSP: // LB14 (part 2)
-		case prevClass == lClassQU && curClass == lClassOP: // LB15 (part 1)
-		case prevPrevDifferentClass == lClassQU && prevClass == lClassSP && curClass == lClassOP: // LB15 (part 2)
-		case (prevClass == lClassCL || prevClass == lClassCP) && curClass == lClassNS: // LB16 (part 1)
-		case (prevPrevDifferentClass == lClassCL || prevPrevDifferentClass == lClassCP) && prevClass == lClassSP && curClass == lClassNS: // LB16 (part 2)
-		case prevClass == lClassB2 && curClass == lClassB2: // LB17 (part 1)
-		case prevPrevDifferentClass == lClassB2 && prevClass == lClassSP && curClass == lClassB2: // LB17 (part 2)
-		case prevClass == lClassSP: // LB18
-			return i
-		case prevClass == lClassQU || curClass == lClassQU: // LB19
-		case prevClass == lClassCB || curClass == lClassCB: // LB20 // TODO condition check!!!
-			return i
-		case curClass == lClassBA || curClass == lClassHY || curClass == lClassNS || prevClass == lClassBB: // LB21
-		case prevPrevClass == lClassHL && (prevClass == lClassHY || prevClass == lClassBA): // LB21a
-		case prevClass == lClassSY && curClass == lClassHL: // LB21b
-		case (prevClass == lClassAL || prevClass == lClassHL || prevClass == lClassEX || prevClass == lClassID || prevClass == lClassEB || prevClass == lClassEM || prevClass == lClassIN || prevClass == lClassNU) && curClass == lClassIN: // LB22
-		case (prevClass == lClassAL || prevClass == lClassHL) && curClass == lClassNU: // LB23 (part 1)
-		case prevClass == lClassNU && (curClass == lClassAL || curClass == lClassHL): // LB23 (part 2)
-		case prevClass == lClassPR && (curClass == lClassID || curClass == lClassEB || curClass == lClassEM): // LB23a (part 1)
-		case (prevClass == lClassID || prevClass == lClassEB || prevClass == lClassEM) && curClass == lClassPO: // LB23a (part 2)
-		case (prevClass == lClassPR || prevClass == lClassPO) && (curClass == lClassAL || curClass == lClassHL): // LB24 (part 1)
-		case (prevClass == lClassAL || prevClass == lClassHL) && (curClass == lClassPR || curClass == lClassPO): // LB24 (part 2)
+		case c0.isSkip(): // LB9
+		case c0.isSkipBase(): // LB9
+			c = c0
+			rawZWJ = false
+			if c == lClassIS {
+				c = lClassSY
+				rawIS = true
+			}
+			return
+		default:
+			return lClassAL, false, rawZWJ, l - 1 // LB10
+		}
+	}
+
+	return lClassAL, false, rawZWJ, l - 1 // LB10
+}
+
+// Returns position at which it is safe to begin analysis.
+func lSequenceBegin(runes []rune) int {
+	l := len(runes)
+	if l <= 1 {
+		return 0
+	}
+
+	if runes[l-2] == crRune && runes[l-1] == lfRune { // LB5
+		return l - 2
+	}
+
+	if !lGetClass(runes[l-1]).isSkip() { // not LB9
+		return l - 1
+	}
+
+	for pos := l - 2; pos >= 0; pos-- {
+		c := lGetClass(runes[pos])
+		switch {
+		case c.isSkip(): // LB9
+		case c.isSkipBase(): // LB9
+			return pos
+		default: // LB10
+			return l - 1
+		}
+	}
+
+	return l - 1 // LB10
+}
+
+// Returns if there is a break between l0 and r0.
+func lDecision(l1, l0, r0, r1, l2Diff, l1Diff lClass, l0IS, l0ZWJ, lOddRI bool) bool {
+	// TODO convert to single boolean expression?
+	switch {
+	case l0 == lClassNL || l0 == lClassBK: // LB4 & LB5
+		return true
+	case r0 == lClassNL || r0 == lClassBK: // LB6
+	case r0 == lClassSP || r0 == lClassZW: // LB7
+	case l0 == lClassZW: // LB8 (part 1)
+		return true
+	case l1Diff == lClassZW && l0 == lClassSP: // LB8 (part 2)
+		return true
+	case l0ZWJ && (r0 == lClassID || r0 == lClassEB || r0 == lClassEM): // LB8a
+	case l0 == lClassWJ || r0 == lClassWJ: // LB 11
+	case l0 == lClassGL: // LB12
+	case (l0 != lClassSP && l0 != lClassBA && l0 != lClassHY) && r0 == lClassGL: // LB12a
+	case r0 == lClassCL || r0 == lClassCP || r0 == lClassEX || r0 == lClassSY: // LB13
+	case l0 == lClassOP: // LB14 (part 1)
+	case l1Diff == lClassOP && l0 == lClassSP: // LB14 (part 2)
+	case l0 == lClassQU && r0 == lClassOP: // LB15 (part 1)
+	case l1Diff == lClassQU && l0 == lClassSP && r0 == lClassOP: // LB15 (part 2)
+	case (l0 == lClassCL || l0 == lClassCP) && r0 == lClassNS: // LB16 (part 1)
+	case (l1Diff == lClassCL || l1Diff == lClassCP) && l0 == lClassSP && r0 == lClassNS: // LB16 (part 2)
+	case l0 == lClassB2 && r0 == lClassB2: // LB17 (part 1)
+	case l1Diff == lClassB2 && l0 == lClassSP && r0 == lClassB2: // LB17 (part 2)
+	case l0 == lClassSP: // LB18
+		return true
+	case l0 == lClassQU || r0 == lClassQU: // LB19
+	case l0 == lClassCB || r0 == lClassCB: // LB20
+		return true
+	case r0 == lClassBA || r0 == lClassHY || r0 == lClassNS || l0 == lClassBB: // LB21
+	case l1 == lClassHL && (l0 == lClassHY || l0 == lClassBA): // LB21a
+	case l0 == lClassSY && !l0IS && r0 == lClassHL: // LB21b
+	case (l0 == lClassAL || l0 == lClassHL || l0 == lClassEX || l0 == lClassID || l0 == lClassEB || l0 == lClassEM || l0 == lClassIN || l0 == lClassNU) && r0 == lClassIN: // LB22
+	case (l0 == lClassAL || l0 == lClassHL) && r0 == lClassNU: // LB23 (part 1)
+	case l0 == lClassNU && (r0 == lClassAL || r0 == lClassHL): // LB23 (part 2)
+	case l0 == lClassPR && (r0 == lClassID || r0 == lClassEB || r0 == lClassEM): // LB23a (part 1)
+	case (l0 == lClassID || l0 == lClassEB || l0 == lClassEM) && r0 == lClassPO: // LB23a (part 2)
+	case (l0 == lClassPR || l0 == lClassPO) && (r0 == lClassAL || r0 == lClassHL): // LB24 (part 1)
+	case (l0 == lClassAL || l0 == lClassHL) && (r0 == lClassPR || r0 == lClassPO): // LB24 (part 2)
 		/*
 			// This is the default implementation of LB25.
 			// Regexp "( PR | PO) ? ( OP | HY ) ? NU (NU | SY | IS) * ( CL | CP ) ? ( PR | PO) ?" suggested instead.
 			// Also LineBreakTest.txt use this regexp, not default implementation.
-			case (prevClass == lClassCL && curClass == lClassPO) ||
-				(prevClass == lClassCP && curClass == lClassPO) ||
-				(prevClass == lClassCL && curClass == lClassPR) ||
-				(prevClass == lClassCP && curClass == lClassPR) ||
-				(prevClass == lClassNU && curClass == lClassPO) ||
-				(prevClass == lClassNU && curClass == lClassPR) ||
-				(prevClass == lClassPO && curClass == lClassOP) ||
-				(prevClass == lClassPO && curClass == lClassNU) ||
-				(prevClass == lClassPR && curClass == lClassOP) ||
-				(prevClass == lClassPR && curClass == lClassNU) ||
-				(prevClass == lClassHY && curClass == lClassNU) ||
-				(prevClass == lClassIS && curClass == lClassNU) ||
-				(prevClass == lClassNU && curClass == lClassNU) ||
-				(prevClass == lClassSY && curClass == lClassNU): // LB25
+			case (l0 == lClassCL && r0 == lClassPO) ||
+				(l0 == lClassCP && r0 == lClassPO) ||
+				(l0 == lClassCL && r0 == lClassPR) ||
+				(l0 == lClassCP && r0 == lClassPR) ||
+				(l0 == lClassNU && r0 == lClassPO) ||
+				(l0 == lClassNU && r0 == lClassPR) ||
+				(l0 == lClassPO && r0 == lClassOP) ||
+				(l0 == lClassPO && r0 == lClassNU) ||
+				(l0 == lClassPR && r0 == lClassOP) ||
+				(l0 == lClassPR && r0 == lClassNU) ||
+				(l0 == lClassHY && r0 == lClassNU) ||
+				(l0 == lClassIS && r0 == lClassNU) ||
+				(l0 == lClassNU && r0 == lClassNU) ||
+				(l0 == lClassSY && r0 == lClassNU): // LB25
 		*/
 
 		// Regexp "( PR | PO) ? ( OP | HY ) ? NU (NU | SY | IS) * ( CL | CP ) ? ( PR | PO) ?" implementation of LB25.
 		// See TR14 8.2 Example 7 for more information.
-		case ((prevClass == lClassPR || prevClass == lClassPO) && curClass == lClassNU) ||
-			((prevClass == lClassPR || prevClass == lClassPO) && (curClass == lClassOP || curClass == lClassHY) && nextClass == lClassNU) ||
-			((prevClass == lClassOP || prevClass == lClassHY) && curClass == lClassNU) ||
-			(prevClass == lClassNU && (curClass == lClassNU || curClass == lClassSY || curClass == lClassIS)) ||
-			(prevClass == lClassNU && (curClass == lClassNU || curClass == lClassSY || curClass == lClassIS || curClass == lClassCL || curClass == lClassCP)) || // "NU × (NU | SY | IS | CL | CP )"
-			(prevPrevDifferentL25NU && (prevClass == lClassNU || prevClass == lClassSY || prevClass == lClassIS) && (curClass == lClassNU || curClass == lClassSY || curClass == lClassIS || curClass == lClassCL || curClass == lClassCP)) || // "NU (NU | SY | IS)+ × (NU | SY | IS | CL | CP )"
-			(prevClass == lClassNU && (curClass == lClassPO || curClass == lClassPR)) || // "NU × (PO | PR)"
-			(prevPrevClass == lClassNU && (prevClass == lClassCL || prevClass == lClassCP) && (curClass == lClassPO || curClass == lClassPR)) || // "NU (CL | CP) × (PO | PR)"
-			(prevPrevDifferentL25NU && (prevClass == lClassNU || prevClass == lClassSY || prevClass == lClassIS) && (curClass == lClassPO || curClass == lClassPR)) || // "NU (NU | SY | IS)+ × (PO | PR)"
-			(prevPrevPrevDifferentL25NU && (prevPrevClass == lClassNU || prevPrevClass == lClassSY || prevPrevClass == lClassIS) && (prevClass == lClassCL || prevClass == lClassCP) && (curClass == lClassPO || curClass == lClassPR)): // "NU (NU | SY | IS)+ (CL | CP) × (PO | PR)" ; LB25
-		// End of LB25
-		case prevClass == lClassJL && (curClass == lClassJL || curClass == lClassJV || curClass == lClassH2 || curClass == lClassH3): // LB26 (part 1)
-		case (prevClass == lClassJV || prevClass == lClassH2) && (curClass == lClassJV || curClass == lClassJT): // LB26 (part 2)
-		case (prevClass == lClassJT || prevClass == lClassH3) && curClass == lClassJT: // LB26 (part 3)
-		case (prevClass == lClassJL || prevClass == lClassJV || prevClass == lClassJT || prevClass == lClassH2 || prevClass == lClassH3) && (curClass == lClassIN || curClass == lClassPO): // LB27 (part 1)
-		case prevClass == lClassPR && (curClass == lClassJL || curClass == lClassJV || curClass == lClassJT || curClass == lClassH2 || curClass == lClassH3): // LB27 (part 2)
-		case (prevClass == lClassAL || prevClass == lClassHL || prevClass == lClassIS) && (curClass == lClassAL || curClass == lClassHL): // LB28 & LB29
-		case (prevClass == lClassAL || prevClass == lClassHL || prevClass == lClassNU) && curClass == lClassOP: // LB30 (part 1)
-		case prevClass == lClassCP && (curClass == lClassAL || curClass == lClassHL || curClass == lClassNU): // LB30 (part 2)
-		case prevPrevClass != lClassRI && prevClass == lClassRI && curClass == lClassRI: // LB30a
-		case prevClass == lClassEB && curClass == lClassEM: // LB30b
-		default: // LB31
-			return i
+		// Rules:
+		// 	CLB 1: (PR | PO) × (OP | HY)? NU - replaced with:
+		//	CLB 1.1: (PR | PO) × NU
+		// 	CLB 1.2: (PR | PO) × (OP | HY) NU
+		// 	CLB 2: ( OP | HY ) × NU
+		// 	CLB 3: NU × (NU | SY | IS)
+		// 	CLB 4: NU (NU | SY | IS)* × (NU | SY | IS | CL | CP ) - replaced with:
+		// 	CLB 4.1: NU × (NU | SY | IS | CL | CP )
+		// 	CLB 4.2: NU (NU | SY | IS)+ × (NU | SY | IS | CL | CP )
+		// 	CLB 5: NU (NU | SY | IS)* (CL | CP)? × (PO | PR) - replaced with:
+		// 	CLB 5.1: NU × (PO | PR)
+		// 	CLB 5.2: NU (CL | CP) × (PO | PR)
+		// 	CLB 5.3: NU (SY | IS)+ × (PO | PR)
+		// 	CLB 5.4: NU (SY | IS)+ (CL | CP) × (PO | PR)
+	case ((l0 == lClassPR || l0 == lClassPO) && r0 == lClassNU) || // CLB1.1
+		((l0 == lClassPR || l0 == lClassPO) && (r0 == lClassOP || r0 == lClassHY) && r1 == lClassNU) || // CLB1.2
+		((l0 == lClassOP || l0 == lClassHY) && r0 == lClassNU) || // CLB2
+		(l0 == lClassNU && (r0 == lClassNU || r0 == lClassSY)) || // CLB3
+		(l0 == lClassNU && (r0 == lClassNU || r0 == lClassSY || r0 == lClassCL || r0 == lClassCP)) || // CLB4.1
+		(l1Diff == lClassNU && l0 == lClassSY && (r0 == lClassNU || r0 == lClassSY || r0 == lClassCL || r0 == lClassCP)) || // CLB4.2
+		(l0 == lClassNU && (r0 == lClassPO || r0 == lClassPR)) || // CLB5.1
+		(l1 == lClassNU && (l0 == lClassCL || l0 == lClassCP) && (r0 == lClassPO || r0 == lClassPR)) || // CLB5.2
+		(l1Diff == lClassNU && l0 == lClassSY && (r0 == lClassPO || r0 == lClassPR)) || // CLB5.3
+		(l2Diff == lClassNU && l1 == lClassSY && (l0 == lClassCL || l0 == lClassCP) && (r0 == lClassPO || r0 == lClassPR)): // CLB5.4
+	case l0 == lClassJL && (r0 == lClassJL || r0 == lClassJV || r0 == lClassH2 || r0 == lClassH3): // LB26 (part 1)
+	case (l0 == lClassJV || l0 == lClassH2) && (r0 == lClassJV || r0 == lClassJT): // LB26 (part 2)
+	case (l0 == lClassJT || l0 == lClassH3) && r0 == lClassJT: // LB26 (part 3)
+	case (l0 == lClassJL || l0 == lClassJV || l0 == lClassJT || l0 == lClassH2 || l0 == lClassH3) && (r0 == lClassIN || r0 == lClassPO): // LB27 (part 1)
+	case l0 == lClassPR && (r0 == lClassJL || r0 == lClassJV || r0 == lClassJT || r0 == lClassH2 || r0 == lClassH3): // LB27 (part 2)
+	case (l0 == lClassAL || l0 == lClassHL || l0IS) && (r0 == lClassAL || r0 == lClassHL): // LB28 & LB29
+	case (l0 == lClassAL || l0 == lClassHL || l0 == lClassNU) && r0 == lClassOP: // LB30 (part 1)
+	case l0 == lClassCP && (r0 == lClassAL || r0 == lClassHL || r0 == lClassNU): // LB30 (part 2)
+	case lOddRI && r0 == lClassRI: // LB30a
+	case l0 == lClassEB && r0 == lClassEM: // LB30b
+	default: // LB31
+		return true
+	}
+	return false
+}
+
+/*
+This functions is useful in case of IS does not mapped to SY.
+
+// Returns is <runes..., l1, l0> ends with regexp "NU (SY IS)+".
+func lIsNusyis(runes []rune, l1, l0 lClass) bool {
+	if l0 != lClassSY && l0 != lClassIS {
+		return false
+	}
+	switch l1 {
+	case lClassNU:
+		return true
+	case lClassSY, lClassIS:
+	default:
+		return false
+	}
+	for len(runes) > 0 {
+		c, _, pos := lLastSequence(runes)
+		switch c {
+		case lClassNU:
+			return true
+		case lClassSY, lClassIS:
+		default:
+			return false
+		}
+		runes = runes[:pos]
+	}
+	return false
+}
+
+// Same as without suffix "1" but with only one predefined class.
+func lIsNusyis1(runes []rune, l0 lClass) bool {
+	l1, _, pos := lLastSequence(runes)
+	return lIsNusyis(runes[:pos], l1, l0)
+}
+*/
+
+// Returns class of last rune in <runes..., l1> which is not equal to l0.
+func lLastNotEqualTo(runes []rune, l1, l0 lClass) lClass {
+	if l1 != l0 {
+		return l1
+	}
+	for len(runes) > 0 {
+		c, _, _, pos := lLastSequence(runes)
+		if c != l0 {
+			return c
+		}
+		runes = runes[:pos]
+	}
+	return lClassXX
+}
+
+// Same as without suffix "1" but with only one predefined class (looking in <runes...>, not <runes..., l1>).
+func lLastNotEqualTo0(runes []rune, l0 lClass) lClass {
+	l1, _, _, pos := lLastSequence(runes)
+	return lLastNotEqualTo(runes[:pos], l1, l0)
+}
+
+// True if l0 is RI and it opens RI sequence in string <runes..., l1, l0, ...> (may be joined with next RI).
+func lIsOpenRI(runes []rune, l1, l0 lClass) (r bool) {
+	r = l0 == lClassRI
+	if !r {
+		return
+	}
+	r = l1 != lClassRI
+	if r {
+		return
+	}
+	for len(runes) > 0 {
+		c, _, _, pos := lLastSequence(runes)
+		if c != lClassRI {
+			break
+		}
+		r = !r
+		runes = runes[:pos]
+	}
+	return
+}
+
+// runes must be valid (len>1).
+// l0Pos must be valid (in runes; really begin of sequence).
+func lineBreakAfter(runes []rune, l0Pos int) int {
+	l := len(runes)
+
+	l1, _, _, l1Pos := lLastSequence(runes[:l0Pos])
+	l0, l0IS, l0ZWJ, r0Delta := lFirstSequence(runes[l0Pos:])
+	r0Pos := l0Pos + r0Delta
+	r0, r0IS, r0ZWJ, r1Delta := lFirstSequence(runes[r0Pos:])
+	l2Diff := lLastNotEqualTo0(runes[:l1Pos], l1)
+	l1Diff := lLastNotEqualTo(runes[:l1Pos], l1, l0)
+	lOddRI := lIsOpenRI(runes[:l1Pos], l1, l0)
+
+	for r0Pos < l {
+		r1, r1IS, r1ZWJ, r2Delta := lFirstSequence(runes[r0Pos+r1Delta:])
+
+		if lDecision(l1, l0, r0, r1, l2Diff, l1Diff, l0IS, l0ZWJ, lOddRI) {
+			return r0Pos
 		}
 
-		i += deltaI
-		deltaI = nextDeltaI
-
-		prevZWJ = curZWJ
-		curZWJ = nextZWJ
-
-		prevPrevPrevDifferentL25NU = prevPrevDifferentL25NU && (curClass == lClassCL || curClass == lClassCP)
-		prevPrevDifferentL25NU = (prevPrevDifferentL25NU || prevClass == lClassNU) && (curClass == lClassNU || curClass == lClassSY || curClass == lClassIS)
-
-		prevPrevClass = prevClass
-		prevClass = curClass
-		if prevPrevClass != prevClass {
-			prevPrevDifferentClass = prevPrevClass
+		r0Pos += r1Delta
+		r1Delta = r2Delta
+		l0ZWJ = r0ZWJ
+		r0ZWJ = r1ZWJ
+		if l1 != l0 {
+			l2Diff = l1
 		}
-		curClass = nextClass
+		if l0 != r0 {
+			l1Diff = l0
+		}
+		l1 = l0
+		l0 = r0
+		r0 = r1
+		l0IS = r0IS
+		r0IS = r1IS
+		lOddRI = l0 == lClassRI && !lOddRI
 	}
 	return l
 }
 
-func Lines(runes []rune) (boundaries []Boundary) {
-	boundaries = make([]Boundary, 0, len(runes)) // TODO memory efficient
-	for i := 0; i < len(runes); {
-		length := FirstLine(runes[i:])
-		boundaries = append(boundaries, Boundary{i, i + length})
-		i += length
+// LineBreakAfter returns first possible line break on the right side of pos-th rune.
+func LineBreakAfter(runes []rune, pos int) int {
+	l := len(runes)
+	if pos < 0 || pos >= l {
+		return InvalidPos
+	}
+	if pos == l-1 {
+		return l
+	}
+
+	pos = lSequenceBegin(runes[:pos+1])
+
+	return lineBreakAfter(runes, pos)
+}
+
+// runes must be valid (len>1).
+// r0Pos must be valid (in runes; really begin of sequence).
+func lineBreakBefore(runes []rune, r0Pos int) int {
+	r0, _, _, r1Delta := lFirstSequence(runes[r0Pos:])
+	r1, _, _, _ := lFirstSequence(runes[r0Pos+r1Delta:])
+	l0, l0IS, l0ZWJ, l0Pos := lLastSequence(runes[:r0Pos])
+	l1Diff := lLastNotEqualTo0(runes[:l0Pos], l0)
+	l2Diff := l1Diff
+
+	for r0Pos > 0 {
+		l1, l1IS, l1ZWJ, l1Pos := lLastSequence(runes[:l0Pos])
+		lOddRI := lIsOpenRI(runes[:l1Pos], l1, l0)
+		if l2Diff == l1 {
+			l2Diff = lLastNotEqualTo0(runes[:l1Pos], l1)
+		}
+
+		if lDecision(l1, l0, r0, r1, l2Diff, l1Diff, l0IS, l0ZWJ, lOddRI) {
+			return r0Pos
+		}
+
+		if l1Diff == l1 {
+			l1Diff = l2Diff
+		}
+		r0Pos = l0Pos
+		l0Pos = l1Pos
+
+		l0ZWJ = l1ZWJ
+
+		r1 = r0
+		r0 = l0
+		l0 = l1
+		l0IS = l1IS
+	}
+	return NoLineBreak
+}
+
+// LineBreakBefore returns first (nearest) possible line break on the left side of pos-th rune.
+func LineBreakBefore(runes []rune, pos int) int {
+	l := len(runes)
+	if pos < 0 || pos >= l {
+		return InvalidPos
+	}
+	if pos == 0 {
+		return NoLineBreak
+	}
+
+	pos = lSequenceBegin(runes[:pos+1])
+
+	return lineBreakBefore(runes, pos)
+}
+
+// FirstLineBreak returns first possible line break.
+func FirstLineBreak(runes []rune) int {
+	return LineBreakAfter(runes, 0)
+}
+
+// LastLineBreak returns last possible line break (except line break at end of string).
+func LastLineBreak(runes []rune) int {
+	return LineBreakBefore(runes, len(runes)-1)
+}
+
+// LineBreaks returns all possible line breaks.
+func LineBreaks(runes []rune) (breaks []int) {
+	l := len(runes)
+	if l == 0 {
+		return // []int{NoLineBreak}
+	}
+	breaks = make([]int, 0, l) // TODO memory efficient
+	for pos := 0; pos < l; {
+		length := FirstLineBreak(runes[pos:])
+		pos += length
+		breaks = append(breaks, pos)
 	}
 	return
 }
