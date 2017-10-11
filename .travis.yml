@@ -1,5 +1,6 @@
 language: go
-sudo: false
+# sudo: false
+sudo: required
 os:
   - linux
   - osx
@@ -23,6 +24,7 @@ matrix:
       env: GO_OS=windows GO_ARCH=386
   allow_failures:
       - go: master
+      - go: 1.7.x
 before_install:
   - export GOARCH=$GO_ARCH
   - export GOOS=$GO_OS
