@@ -1,26 +1,13 @@
 package bidih
+/*
 
 import (
-	"reflect"
 	"testing"
 	"github.com/apaxa-go/helper/unicodeh/bidih/internal/testdata"
+	"reflect"
 )
 
-/*
-func compareEL(expectedLevels []uint8, levels []EmbeddingLevel) bool {
-	if len(expectedLevels) != len(levels) {
-		return false
-	}
-	for runeI := range expectedLevels {
-		if expectedLevels[runeI] != mathh.MaxUint8 && EmbeddingLevel(expectedLevels[runeI]) != levels[runeI] {
-			return false
-		}
-	}
-	return true
-}
-*/
-
-func TestBidiTest(t *testing.T) {
+func TestBidiTestGraphemes(t *testing.T) {
 	var failed int
 	var total int
 	displayed := false
@@ -29,7 +16,7 @@ func TestBidiTest(t *testing.T) {
 			for _, paragraphDirection := range test.ParagraphDirections {
 				runes := test.Runes()
 				//runes, levels := ParseParagraph(runes, EmbeddingLevel(paragraphDirection), nil)
-				ParseParagraph(runes, EmbeddingLevel(paragraphDirection), nil)
+				runes = ParseParagraphGraphemes(runes, EmbeddingLevel(paragraphDirection), nil)
 				runes = removeX9(runes)
 				//if expected := group.Result(test.Runes()); !reflect.DeepEqual(runes, expected) || !compareEL(group.Levels, levels) {
 				if expected := group.Result(test.Runes()); !reflect.DeepEqual(runes, expected) {
@@ -48,9 +35,9 @@ func TestBidiTest(t *testing.T) {
 }
 
 // For debug purpose: test single case.
-func TestSomeOne(t *testing.T){
-	groupI:=0
-	testI:=0
+func TestSomeOneGraphemes(t *testing.T){
+	groupI:=186
+	testI:=11
 	paragraphDirection:= EmbeddingLevel(0)
 
 	group:=testdata.BidiTests[groupI]
@@ -58,7 +45,7 @@ func TestSomeOne(t *testing.T){
 
 	runes := test.Runes()
 	//runes, levels := ParseParagraph(runes, paragraphDirection, nil)
-	ParseParagraph(runes, paragraphDirection, nil)
+	runes = ParseParagraphGraphemes(runes, paragraphDirection, nil)
 	runes = removeX9(runes)
 	//if expected := group.Result(test.Runes()); !reflect.DeepEqual(runes, expected) || !compareEL(group.Levels, levels) {
 	if expected := group.Result(test.Runes()); !reflect.DeepEqual(runes, expected) {
@@ -66,3 +53,5 @@ func TestSomeOne(t *testing.T){
 		t.Errorf("%v.%v.%v:\nclasses %v\ninput  %v\nexpect %v\ngot    %v\nexp EL %v\norder  %v\n", groupI,testI,paragraphDirection,test.Classes, test.Runes(), expected, runes, group.Levels, group.Orders)
 	}
 }
+*/
+

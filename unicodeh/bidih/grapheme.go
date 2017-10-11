@@ -1,5 +1,6 @@
 package bidih
 
+/*
 import (
 	"github.com/apaxa-go/helper/unicodeh/boundaryh"
 	"github.com/apaxa-go/helper/unicodeh/bidih/internal/bidi"
@@ -230,3 +231,4 @@ func ParseParagraphGraphemes(runes []rune, paragraphLevel EmbeddingLevel, lineBr
 	}
 	return
 }
+*/
