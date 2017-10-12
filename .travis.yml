@@ -36,7 +36,7 @@ before_install:
   - export PATH=${PATH}:${GOPATH}/bin/:${GOPATH}/bin/`go env GOOS`_`go env GOARCH`/
   - go env
   - export
-  - if [[ "$TRAVIS_OS_NAME" != "linux" ]]; then cat /proc/meminfo /proc/cpuinfo; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then cat /proc/meminfo /proc/cpuinfo; fi
   - if [[ -z "$GOOS" ]]; then go get github.com/mattn/goveralls; fi # only native builds can be covered
 script:
   - if [[ -n "$GOOS" ]]; then travis_wait 30 go build -v ./... ; fi # only native builds can be covered
