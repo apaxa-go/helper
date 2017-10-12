@@ -37,7 +37,7 @@ before_install:
   - go env
   - export
   - if [[ "$TRAVIS_OS_NAME" != "linux" ]]; then cat /proc/meminfo /proc/cpuinfo; fi
-  - if [[ "$GOOS" != "windows" ]]; then go get github.com/mattn/goveralls; fi
+  - if [[ -z "$GOOS" ]]; then go get github.com/mattn/goveralls; fi # only native builds can be covered
 script:
-  - if [[ "$GOOS" == "windows" ]]; then travis_wait 30 go build -v ./... ; fi
-  - if [[ "$GOOS" != "windows" ]]; then travis_wait 30 goveralls -service travis-ci ; fi
+  - if [[ -n "$GOOS" ]]; then travis_wait 30 go build -v ./... ; fi # only native builds can be covered
+  - if [[ -z "$GOOS" ]]; then travis_wait 30 goveralls -service travis-ci ; fi # only native builds can be covered
