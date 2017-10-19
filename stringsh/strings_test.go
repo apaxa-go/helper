@@ -1,6 +1,7 @@
 package stringsh
 
 import (
+	"reflect"
 	"strings"
 	"testing"
 )
@@ -157,4 +158,64 @@ func TestReplaceMulti3(t *testing.T) {
 	}()
 	ReplaceMulti("", []string{""}, []string{"A"})
 	t.Error("expect panic")
+}
+
+func TestFieldsQuoted(t *testing.T) {
+	type testElement struct {
+		s      string
+		fields []string
+	}
+	noFields := []string(nil)
+	tests := []testElement{
+		{"", noFields},
+		{" 	", noFields},
+		{"a", []string{"a"}},
+		{"	 a 	", []string{"a"}},
+		{"ab", []string{"ab"}},
+		{" 	ab	 ", []string{"ab"}},
+		{"a b", []string{"a", "b"}},
+		{"  a		b  ", []string{"a", "b"}},
+		{"ab c", []string{"ab", "c"}},
+		{"		ab		c		", []string{"ab", "c"}},
+		{"a bc", []string{"a", "bc"}},
+		{"	 	a	 	bc	 	", []string{"a", "bc"}},
+		{"ab cd", []string{"ab", "cd"}},
+		{" 	 ab 	 cd 	 ", []string{"ab", "cd"}},
+
+		{`""`, []string{""}},
+		{`	"" `, []string{""}},
+		{`"a"`, []string{"a"}},
+		{` "a"	`, []string{"a"}},
+		{` "	a "	`, []string{"	a "}},
+		{`  "  a  b  "  "  c  d  "  `, []string{"  a  b  ", "  c  d  "}},
+		{`  a  b  "  c  d  "  `, []string{"a", "b", "  c  d  "}},
+		{`  a  b  "  c  d  `, []string{"a", "b", "  c  d  "}},
+		{`  "  a  b  "  c  d  `, []string{"  a  b  ", "c", "d"}},
+
+		{`''`, []string{""}},
+		{`	'' `, []string{""}},
+		{`'a'`, []string{"a"}},
+		{` 'a'	`, []string{"a"}},
+		{` '	a '	`, []string{"	a "}},
+		{`  '  a  b  '  '  c  d  '  `, []string{"  a  b  ", "  c  d  "}},
+		{`  a  b  '  c  d  '  `, []string{"a", "b", "  c  d  "}},
+		{`  a  b  '  c  d  `, []string{"a", "b", "  c  d  "}},
+		{`  '  a  b  '  c  d  `, []string{"  a  b  ", "c", "d"}},
+
+		{`  "  a  b  "  '  c  d  '  `, []string{"  a  b  ", "  c  d  "}},
+		{`  '  a  b  '  "  c  d  "  `, []string{"  a  b  ", "  c  d  "}},
+
+		{`"\\a"`, []string{`\a`}},
+		{`"\"a" b`, []string{`"a`, "b"}},
+		{`"\"\\a" b`, []string{`"\a`, "b"}},
+
+		{`'\\a'`, []string{`\a`}},
+		{`'\"a' b`, []string{`"a`, "b"}},
+		{`'\"\\a' b`, []string{`"\a`, "b"}},
+	}
+	for i, v := range tests {
+		if r := FieldsQuoted(v.s); !reflect.DeepEqual(r, v.fields) {
+			t.Errorf("%v '%v' expect '%v', got '%v'", i, v.s, v.fields, r)
+		}
+	}
 }

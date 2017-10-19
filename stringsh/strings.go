@@ -2,8 +2,10 @@
 package stringsh
 
 import (
+	"github.com/apaxa-go/helper/unicodeh"
 	"golang.org/x/text/unicode/norm"
 	"strings"
+	"unicode/utf8"
 )
 
 // Len returns number of glyph in UTF-8 encoded string.
@@ -100,5 +102,78 @@ func ReplaceMulti(s string, old, new []string) (r string) {
 		s = s[i+len(old[j]):]
 	}
 	r += s
+	return
+}
+
+// Returns prefix of s before "quote" rune and length of this (prefix + "quote").
+// Escaping: "\X" converts to 'X'.
+// String s is substring of original string after (not including) opening quote rune.
+// TODO make implementation more effective (avoid "sub+=string(r)")
+func getQuotedString(s string, quote rune) (sub string, end int) {
+	l := len(s)
+	escaped := false
+
+	for end < l {
+		r, rLen := utf8.DecodeRuneInString(s[end:])
+		end += rLen
+		switch {
+		case r == quote && !escaped:
+			return
+		case r == '\\' && !escaped:
+			escaped = true
+		default:
+			escaped = false
+			sub += string(r)
+		}
+	}
+
+	return
+}
+
+// Returns length of leading white spaces runes.
+func whiteSpacesLen(s string) (l int) {
+	for l < len(s) {
+		r, rLen := utf8.DecodeRuneInString(s[l:])
+		if !unicodeh.IsWhiteSpaceYes(r) {
+			return
+		}
+		l += rLen
+	}
+	return
+}
+
+// FieldsQuoted splits the string s around each instance of one or more consecutive white space characters, as defined by unicodeh.IsWhiteSpaceYes.
+// It also treat single and double quoted substrings as single field (so it is possible to have white spaces in field itself).
+// In quoted substrings '\' used to escape: "...\X..." translated to "...X..." ("\\" => "\", "\"" => '"').
+// Returns an array of substrings of s or an empty list if s contains only white space.
+func FieldsQuoted(s string) (f []string) {
+	l := len(s)
+
+	pos := whiteSpacesLen(s) // Skip leading white spaces
+
+	for pos < l {
+		r, rLen := utf8.DecodeRuneInString(s[pos:])
+		switch r {
+		case '\'', '"':
+			pos += rLen
+			sub, subLen := getQuotedString(s[pos:], r)
+			f = append(f, sub)
+			pos += subLen
+		default:
+			end := pos + rLen
+			for end < l {
+				r, rLen = utf8.DecodeRuneInString(s[end:])
+				if unicodeh.IsWhiteSpaceYes(r) {
+					break
+				}
+				end += rLen
+			}
+			f = append(f, s[pos:end])
+			pos = end
+		}
+
+		pos += whiteSpacesLen(s[pos:]) // Skip white spaces
+	}
+
 	return
 }
