@@ -39,20 +39,20 @@ func RunesToSource(runes []rune) string {
 	return r[:len(r)-1] + "}"
 }
 
-func isBreak(str string)bool{
+func isBreak(str string) bool {
 	switch str {
 	case breakStr:
 		return true
 	case noBreakStr:
 		return false
 	default:
-		panic("Invalid runes separator "+str)
+		panic("Invalid runes separator " + str)
 	}
 }
 
 func parseLine(strs []string) (runes []rune, breaks []int) {
-	if isBreak(strs[0]){
-		breaks=[]int{0}
+	if isBreak(strs[0]) {
+		breaks = []int{0}
 	}
 
 	runeCount := (len(strs) - 1) / 2
@@ -72,9 +72,9 @@ func parseLine(strs []string) (runes []rune, breaks []int) {
 		//
 		// Break
 		//
-		breakStr:=strs[2+runeI*2]
-		if isBreak(breakStr){
-			breaks=append(breaks,runeI+1)
+		breakStr := strs[2+runeI*2]
+		if isBreak(breakStr) {
+			breaks = append(breaks, runeI+1)
 		}
 	}
 	return
@@ -108,7 +108,7 @@ func parseTests(srcDir, testFilename, codeSuffix string) []byte {
 	}
 
 	data := bytes.NewBuffer(nil)
-	data.WriteString("var ucd" + codeSuffix + "Tests = []ucd" + codeSuffix + "Test{\n")
+	data.WriteString("var ucd" + codeSuffix + "Tests = []ucd" /*+ codeSuffix*/ + "Test{\n")
 
 	p := ucd.New(src)
 	for p.Next() {
@@ -138,7 +138,7 @@ func main() {
 		codeSuffix     string
 	}
 	tests := map[string]test{
-		"GraphemeBreakTest.txt": {"grapheme-cluster-ucd-data-gen_test.go", "GraphemeCluster"},
+		"GraphemeBreakTest.txt": {"grapheme-ucd-data-gen_test.go", "GraphemeCluster"},
 		"WordBreakTest.txt":     {"word-ucd-data-gen_test.go", "Word"},
 		"SentenceBreakTest.txt": {"sentence-ucd-data-gen_test.go", "Sentence"},
 		"LineBreakTest.txt":     {"line-ucd-data-gen_test.go", "Line"},

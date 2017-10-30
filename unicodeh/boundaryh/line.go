@@ -1,5 +1,9 @@
 package boundaryh
 
+//replacer:ignore
+// TODO replace windows path separator
+//go:generate go run $GOPATH\src\github.com\apaxa-go\generator\replacer\main.go -- $GOFILE
+
 // lSequence rules:
 // 	     CR lF     => BK
 // 	   (CR | lF)   => BK
@@ -11,135 +15,6 @@ package boundaryh
 // NoLineBreak indicates that where is no possible line break.
 // TR14 says, that there is no break at start of string (this is required to avoid breaking line after zero runes).
 const NoLineBreak int = 0
-
-// Computes first lSequence.
-// Returns:
-// 	"c"      - lSequence class (see "lSequence rules").
-// 	"rawIS"  - is sequence primary class is IS. This information required by some rules which require exactly IS or SY, but IS will be replaced with SY.
-// 	"rawZWJ" - is sequence just single ZWJ. This information required bee LB8a, but "c" in such cases will be AL.
-// 	"pos"    - point to first rune of next sequence (in other words "pos" is length of current lSequence).
-func lFirstSequence(runes []rune) (c lClass, rawIS, rawZWJ bool, pos int) {
-	l := len(runes)
-	if l == 0 {
-		c = lClassXX
-		return
-	}
-
-	if runes[0] == crRune { // LB4
-		if l > 1 && runes[1] == lfRune { // LB5
-			return lClassBK, false, false, 2
-		}
-		return lClassBK, false, false, 1
-	}
-
-	if runes[0] == lfRune { // LB4
-		return lClassBK, false, false, 1
-	}
-
-	c = lGetClass(runes[0])
-
-	if c.isSkip() { // LB10
-		return lClassAL, false, c == lClassZWJ, 1
-	} else if !c.isSkipBase() { // LB9
-		return c, false, false, 1
-	}
-
-	if c == lClassIS {
-		c = lClassSY
-		rawIS = true
-	}
-
-	for pos = 1; pos < len(runes); pos++ { // LB9
-		if !lGetClass(runes[pos]).isSkip() {
-			break
-		}
-	}
-
-	return
-}
-
-// Computes last lSequence.
-// Analogue to lFirstSequence.
-// "pos" points to first rune in sequence.
-func lLastSequence(runes []rune) (c lClass, rawIS, rawZWJ bool, pos int) {
-	l := len(runes)
-	if l == 0 {
-		c = lClassXX
-		return
-	}
-
-	if runes[l-1] == lfRune { // LB4
-		if l > 1 && runes[l-2] == crRune { // LB5
-			return lClassBK, false, false, l - 2
-		}
-		return lClassBK, false, false, l - 1
-	}
-
-	if runes[l-1] == crRune { // LB4
-		return lClassBK, false, false, l - 1
-	}
-
-	pos = l - 1
-	c = lGetClass(runes[pos])
-
-	if !c.isSkip() { // not LB9
-		if c == lClassIS {
-			c = lClassSY
-			rawIS = true
-		}
-		return
-	}
-
-	rawZWJ = c == lClassZWJ
-
-	for pos--; pos >= 0; pos-- {
-		c0 := lGetClass(runes[pos])
-		switch {
-		case c0.isSkip(): // LB9
-		case c0.isSkipBase(): // LB9
-			c = c0
-			rawZWJ = false
-			if c == lClassIS {
-				c = lClassSY
-				rawIS = true
-			}
-			return
-		default:
-			return lClassAL, false, rawZWJ, l - 1 // LB10
-		}
-	}
-
-	return lClassAL, false, rawZWJ, l - 1 // LB10
-}
-
-// Returns position at which it is safe to begin analysis.
-func lSequenceBegin(runes []rune) int {
-	l := len(runes)
-	if l <= 1 {
-		return 0
-	}
-
-	if runes[l-2] == crRune && runes[l-1] == lfRune { // LB5
-		return l - 2
-	}
-
-	if !lGetClass(runes[l-1]).isSkip() { // not LB9
-		return l - 1
-	}
-
-	for pos := l - 2; pos >= 0; pos-- {
-		c := lGetClass(runes[pos])
-		switch {
-		case c.isSkip(): // LB9
-		case c.isSkipBase(): // LB9
-			return pos
-		default: // LB10
-			return l - 1
-		}
-	}
-
-	return l - 1 // LB10
-}
 
 // Returns if there is a break between l0 and r0.
 func lDecision(l1, l0, r0, r1, l2Diff, l1Diff lClass, l0IS, l0ZWJ, lOddRI bool) bool {
@@ -259,7 +134,7 @@ func lIsNusyis(runes []rune, l1, l0 lClass) bool {
 		return false
 	}
 	for len(runes) > 0 {
-		c, _, pos := lLastSequence(runes)
+		c, _, pos := lLastSequenceInRunes(runes)
 		switch c {
 		case lClassNU:
 			return true
@@ -274,18 +149,154 @@ func lIsNusyis(runes []rune, l1, l0 lClass) bool {
 
 // Same as without suffix "1" but with only one predefined class.
 func lIsNusyis1(runes []rune, l0 lClass) bool {
-	l1, _, pos := lLastSequence(runes)
+	l1, _, pos := lLastSequenceInRunes(runes)
 	return lIsNusyis(runes[:pos], l1, l0)
 }
 */
 
+//replacer:replace
+//replacer:old InRunes	[]rune	runes
+//replacer:new InString	string	s
+//replacer:new ""		[]byte	bytes
+
+// Computes first lSequence.
+// Returns:
+// 	"c"      - lSequence class (see "lSequence rules").
+// 	"rawIS"  - is sequence primary class is IS. This information required by some rules which require exactly IS or SY, but IS will be replaced with SY.
+// 	"rawZWJ" - is sequence just single ZWJ. This information required bee LB8a, but "c" in such cases will be AL.
+// 	"pos"    - point to first rune of next sequence (in other words "pos" is length of current lSequence).
+func lFirstSequenceInRunes(runes []rune) (c lClass, rawIS, rawZWJ bool, pos int) {
+	l := len(runes)
+	if l == 0 {
+		c = lClassXX
+		return
+	}
+
+	if runes[0] == crRune { // LB4
+		if l > 1 && runes[1] == lfRune { // LB5
+			return lClassBK, false, false, 2
+		}
+		return lClassBK, false, false, 1
+	}
+
+	if runes[0] == lfRune { // LB4
+		return lClassBK, false, false, 1
+	}
+
+	c, pos = lFirstClassInRunes(runes)
+
+	if c.isSkip() { // LB10
+		return lClassAL, false, c == lClassZWJ, pos
+	} else if !c.isSkipBase() { // LB9
+		return c, false, false, pos
+	}
+
+	if c == lClassIS {
+		c = lClassSY
+		rawIS = true
+	}
+
+	for pos < len(runes) { // LB9
+		c0, delta := lFirstClassInRunes(runes[pos:])
+		if !c0.isSkip() {
+			break
+		}
+		pos += delta
+	}
+
+	return
+}
+
+// Computes last lSequence.
+// Analogue to lFirstSequenceInRunes.
+// "pos" points to first rune in sequence.
+func lLastSequenceInRunes(runes []rune) (c lClass, rawIS, rawZWJ bool, pos int) {
+	l := len(runes)
+	if l == 0 {
+		c = lClassXX
+		return
+	}
+
+	if runes[l-1] == lfRune { // LB4
+		if l > 1 && runes[l-2] == crRune { // LB5
+			return lClassBK, false, false, l - 2
+		}
+		return lClassBK, false, false, l - 1
+	}
+
+	if runes[l-1] == crRune { // LB4
+		return lClassBK, false, false, l - 1
+	}
+
+	c, pos = lLastClassInRunes(runes)
+
+	if !c.isSkip() { // not LB9
+		if c == lClassIS {
+			c = lClassSY
+			rawIS = true
+		}
+		return
+	}
+
+	rawZWJ = c == lClassZWJ
+
+	for pos0 := pos; pos0 > 0; {
+		c, pos0 = lLastClassInRunes(runes[:pos0])
+		switch {
+		case c.isSkip(): // LB9
+		case c.isSkipBase(): // LB9
+			if c == lClassIS {
+				c = lClassSY
+				rawIS = true
+			}
+			return c, rawIS, false, pos0
+		default:
+			return lClassAL, false, rawZWJ, pos // LB10
+		}
+	}
+
+	return lClassAL, false, rawZWJ, pos // LB10
+}
+
+// Returns position at which it is safe to begin analysis.
+// pos must be in runes: [0; len(runes)-1] .
+func lSequenceBeginInRunes(runes []rune, pos int) int {
+	if pos == 0 {
+		return 0
+	}
+
+	if runes[pos-1] == crRune && runes[pos] == lfRune { // LB5
+		return pos - 1
+	}
+
+	pos = toRuneBeginInRunes(runes, pos) // TODO make name similar
+
+	c, _ := lFirstClassInRunes(runes[pos:]) // not LB9
+	if !c.isSkip() {
+		return pos
+	}
+
+	for pos0 := pos; pos0 > 0; {
+		c, pos0 = lLastClassInRunes(runes[:pos0])
+		switch {
+		case c.isSkip(): // LB9
+		case c.isSkipBase(): // LB9
+			return pos0
+		default: // LB10
+			return pos
+		}
+	}
+
+	return pos
+}
+
 // Returns class of last rune in <runes..., l1> which is not equal to l0.
-func lLastNotEqualTo(runes []rune, l1, l0 lClass) lClass {
+func lLastNotEqualToInRunes(runes []rune, l1, l0 lClass) lClass {
 	if l1 != l0 {
 		return l1
 	}
 	for len(runes) > 0 {
-		c, _, _, pos := lLastSequence(runes)
+		c, _, _, pos := lLastSequenceInRunes(runes)
 		if c != l0 {
 			return c
 		}
@@ -295,13 +306,13 @@ func lLastNotEqualTo(runes []rune, l1, l0 lClass) lClass {
 }
 
 // Same as without suffix "1" but with only one predefined class (looking in <runes...>, not <runes..., l1>).
-func lLastNotEqualTo0(runes []rune, l0 lClass) lClass {
-	l1, _, _, pos := lLastSequence(runes)
-	return lLastNotEqualTo(runes[:pos], l1, l0)
+func lLastNotEqualTo0InRunes(runes []rune, l0 lClass) lClass {
+	l1, _, _, pos := lLastSequenceInRunes(runes)
+	return lLastNotEqualToInRunes(runes[:pos], l1, l0)
 }
 
 // True if l0 is RI and it opens RI sequence in string <runes..., l1, l0, ...> (may be joined with next RI).
-func lIsOpenRI(runes []rune, l1, l0 lClass) (r bool) {
+func lIsOpenRIInRunes(runes []rune, l1, l0 lClass) (r bool) {
 	r = l0 == lClassRI
 	if !r {
 		return
@@ -311,7 +322,7 @@ func lIsOpenRI(runes []rune, l1, l0 lClass) (r bool) {
 		return
 	}
 	for len(runes) > 0 {
-		c, _, _, pos := lLastSequence(runes)
+		c, _, _, pos := lLastSequenceInRunes(runes)
 		if c != lClassRI {
 			break
 		}
@@ -323,19 +334,19 @@ func lIsOpenRI(runes []rune, l1, l0 lClass) (r bool) {
 
 // runes must be valid (len>1).
 // l0Pos must be valid (in runes; really begin of sequence).
-func lineBreakAfter(runes []rune, l0Pos int) int {
+func lineBreakAfterInRunes(runes []rune, l0Pos int) int {
 	l := len(runes)
 
-	l1, _, _, l1Pos := lLastSequence(runes[:l0Pos])
-	l0, l0IS, l0ZWJ, r0Delta := lFirstSequence(runes[l0Pos:])
+	l1, _, _, l1Pos := lLastSequenceInRunes(runes[:l0Pos])
+	l0, l0IS, l0ZWJ, r0Delta := lFirstSequenceInRunes(runes[l0Pos:])
 	r0Pos := l0Pos + r0Delta
-	r0, r0IS, r0ZWJ, r1Delta := lFirstSequence(runes[r0Pos:])
-	l2Diff := lLastNotEqualTo0(runes[:l1Pos], l1)
-	l1Diff := lLastNotEqualTo(runes[:l1Pos], l1, l0)
-	lOddRI := lIsOpenRI(runes[:l1Pos], l1, l0)
+	r0, r0IS, r0ZWJ, r1Delta := lFirstSequenceInRunes(runes[r0Pos:])
+	l2Diff := lLastNotEqualTo0InRunes(runes[:l1Pos], l1)
+	l1Diff := lLastNotEqualToInRunes(runes[:l1Pos], l1, l0)
+	lOddRI := lIsOpenRIInRunes(runes[:l1Pos], l1, l0)
 
 	for r0Pos < l {
-		r1, r1IS, r1ZWJ, r2Delta := lFirstSequence(runes[r0Pos+r1Delta:])
+		r1, r1IS, r1ZWJ, r2Delta := lFirstSequenceInRunes(runes[r0Pos+r1Delta:])
 
 		if lDecision(l1, l0, r0, r1, l2Diff, l1Diff, l0IS, l0ZWJ, lOddRI) {
 			return r0Pos
@@ -361,8 +372,8 @@ func lineBreakAfter(runes []rune, l0Pos int) int {
 	return l
 }
 
-// LineBreakAfter returns first possible line break on the right side of pos-th rune.
-func LineBreakAfter(runes []rune, pos int) int {
+// LineBreakAfterInRunes returns first possible line break on the right side of pos-th rune.
+func LineBreakAfterInRunes(runes []rune, pos int) int {
 	l := len(runes)
 	if pos < 0 || pos >= l {
 		return InvalidPos
@@ -371,25 +382,25 @@ func LineBreakAfter(runes []rune, pos int) int {
 		return l
 	}
 
-	pos = lSequenceBegin(runes[:pos+1])
+	pos = lSequenceBeginInRunes(runes, pos)
 
-	return lineBreakAfter(runes, pos)
+	return lineBreakAfterInRunes(runes, pos)
 }
 
 // runes must be valid (len>1).
 // r0Pos must be valid (in runes; really begin of sequence).
-func lineBreakBefore(runes []rune, r0Pos int) int {
-	r0, _, _, r1Delta := lFirstSequence(runes[r0Pos:])
-	r1, _, _, _ := lFirstSequence(runes[r0Pos+r1Delta:])
-	l0, l0IS, l0ZWJ, l0Pos := lLastSequence(runes[:r0Pos])
-	l1Diff := lLastNotEqualTo0(runes[:l0Pos], l0)
+func lineBreakBeforeInRunes(runes []rune, r0Pos int) int {
+	r0, _, _, r1Delta := lFirstSequenceInRunes(runes[r0Pos:])
+	r1, _, _, _ := lFirstSequenceInRunes(runes[r0Pos+r1Delta:])
+	l0, l0IS, l0ZWJ, l0Pos := lLastSequenceInRunes(runes[:r0Pos])
+	l1Diff := lLastNotEqualTo0InRunes(runes[:l0Pos], l0)
 	l2Diff := l1Diff
 
 	for r0Pos > 0 {
-		l1, l1IS, l1ZWJ, l1Pos := lLastSequence(runes[:l0Pos])
-		lOddRI := lIsOpenRI(runes[:l1Pos], l1, l0)
+		l1, l1IS, l1ZWJ, l1Pos := lLastSequenceInRunes(runes[:l0Pos])
+		lOddRI := lIsOpenRIInRunes(runes[:l1Pos], l1, l0)
 		if l2Diff == l1 {
-			l2Diff = lLastNotEqualTo0(runes[:l1Pos], l1)
+			l2Diff = lLastNotEqualTo0InRunes(runes[:l1Pos], l1)
 		}
 
 		if lDecision(l1, l0, r0, r1, l2Diff, l1Diff, l0IS, l0ZWJ, lOddRI) {
@@ -412,8 +423,8 @@ func lineBreakBefore(runes []rune, r0Pos int) int {
 	return NoLineBreak
 }
 
-// LineBreakBefore returns first (nearest) possible line break on the left side of pos-th rune.
-func LineBreakBefore(runes []rune, pos int) int {
+// LineBreakBeforeInRunes returns first (nearest) possible line break on the left side of pos-th rune.
+func LineBreakBeforeInRunes(runes []rune, pos int) int {
 	l := len(runes)
 	if pos < 0 || pos >= l {
 		return InvalidPos
@@ -422,30 +433,30 @@ func LineBreakBefore(runes []rune, pos int) int {
 		return NoLineBreak
 	}
 
-	pos = lSequenceBegin(runes[:pos+1])
+	pos = lSequenceBeginInRunes(runes, pos)
 
-	return lineBreakBefore(runes, pos)
+	return lineBreakBeforeInRunes(runes, pos)
 }
 
-// FirstLineBreak returns first possible line break.
-func FirstLineBreak(runes []rune) int {
-	return LineBreakAfter(runes, 0)
+// FirstLineBreakInRunes returns first possible line break.
+func FirstLineBreakInRunes(runes []rune) int {
+	return LineBreakAfterInRunes(runes, 0)
 }
 
-// LastLineBreak returns last possible line break (except line break at end of string).
-func LastLineBreak(runes []rune) int {
-	return LineBreakBefore(runes, len(runes)-1)
+// LastLineBreakInRunes returns last possible line break (except line break at end of string).
+func LastLineBreakInRunes(runes []rune) int {
+	return LineBreakBeforeInRunes(runes, len(runes)-1)
 }
 
-// LineBreaks returns all possible line breaks.
-func LineBreaks(runes []rune) (breaks []int) {
+// LineBreaksInRunes returns all possible line breaks.
+func LineBreaksInRunes(runes []rune) (breaks []int) {
 	l := len(runes)
 	if l == 0 {
-		return // []int{NoLineBreak}
+		return
 	}
 	breaks = make([]int, 0, l) // TODO memory efficient
 	for pos := 0; pos < l; {
-		length := FirstLineBreak(runes[pos:])
+		length := FirstLineBreakInRunes(runes[pos:])
 		pos += length
 		breaks = append(breaks, pos)
 	}

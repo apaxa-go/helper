@@ -2,30 +2,50 @@ package boundaryh
 
 import "testing"
 
-//go:generate go run ./internal/test-generator/main.go ../internal/ucd-data
-
-type ucdTest struct {
-	runes  []rune
-	breaks []int
-}
-
-func breaksToBoundaries(breaks []int) (boundaries []Boundary) {
-	boundaries = make([]Boundary, len(breaks)-1)
-	for boundaryI := range boundaries {
-		boundaries[boundaryI] = Boundary{breaks[boundaryI], breaks[boundaryI+1]}
+func TestBoundary_Len(t *testing.T) {
+	b := Boundary{1, 4}
+	if b.Len() != 3 {
+		t.Error("Wrong boundary length.")
 	}
-	return
-}
-
-type Stat struct {
-	total, failed int
-}
-
-func (s *Stat) Add()  { s.total++ }
-func (s *Stat) Fail() { s.failed++ }
-func (s *Stat) Log(t *testing.T) {
-	if s.total == 0 {
-		t.Error("Internal test error - 0 total tests")
+	b = Invalid()
+	if b.Len() != 0 {
+		t.Error(`Wrong length for "Invalid" boundary`)
 	}
-	t.Logf("\n Total: %v\nPassed: %v\nFailed: %v\n", s.total, s.total-s.failed, s.failed)
+}
+
+func TestBoundary_IsValid(t *testing.T) {
+	type testElement struct {
+		b Boundary
+		v bool // valid
+	}
+	tests := []testElement{
+		{Boundary{0, 0}, true},
+		{Boundary{0, 1}, true},
+		{Boundary{1, 0}, false},
+		{Boundary{1, 1}, true},
+		{Boundary{0, 10}, true},
+		{Boundary{10, 0}, false},
+		{Boundary{10, 10}, true},
+		{Boundary{1, 10}, true},
+		{Boundary{10, 1}, false},
+
+		{Boundary{-1, 0}, false},
+		{Boundary{0, -1}, false},
+		{Boundary{-1, -1}, false},
+		{Boundary{-10, 0}, false},
+		{Boundary{0, -10}, false},
+		{Boundary{-10, -10}, false},
+		{Boundary{-1, -10}, false},
+		{Boundary{-10, -1}, false},
+
+		{Boundary{-1, 1}, false},
+		{Boundary{1, -1}, false},
+		{Boundary{-10, 10}, false},
+		{Boundary{10, -10}, false},
+	}
+	for _, test := range tests {
+		if v := test.b.IsValid(); v != test.v {
+			t.Errorf("%#v: expect %v, got %v", test.b, test.v, v)
+		}
+	}
 }

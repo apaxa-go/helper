@@ -1,26 +1,8 @@
 package boundaryh
 
-// Returns class of last rune in runes which is not equal to l0.
-func gLastNotEqualTo(runes []rune, l0 gClass) gClass {
-	for pos := len(runes) - 1; pos >= 0; pos-- {
-		if r := gGetClass(runes[pos]); r != l0 {
-			return r
-		}
-	}
-	return gClassOther
-}
-
-// True if l0 is RI and it opens RI sequence in string <runes..., l0, ...> (may be joined with next RI).
-func gIsOpenRI(runes []rune, l0 gClass) (r bool) {
-	if l0 != gClassRI {
-		return
-	}
-	r = true
-	for pos := len(runes) - 1; pos >= 0 && gGetClass(runes[pos]) == gClassRI; pos-- {
-		r = !r
-	}
-	return
-}
+//replacer:ignore
+// TODO replace windows path separator
+//go:generate go run $GOPATH\src\github.com\apaxa-go\generator\replacer\main.go -- $GOFILE
 
 // Returns if there is a break between l0 and r0.
 func gDecision(l1Diff, l0 gClass, lOddRI bool, r0 gClass) bool {
@@ -43,39 +25,77 @@ func gDecision(l1Diff, l0 gClass, lOddRI bool, r0 gClass) bool {
 	return false
 }
 
+//replacer:replace
+//replacer:old InRunes	[]rune	runes
+//replacer:new InString	string	s
+//replacer:new ""		[]byte	bytes
+
+// Returns class of last rune in runes which is not equal to l0.
+func gLastNotEqualToInRunes(runes []rune, l0 gClass) gClass {
+	for len(runes) > 0 {
+		c, pos := gLastClassInRunes(runes)
+		if c != l0 {
+			return c
+		}
+		runes = runes[:pos]
+	}
+
+	return gClassOther
+}
+
+// True if l0 is RI and it opens RI sequence in string <runes..., l0, ...> (may be joined with next RI).
+func gIsOpenRIInRunes(runes []rune, l0 gClass) (res bool) {
+	if l0 != gClassRI {
+		return
+	}
+	res = true
+
+	for len(runes) > 0 {
+		c, pos := gLastClassInRunes(runes)
+		if c != gClassRI {
+			return
+		}
+		res = !res
+		runes = runes[:pos]
+	}
+
+	return
+}
+
 // runes must be valid (len>1).
 // l0Pos must be valid (in runes).
-func graphemeClusterEnd(runes []rune, l0Pos int) int {
+func graphemeClusterEndInRunes(runes []rune, l0Pos int) int {
 	l := len(runes)
 
 	if l0Pos+1 < l && runes[l0Pos] == crRune && runes[l0Pos+1] == lfRune { // GB3
 		return l0Pos + 2
 	}
 
-	l0 := gGetClass(runes[l0Pos])
-	l1Diff := gLastNotEqualTo(runes[:l0Pos], l0)
-	lOddRI := gIsOpenRI(runes[:l0Pos], l0)
+	l0Pos = toRuneBeginInRunes(runes, l0Pos) // TODO do it only on external call
+	l0, r0Delta := gFirstClassInRunes(runes[l0Pos:])
+	l1Diff := gLastNotEqualToInRunes(runes[:l0Pos], l0)
+	lOddRI := gIsOpenRIInRunes(runes[:l0Pos], l0)
 
-	for ; l0Pos+1 < l; l0Pos++ {
-		r0 := gGetClass(runes[l0Pos+1])
-
+	for l0Pos+r0Delta < l {
+		r0, r1Delta := gFirstClassInRunes(runes[l0Pos+r0Delta:])
 		if gDecision(l1Diff, l0, lOddRI, r0) {
-			return l0Pos + 1
+			return l0Pos + r0Delta
 		}
-
 		if l0 != r0 {
 			l1Diff = l0
 		}
 		l0 = r0
 		lOddRI = l0 == gClassRI && !lOddRI
+		l0Pos += r0Delta
+		r0Delta = r1Delta
 	}
 	return l
 }
 
-// GraphemeClusterEnd computes grapheme cluster which contains pos-th rune.
+// GraphemeClusterEndInRunes computes grapheme cluster which contains pos-th rune.
 // Returns (index of grapheme cluster's last rune)+1.
 // In other words, returns first grapheme cluster's boundary on the right of pos-th rune.
-func GraphemeClusterEnd(runes []rune, pos int) int {
+func GraphemeClusterEndInRunes(runes []rune, pos int) int {
 	l := len(runes)
 	if pos < 0 || pos >= l {
 		return InvalidPos
@@ -84,36 +104,38 @@ func GraphemeClusterEnd(runes []rune, pos int) int {
 		return l
 	}
 
-	return graphemeClusterEnd(runes, pos)
+	return graphemeClusterEndInRunes(runes, pos)
 }
 
 // runes must be valid (len>1).
 // r0Pos must be valid (in runes).
-func graphemeClusterBegin(runes []rune, r0Pos int) int {
+func graphemeClusterBeginInRunes(runes []rune, r0Pos int) int {
 	if r0Pos >= 1 && runes[r0Pos-1] == crRune && runes[r0Pos] == lfRune { // GB3
 		return r0Pos - 1
 	}
 
-	r0 := gGetClass(runes[r0Pos])
+	r0Pos = toRuneBeginInRunes(runes, r0Pos) // TODO do it only on external call
+	r0, _ := gFirstClassInRunes(runes[r0Pos:])
 
-	for ; r0Pos > 0; r0Pos-- {
-		l0 := gGetClass(runes[r0Pos-1])
-		l1Diff := gLastNotEqualTo(runes[:r0Pos-1], l0)
-		lOddRI := gIsOpenRI(runes[:r0Pos-1], l0)
+	for r0Pos > 0 {
+		l0, l0Pos := gLastClassInRunes(runes[:r0Pos])
+		l1Diff := gLastNotEqualToInRunes(runes[:l0Pos], l0)
+		lOddRI := gIsOpenRIInRunes(runes[:l0Pos], l0)
 
 		if gDecision(l1Diff, l0, lOddRI, r0) {
 			return r0Pos
 		}
 
 		r0 = l0
+		r0Pos = l0Pos
 	}
 	return 0
 }
 
-// GraphemeClusterBegin computes grapheme cluster which contains pos-th rune.
+// GraphemeClusterBeginInRunes computes grapheme cluster which contains pos-th rune.
 // Returns grapheme cluster's first rune index.
 // In other words, returns first grapheme cluster's boundary on the left of pos-th rune.
-func GraphemeClusterBegin(runes []rune, pos int) int {
+func GraphemeClusterBeginInRunes(runes []rune, pos int) int {
 	l := len(runes)
 	if pos < 0 || pos >= l {
 		return InvalidPos
@@ -122,43 +144,43 @@ func GraphemeClusterBegin(runes []rune, pos int) int {
 		return 0
 	}
 
-	return graphemeClusterBegin(runes, pos)
+	return graphemeClusterBeginInRunes(runes, pos)
 }
 
-// GraphemeClusterAt computes grapheme clusters which contains pos-th rune and return their boundary.
+// GraphemeClusterAtInRunes computes grapheme clusters which contains pos-th rune and return their boundary.
 // Grapheme cluster may retrieved by "runes[r.From:r.To]".
-func GraphemeClusterAt(runes []rune, pos int) Boundary {
-	return Boundary{GraphemeClusterBegin(runes, pos), GraphemeClusterEnd(runes, pos)}
+func GraphemeClusterAtInRunes(runes []rune, pos int) Boundary {
+	return Boundary{GraphemeClusterBeginInRunes(runes, pos), GraphemeClusterEndInRunes(runes, pos)}
 }
 
-// FirstGraphemeCluster computes first grapheme cluster.
+// FirstGraphemeClusterInRunes computes first grapheme cluster.
 // Returns (index of cluster's last rune)+1.
 // Result also may be treated as length of the first grapheme cluster.
 // First grapheme cluster may retrieved by "runes[:r]".
-func FirstGraphemeCluster(runes []rune) (r int) {
-	return GraphemeClusterEnd(runes, 0)
+func FirstGraphemeClusterInRunes(runes []rune) (r int) {
+	return GraphemeClusterEndInRunes(runes, 0)
 }
 
-// LastGraphemeCluster computes last grapheme cluster.
+// LastGraphemeClusterInRunes computes last grapheme cluster.
 // Returns index of cluster's first rune.
 // Last grapheme cluster may retrieved by "runes[r:]".
-func LastGraphemeCluster(runes []rune) (r int) {
-	return GraphemeClusterBegin(runes, len(runes)-1)
+func LastGraphemeClusterInRunes(runes []rune) (r int) {
+	return GraphemeClusterBeginInRunes(runes, len(runes)-1)
 }
 
-// GraphemeClusters computes all grapheme clusters and returns theirs boundaries.
-func GraphemeClusters(runes []rune) (boundaries []Boundary) {
+// GraphemeClustersInRunes computes all grapheme clusters and returns theirs boundaries.
+func GraphemeClustersInRunes(runes []rune) (boundaries []Boundary) {
 	boundaries = make([]Boundary, 0, len(runes)) // TODO memory efficient
 	for i := 0; i < len(runes); {
-		length := FirstGraphemeCluster(runes[i:])
+		length := FirstGraphemeClusterInRunes(runes[i:])
 		boundaries = append(boundaries, Boundary{i, i + length})
 		i += length
 	}
 	return
 }
 
-// GraphemeClusterBreaks computes all grapheme clusters and returns all breaks.
-func GraphemeClusterBreaks(runes []rune) (breaks []int) {
+// GraphemeClusterBreaksInRunes computes all grapheme clusters and returns all breaks.
+func GraphemeClusterBreaksInRunes(runes []rune) (breaks []int) {
 	l := len(runes)
 	if l == 0 {
 		return // []int{0}
@@ -166,7 +188,7 @@ func GraphemeClusterBreaks(runes []rune) (breaks []int) {
 	breaks = make([]int, 1, len(runes)) // TODO memory efficient
 	breaks[0] = 0
 	for pos := 0; pos < l; {
-		length := FirstGraphemeCluster(runes[pos:])
+		length := FirstGraphemeClusterInRunes(runes[pos:])
 		pos += length
 		breaks = append(breaks, pos)
 	}

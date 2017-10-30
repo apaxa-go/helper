@@ -1,6 +1,6 @@
 package boundaryh
 
-var ucdGraphemeClusterTests = []ucdGraphemeClusterTest{
+var ucdGraphemeClusterTests = []ucdTest{
 	{[]rune{0x20, 0x20}, []int{0, 1, 2}},
 	{[]rune{0x20, 0x308, 0x20}, []int{0, 2, 3}},
 	{[]rune{0x20, 0xd}, []int{0, 1, 2}},

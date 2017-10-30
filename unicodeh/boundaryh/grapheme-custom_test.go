@@ -32,65 +32,13 @@ func TestFirstGraphemeCluster(t *testing.T) {
 		r := []int{}
 
 		runes := strToRunes(data.str)
-		for l := FirstGraphemeCluster(runes); l > 0; l = FirstGraphemeCluster(runes) {
+		for l := FirstGraphemeClusterInRunes(runes); l > 0; l = FirstGraphemeClusterInRunes(runes) {
 			r = append(r, l)
 			runes = runes[l:]
 		}
 
 		if !reflect.DeepEqual(data.graphemes, r) {
 			t.Errorf("%v \"%v\" (len=%v):expect %v, got %v", i, data.str, len(data.str), data.graphemes, r)
-		}
-	}
-}
-
-func TestGraphemeClusterInvalidArgs(t *testing.T) {
-	//
-	// Invalid pos arguments
-	//
-	type testElement struct {
-		runes []rune
-		pos   int
-	}
-	tests := []testElement{
-		{[]rune{0, 1}, -2},
-		{[]rune{0, 1}, -1},
-		{[]rune{0, 1}, 2},
-		{[]rune{0, 1}, 3},
-	}
-	for testI, test := range tests {
-		r := GraphemeClusterBegin(test.runes, test.pos)
-		if r != InvalidPos {
-			t.Errorf("%v \"%v\" [%v]: expect %v, got %v", testI, test.runes, test.pos, InvalidPos, r)
-		}
-		r = GraphemeClusterEnd(test.runes, test.pos)
-		if r != InvalidPos {
-			t.Errorf("%v \"%v\" [%v]: expect %v, got %v", testI, test.runes, test.pos, InvalidPos, r)
-		}
-		rb := GraphemeClusterAt(test.runes, test.pos)
-		if !rb.IsInvalid() {
-			t.Errorf("%v \"%v\" [%v]: expect %v, got %v", testI, test.runes, test.pos, Invalid(), rb)
-		}
-	}
-
-	//
-	// Empty string
-	//
-	for _, runes := range [][]rune{nil, {}} {
-		r := FirstGraphemeCluster(runes)
-		if r != InvalidPos {
-			t.Errorf("\"%v\": expect %v, got %v", runes, InvalidPos, r)
-		}
-		r = LastGraphemeCluster(runes)
-		if r != InvalidPos {
-			t.Errorf("\"%v\": expect %v, got %v", runes, InvalidPos, r)
-		}
-		rbs := GraphemeClusters(runes)
-		if len(rbs) != 0 || cap(rbs) != 0 {
-			t.Errorf("\"%v\": expect empty slice with cap=0, got %v with cap=%v", runes, rbs, cap(rbs))
-		}
-		ris := GraphemeClusterBreaks(runes)
-		if len(ris) != 0 || cap(ris) != 0 {
-			t.Errorf("\"%v\": expect empty slice with cap=0, got %v with cap=%v", runes, ris, cap(ris))
 		}
 	}
 }
@@ -103,12 +51,11 @@ func BenchmarkFirstBoundaryInRunes(b *testing.B) {
 
 	b.StartTimer()
 	for i := 0; i < b.N; i++ {
-		//b.StartTimer()
-		l := FirstGraphemeCluster(runes)
-		//b.StopTimer()
-		if l == 0 {
+		l := FirstGraphemeClusterInRunes(runes)
+		if l == InvalidPos {
 			runes = textRunes
+		} else {
+			runes = runes[l:]
 		}
-		runes = runes[l:]
 	}
 }

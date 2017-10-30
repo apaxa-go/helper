@@ -1,6 +1,6 @@
 package boundaryh
 
-var ucdLineTests = []ucdLineTest{
+var ucdLineTests = []ucdTest{
 	{[]rune{0x23, 0x23}, []int{2}},
 	{[]rune{0x23, 0x20, 0x23}, []int{2, 3}},
 	{[]rune{0x23, 0x308, 0x23}, []int{3}},

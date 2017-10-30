@@ -5,42 +5,25 @@ import (
 	"testing"
 )
 
-type ucdSentenceTest ucdTest
+//replacer:ignore
+// TODO replace windows path separator
+//go:generate go run $GOPATH\src\github.com\apaxa-go\generator\replacer\main.go -- $GOFILE
+//replacer:replace
+//replacer:old InRunes	[]rune	test.runes	runes
+//replacer:new InString	string	test.runes	s
+//replacer:new ""		[]byte	test.runes	bytes
 
-func TestSentences(t *testing.T) {
+func TestSentencesInRunes(t *testing.T) {
 	var stat Stat
 
 	for testI, test := range ucdSentenceTests {
 		stat.Add()
-		boundaries := Sentences(test.runes)
-		expBoundaries := breaksToBoundaries(test.breaks)
-		if !reflect.DeepEqual(expBoundaries, boundaries) {
-			stat.Fail()
-			t.Errorf("%v \"%v\": expect %v, got %v", testI, (test.runes), expBoundaries, boundaries)
+		expBoundaries, skip := test.breaksToBoundariesInRunes()
+		if skip {
+			stat.Skip()
+			continue
 		}
-	}
-
-	stat.Log(t)
-}
-
-func TestLastSentence(t *testing.T) {
-	var stat Stat
-
-	// Same as function "Sentences", but going from end to begin.
-	revSs := func(runes []rune) (boundaries []Boundary) {
-		boundaries = make([]Boundary, 0, len(runes))
-		for len(runes) > 0 {
-			pos := LastSentence(runes)
-			boundaries = append([]Boundary{{pos, len(runes)}}, boundaries...)
-			runes = runes[:pos]
-		}
-		return
-	}
-
-	for testI, test := range ucdSentenceTests {
-		stat.Add()
-		boundaries := revSs(test.runes)
-		expBoundaries := breaksToBoundaries(test.breaks)
+		boundaries := SentencesInRunes(test.SampleInRunes())
 		if !reflect.DeepEqual(expBoundaries, boundaries) {
 			stat.Fail()
 			t.Errorf("%v \"%v\": expect %v, got %v", testI, test.runes, expBoundaries, boundaries)
@@ -50,7 +33,38 @@ func TestLastSentence(t *testing.T) {
 	stat.Log(t)
 }
 
-func TestSentenceAt(t *testing.T) {
+func TestLastSentenceInRunes(t *testing.T) {
+	var stat Stat
+
+	// Same as function "SentencesInRunes", but going from end to begin.
+	revSs := func(runes []rune) (boundaries []Boundary) {
+		boundaries = make([]Boundary, 0, len(runes))
+		for len(runes) > 0 {
+			pos := LastSentenceInRunes(runes)
+			boundaries = append([]Boundary{{pos, len(runes)}}, boundaries...)
+			runes = runes[:pos]
+		}
+		return
+	}
+
+	for testI, test := range ucdSentenceTests {
+		stat.Add()
+		expBoundaries, skip := test.breaksToBoundariesInRunes()
+		if skip {
+			stat.Skip()
+			continue
+		}
+		boundaries := revSs(test.SampleInRunes())
+		if !reflect.DeepEqual(expBoundaries, boundaries) {
+			stat.Fail()
+			t.Errorf("%v \"%v\": expect %v, got %v", testI, test.runes, expBoundaries, boundaries)
+		}
+	}
+
+	stat.Log(t)
+}
+
+func TestSentenceAtInRunes(t *testing.T) {
 	var stat Stat
 
 	in := func(b Boundary, bs []Boundary) bool {
@@ -63,18 +77,24 @@ func TestSentenceAt(t *testing.T) {
 	}
 
 	for testI, test := range ucdSentenceTests {
-		expBoundaries := breaksToBoundaries(test.breaks)
-		for runeI := range test.runes {
+		expBoundaries, skip := test.breaksToBoundariesInRunes()
+		if skip {
+			l := len(test.SampleInRunes())
+			stat.Add(l)
+			stat.Skip(l)
+			continue
+		}
+		for pos := 0; pos < len(test.SampleInRunes()); pos++ {
 			stat.Add()
-			b := SentenceAt(test.runes, runeI)
-			if b.From > runeI || b.To <= runeI {
+			b := SentenceAtInRunes(test.SampleInRunes(), pos)
+			if b.From > pos || b.To <= pos {
 				stat.Fail()
-				t.Errorf("%v \"%v\" [%v]: invalid boundary %v", testI, test.runes, runeI, b)
+				t.Errorf("%v \"%v\" [%v]: invalid boundary %v", testI, test.runes, pos, b)
 				continue
 			}
 			if !in(b, expBoundaries) {
 				stat.Fail()
-				t.Errorf("%v \"%v\" [%v]: wrong boundary %v, possible are %v", testI, test.runes, runeI, b, expBoundaries)
+				t.Errorf("%v \"%v\" [%v]: wrong boundary %v, possible are %v", testI, test.runes, pos, b, expBoundaries)
 			}
 		}
 	}
@@ -82,15 +102,20 @@ func TestSentenceAt(t *testing.T) {
 	stat.Log(t)
 }
 
-func TestSentenceBreaks(t *testing.T) {
+func TestSentenceBreaksInRunes(t *testing.T) {
 	var stat Stat
 
 	for testI, test := range ucdSentenceTests {
 		stat.Add()
-		breaks := SentenceBreaks(test.runes)
-		if !reflect.DeepEqual(breaks, test.breaks) {
+		expBreaks, skip := test.BreaksInRunes()
+		if skip {
+			stat.Skip()
+			continue
+		}
+		breaks := SentenceBreaksInRunes(test.SampleInRunes())
+		if !reflect.DeepEqual(breaks, expBreaks) {
 			stat.Fail()
-			t.Errorf("%v \"%v\": expect %v, got %v", testI, test.runes, test.breaks, breaks)
+			t.Errorf("%v \"%v\": expect %v, got %v", testI, test.runes, expBreaks, breaks)
 		}
 	}
 

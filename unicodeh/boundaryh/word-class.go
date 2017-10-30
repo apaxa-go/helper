@@ -28,7 +28,7 @@ const (
 )
 
 // TODO
-func getWClass(r rune) wClass {
+func wGetClass(r rune) wClass {
 	switch {
 	default:
 		return wClassOther
