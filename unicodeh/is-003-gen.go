@@ -56,7 +56,9 @@ func IsScriptAvestan(r rune) bool {
 // IsScriptBalinese reports whether the rune has property "Script"="Balinese".
 // Property "Script" known as "sc", "Script".
 // Value "Balinese" known as "Bali", "Balinese".
-func IsScriptBalinese(r rune) bool { return (r >= 0x1b00 && r <= 0x1b4b) || (r >= 0x1b50 && r <= 0x1b7c) }
+func IsScriptBalinese(r rune) bool {
+	return (r >= 0x1b00 && r <= 0x1b4b) || (r >= 0x1b50 && r <= 0x1b7c)
+}
 
 // IsScriptBamum reports whether the rune has property "Script"="Bamum".
 // Property "Script" known as "sc", "Script".
@@ -620,7 +622,9 @@ func IsScriptMalayalam(r rune) bool {
 
 // IsScriptModi reports whether the rune has property "Script"="Modi".
 // Property "Script" known as "sc", "Script".
-func IsScriptModi(r rune) bool { return (r >= 0x11600 && r <= 0x11644) || (r >= 0x11650 && r <= 0x11659) }
+func IsScriptModi(r rune) bool {
+	return (r >= 0x11600 && r <= 0x11644) || (r >= 0x11650 && r <= 0x11659)
+}
 
 // IsScriptMongolian reports whether the rune has property "Script"="Mongolian".
 // Property "Script" known as "sc", "Script".

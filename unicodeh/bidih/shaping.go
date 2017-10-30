@@ -1,5 +1,5 @@
 package bidih
 
-func shape(){
+func shape() {
 	// TODO implement
 }

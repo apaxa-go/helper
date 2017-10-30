@@ -24,8 +24,8 @@ var parseDetails = []ucdparser.ParseDetails{
 const binaryKind = "Binary"
 
 var (
-	valueYes = ucdparser.Value{ShortName: "Y", LongName: "Yes", KnownAs: []string{"Yes","Y","True", "T"}}
-	valueNo  = ucdparser.Value{ShortName: "N", LongName: "No", KnownAs: []string{"No","N","False", "F"}}
+	valueYes = ucdparser.Value{ShortName: "Y", LongName: "Yes", KnownAs: []string{"Yes", "Y", "True", "T"}}
+	valueNo  = ucdparser.Value{ShortName: "N", LongName: "No", KnownAs: []string{"No", "N", "False", "F"}}
 )
 
 var properties = ucdparser.Properties{

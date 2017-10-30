@@ -48,7 +48,9 @@ func IsJoiningGroupDal(r rune) bool {
 
 // IsJoiningGroupDalathRish reports whether the rune has property "Joining_Group"="Dalath_Rish".
 // Property "Joining_Group" known as "jg", "Joining_Group".
-func IsJoiningGroupDalathRish(r rune) bool { return r == 0x715 || r == 0x716 || r == 0x72a || r == 0x72f }
+func IsJoiningGroupDalathRish(r rune) bool {
+	return r == 0x715 || r == 0x716 || r == 0x72a || r == 0x72f
+}
 
 // IsJoiningGroupE reports whether the rune has property "Joining_Group"="E".
 // Property "Joining_Group" known as "jg", "Joining_Group".

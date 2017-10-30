@@ -2,9 +2,9 @@ package bidih
 
 import (
 	"github.com/apaxa-go/helper/unicodeh/bidih/internal/bidi"
+	"github.com/apaxa-go/helper/unicodeh/bidih/internal/testdata"
 	"reflect"
 	"testing"
-	"github.com/apaxa-go/helper/unicodeh/bidih/internal/testdata"
 )
 
 //go:generate go run ./internal/testdatagen/main.go c:\\ucd-10.0.0

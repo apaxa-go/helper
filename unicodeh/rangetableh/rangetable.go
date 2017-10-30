@@ -120,41 +120,42 @@ func deleteRuneR32(t *unicode.RangeTable, r uint32) {
 func DeleteRunes(t *unicode.RangeTable, r ...rune) *unicode.RangeTable {
 	// TODO Here is a bug in implementation, now used bad way.
 	/*
-	res := Copy(t)
+		res := Copy(t)
 
-	for _, curR := range r {
-		if l := len(res.R16); l > 0 && curR <= rune(res.R16[l-1].Hi) {
-			deleteRuneR16(t, uint16(curR))
-		} else if len(res.R32) > 0 && curR >= rune(res.R32[0].Lo) {
-			deleteRuneR32(t, uint32(curR))
+		for _, curR := range r {
+			if l := len(res.R16); l > 0 && curR <= rune(res.R16[l-1].Hi) {
+				deleteRuneR16(t, uint16(curR))
+			} else if len(res.R32) > 0 && curR >= rune(res.R32[0].Lo) {
+				deleteRuneR32(t, uint32(curR))
+			}
 		}
-	}
 
-	return res
+		return res
 	*/
-	runes0:=Runes(t)
-	runes1:=make([]rune,0,len(runes0))
-	Next:for _,r0:=range runes0{
-		for _,rD:=range r{
-			if r0==rD{
+	runes0 := Runes(t)
+	runes1 := make([]rune, 0, len(runes0))
+Next:
+	for _, r0 := range runes0 {
+		for _, rD := range r {
+			if r0 == rD {
 				continue Next
 			}
 		}
-		runes1=append(runes1,r0)
+		runes1 = append(runes1, r0)
 	}
 	return rangetable.New(runes1...)
 }
 
-func Runes(t *unicode.RangeTable)[]rune{
-	res:=make([]rune,RuneCount(t))
-	i:=0
+func Runes(t *unicode.RangeTable) []rune {
+	res := make([]rune, RuneCount(t))
+	i := 0
 
-	f:=func(r rune){
-		res[i]=r
+	f := func(r rune) {
+		res[i] = r
 		i++
 	}
 
-	rangetable.Visit(t,f)
+	rangetable.Visit(t, f)
 	return res
 }
 

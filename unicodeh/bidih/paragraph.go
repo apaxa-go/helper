@@ -29,7 +29,7 @@ func p23(classes []bidi.Class) EmbeddingLevel {
 type LineBreaker func(runes []rune) (lineLengths []int)
 
 // order == nil => do not save order; order != nil (with any length) => save order.
-func parseParagraph(runes []rune, classes []bidi.Class, paragraphLevel EmbeddingLevel, lineBreaker LineBreaker, order []int){
+func parseParagraph(runes []rune, classes []bidi.Class, paragraphLevel EmbeddingLevel, lineBreaker LineBreaker, order []int) {
 	if paragraphLevel == AutoParagraphDirection {
 		paragraphLevel = p23(classes)
 	}
@@ -40,7 +40,7 @@ func parseParagraph(runes []rune, classes []bidi.Class, paragraphLevel Embedding
 	reorder(runes, classes, paragraphLevel, levels, directions, lineLengths, segmentSeparators, order)
 }
 
-func initClasses(runes []rune)(classes []bidi.Class){
+func initClasses(runes []rune) (classes []bidi.Class) {
 	classes = make([]bidi.Class, len(runes))
 	for runeI, r := range runes {
 		classes[runeI] = bidi.GetClass(r)
@@ -48,14 +48,14 @@ func initClasses(runes []rune)(classes []bidi.Class){
 	return classes
 }
 
-func ParseParagraph(runes []rune, paragraphLevel EmbeddingLevel, lineBreaker LineBreaker){
-	classes:=initClasses(runes)
-	parseParagraph(runes, classes, paragraphLevel, lineBreaker,nil)
+func ParseParagraph(runes []rune, paragraphLevel EmbeddingLevel, lineBreaker LineBreaker) {
+	classes := initClasses(runes)
+	parseParagraph(runes, classes, paragraphLevel, lineBreaker, nil)
 }
 
-func ParseParagraphExtended(runes []rune, paragraphLevel EmbeddingLevel, lineBreaker LineBreaker)(order []int){
-	classes:=initClasses(runes)
-	order=[]int{}	// real initialization will done automatically, here we just must pass non-nil value.
-	parseParagraph(runes, classes, paragraphLevel, lineBreaker,order)
+func ParseParagraphExtended(runes []rune, paragraphLevel EmbeddingLevel, lineBreaker LineBreaker) (order []int) {
+	classes := initClasses(runes)
+	order = []int{} // real initialization will done automatically, here we just must pass non-nil value.
+	parseParagraph(runes, classes, paragraphLevel, lineBreaker, order)
 	return
 }

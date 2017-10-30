@@ -85,7 +85,9 @@ func IsGraphemeClusterBreakLF(r rune) bool { return r == 0xa }
 
 // IsGraphemeClusterBreakLV reports whether the rune has property "Grapheme_Cluster_Break"="LV".
 // Property "Grapheme_Cluster_Break" known as "GCB", "Grapheme_Cluster_Break".
-func IsGraphemeClusterBreakLV(r rune) bool { return (r >= 0xac00 && r <= 0xd788 && (r-0xac00)%0x1c == 0) }
+func IsGraphemeClusterBreakLV(r rune) bool {
+	return (r >= 0xac00 && r <= 0xd788 && (r-0xac00)%0x1c == 0)
+}
 
 // IsGraphemeClusterBreakLVT reports whether the rune has property "Grapheme_Cluster_Break"="LVT".
 // Property "Grapheme_Cluster_Break" known as "GCB", "Grapheme_Cluster_Break".

@@ -1,9 +1,9 @@
 package bidih
 
 import (
+	"github.com/apaxa-go/helper/unicodeh/bidih/internal/testdata"
 	"reflect"
 	"testing"
-	"github.com/apaxa-go/helper/unicodeh/bidih/internal/testdata"
 )
 
 /*
@@ -48,13 +48,13 @@ func TestBidiTest(t *testing.T) {
 }
 
 // For debug purpose: test single case.
-func TestSomeOne(t *testing.T){
-	groupI:=0
-	testI:=0
-	paragraphDirection:= EmbeddingLevel(0)
+func TestSomeOne(t *testing.T) {
+	groupI := 0
+	testI := 0
+	paragraphDirection := EmbeddingLevel(0)
 
-	group:=testdata.BidiTests[groupI]
-	test:=group.Tests[testI]
+	group := testdata.BidiTests[groupI]
+	test := group.Tests[testI]
 
 	runes := test.Runes()
 	//runes, levels := ParseParagraph(runes, paragraphDirection, nil)
@@ -63,6 +63,6 @@ func TestSomeOne(t *testing.T){
 	//if expected := group.Result(test.Runes()); !reflect.DeepEqual(runes, expected) || !compareEL(group.Levels, levels) {
 	if expected := group.Result(test.Runes()); !reflect.DeepEqual(runes, expected) {
 		//t.Errorf("%v.%v.%v:\nclasses %v\ninput  %v\nexpect %v\ngot    %v\nexp EL %v\ngot EL %v\norder  %v\n", groupI,testI,paragraphDirection,test.Classes, test.Runes(), expected, runes, group.Levels, levels, group.Orders)
-		t.Errorf("%v.%v.%v:\nclasses %v\ninput  %v\nexpect %v\ngot    %v\nexp EL %v\norder  %v\n", groupI,testI,paragraphDirection,test.Classes, test.Runes(), expected, runes, group.Levels, group.Orders)
+		t.Errorf("%v.%v.%v:\nclasses %v\ninput  %v\nexpect %v\ngot    %v\nexp EL %v\norder  %v\n", groupI, testI, paragraphDirection, test.Classes, test.Runes(), expected, runes, group.Levels, group.Orders)
 	}
 }

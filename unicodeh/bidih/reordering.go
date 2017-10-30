@@ -63,11 +63,11 @@ func l1ComputeLines(runes []rune, lineBreaker LineBreaker) (lineLenths []int) {
 }
 
 func l2Reverse(runes []rune, order []int) {
-	if order==nil {
+	if order == nil {
 		for runeI, l := 0, len(runes); runeI < l/2; runeI++ {
 			runes[runeI], runes[l-1-runeI] = runes[l-1-runeI], runes[runeI]
 		}
-	}else{
+	} else {
 		for runeI, l := 0, len(runes); runeI < l/2; runeI++ {
 			runes[runeI], runes[l-1-runeI] = runes[l-1-runeI], runes[runeI]
 			order[runeI], order[l-1-runeI] = order[l-1-runeI], order[runeI]
@@ -97,13 +97,13 @@ func l2Line(runes []rune, levels []EmbeddingLevel, order []int) {
 				if len(stack) == 0 || stack[len(stack)-1].level < embeddingLevel {
 					// down to embeddingLevel directly
 					if (status.level-embeddingLevel)%2 == 1 {
-						l2Reverse(runes[status.start:runeI], sliceOrder(order,status.start,runeI))
+						l2Reverse(runes[status.start:runeI], sliceOrder(order, status.start, runeI))
 					}
 					status.level = embeddingLevel
 				} else {
 					// down to stack
 					if (status.level-stack[len(stack)-1].level)%2 == 1 {
-						l2Reverse(runes[status.start:runeI], sliceOrder(order,status.start,runeI))
+						l2Reverse(runes[status.start:runeI], sliceOrder(order, status.start, runeI))
 					}
 					status = stack[len(stack)-1]
 					stack = stack[:len(stack)-1]
@@ -114,27 +114,27 @@ func l2Line(runes []rune, levels []EmbeddingLevel, order []int) {
 	// Unpack stack
 	for len(stack) > 0 {
 		if (status.level-stack[len(stack)-1].level)%2 == 1 {
-			l2Reverse(runes[status.start:], sliceOrder(order,status.start,len(order)))
+			l2Reverse(runes[status.start:], sliceOrder(order, status.start, len(order)))
 		}
 		status = stack[len(stack)-1]
 		stack = stack[:len(stack)-1]
 	}
 	// Final reordering
 	if status.level%2 == 1 {
-		l2Reverse(runes[status.start:], sliceOrder(order,status.start,len(order)))
+		l2Reverse(runes[status.start:], sliceOrder(order, status.start, len(order)))
 	}
 }
 
-func initOrder(length int)(order []int){
-	order=make([]int,length)
-	for i:=range order{
-		order[i]=i
+func initOrder(length int) (order []int) {
+	order = make([]int, length)
+	for i := range order {
+		order[i] = i
 	}
-	return 
+	return
 }
 
-func sliceOrder(order []int, from,to int)[]int{
-	if order==nil{
+func sliceOrder(order []int, from, to int) []int {
+	if order == nil {
 		return nil
 	}
 	return order[from:to]
@@ -151,7 +151,7 @@ func l2(runes []rune, levels []EmbeddingLevel, lineLengths []int, order []int) {
 		runeI := 0
 		for _, lineLength := range lineLengths {
 			nextRuneI := runeI + lineLength
-			l2Line(runes[runeI:nextRuneI], levels[runeI:nextRuneI], sliceOrder(order,runeI,nextRuneI))
+			l2Line(runes[runeI:nextRuneI], levels[runeI:nextRuneI], sliceOrder(order, runeI, nextRuneI))
 			runeI = nextRuneI
 		}
 	}

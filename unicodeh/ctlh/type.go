@@ -39,7 +39,7 @@ func (c GraphemeClusters)At(x int)(i int){
 func (c *GraphemeClusters) computeOrder(order []int){
 	c.DisplayOrder=make([]int,0,len(c.Clusters))
 	for len(order)>0{
-		
+
 	}
 }
 */
