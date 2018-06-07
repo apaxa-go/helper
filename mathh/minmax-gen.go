@@ -145,3 +145,31 @@ func Max2Int64(a, b int64) int64 {
 	}
 	return b
 }
+
+// Min2Float64 returns minimum of two passed uint64.
+func Min2Float64(a, b float64) float64 {
+	if IsNaNFloat64(a) || IsNaNFloat64(b) {
+		return NaNFloat64()
+	}
+	if IsPositiveZeroFloat64(a) && IsNegativeZeroFloat64(b) {
+		return NegativeZeroFloat64()
+	}
+	if a <= b {
+		return a
+	}
+	return b
+}
+
+// Max2Uint64 returns maximum of two passed uint64.
+func Max2Float64(a, b float64) float64 {
+	if IsNaNFloat64(a) || IsNaNFloat64(b) {
+		return NaNFloat64()
+	}
+	if IsNegativeZeroFloat64(a) && IsPositiveZeroFloat64(b) {
+		return PositiveZeroFloat64()
+	}
+	if a >= b {
+		return a
+	}
+	return b
+}

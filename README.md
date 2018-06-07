@@ -12,4 +12,4 @@
  Functional of helpers is mainly implements things that you expect from standard packages but it is absent. In some cases helpers implement something similar to that in standard package things but in different way or with differences in details. And of course some of functional implemented just because authors think it is helpfull.
  
  Any suggestions and bugs are welcome.
-
+ 
